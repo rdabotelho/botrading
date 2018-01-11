@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.m2r</groupId>
+	<artifactId>botrading</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<name>botrading</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<junit.version>4.8.2</junit.version>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+	</properties>
+
+	<modules>
+		<module>botrading-api</module>
+		<module>botrading-strategy</module>
+		<module>botrading-poloniex</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.m2r.botrading</groupId>
+				<artifactId>botrading-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<distributionManagement>
+		<!--
+		<repository>
+			<id>jammbo</id>
+			<name>Archiva-Jammbo</name>
+			<url>http://187.18.59.22:9980/repository/internal/</url>
+		</repository>
+		<snapshotRepository>
+			<id>jammbo</id>
+			<name>Archiva-Jammbo</name>
+			<url>http://187.18.59.22:9980/repository/snapshots/</url>
+		</snapshotRepository>
+		-->
+	</distributionManagement>
+	
+</project>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Trader</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<style>
+.trCompleted {
+	background-color: #DCDCDC;
+} 
+</style>
+</head>
+<body>
+
+	<h1>Traders</h1>
+
+	<table border="1">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Coin</th>
+				<th>Date Time</th>
+				<th>Investment</th>
+				<th>Fee (%)</th>
+				<th>Parcel 1 (%)</th>
+				<th>Parcel 2 (%)</th>
+				<th>Parcel 3 (%)</th>
+				<th>Parcel 4 (%)</th>
+				<th>State</th>
+				<th>Ordered Total</th>
+				<th>Liquided Total</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="tr : ${listTraders}" th:class="${tr.state} eq 2 ? 'trCompleted' : ''">
+				<td th:text="${{tr.id}}"></td>
+				<td th:text="${{tr.coin}}"></td>
+				<td th:text="${{tr.dateTime}}"></td>
+				<td th:text="${{tr.investment}}"></td>
+				<td th:text="${{tr.fee}}"></td>
+				<td th:text="${{tr.parcel1}}"></td>
+				<td th:text="${{tr.parcel2}}"></td>
+				<td th:text="${{tr.parcel3}}"></td>
+				<td th:text="${{tr.parcel4}}"></td>
+				<td th:text="${{tr.stateName}}"></td>
+				<td th:text="${{tr.orderedTotal}}"></td>
+				<td th:text="${{tr.liquidedTotal}}"></td>
+				<td>
+					<a th:href="@{/order/{tId}(tId=${tr.id})}">View</a>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td><a th:href="@{/}">Back</a></td>
+			</tr>
+		</tfoot>
+	</table>
+
+</body>
+</html>

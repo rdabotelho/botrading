@@ -1,0 +1,188 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Trader</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="../js/jquery.min.js"></script>
+<style>
+.trBuy {
+	background-color: #DCDCDC;
+} 
+.trExpired {
+	text-transform: uppercase;
+	text-align: center;
+}
+.trExpiredTrue {
+	color: red;
+}
+.textState0 {
+	color: black;
+} 
+.textState1 {
+	color: #B8860B;
+} 
+.textState2 {
+	color: green;
+} 
+.textState3 {
+	color: red;
+} 
+.textState4 {
+	color: red;
+} 
+.spanChangefalse {
+	color: green;
+}
+.spanChangetrue {
+	color: red;
+}
+</style>
+</head>
+<body>
+
+	<h1>Orders - <span th:text="${{coin}}"></span></h1>
+
+	<span id="spanInformation"><a id="linkInformation" href="#">[More Information]</a><br/></span>
+	<input id="tId" type="hidden" value="tId" th:value="${tId}"/>
+	<input id="investment" type="hidden" value="investment" th:value="${investment}"/>
+	<table id="tableInformation" border="0" style="display: none;">
+	<tbody>
+		<tr>
+			<td>
+				<strong>VOLUME:</strong>
+			</td>
+			<td>
+				<span id="volume">...</span>
+			</td>
+			<td>
+				<strong>LAST:</strong>
+			</td>
+			<td>
+				<span id="last">...</span>
+			</td>
+			<td>
+				<strong>LOW:</strong>
+			</td>
+			<td>
+				<span id="low">...</span>
+			</td>
+			<td>
+				<strong>PERCENT CHANGE (%):</strong>
+			</td>
+			<td>
+				<span id="percentChange">...</span>
+			</td>
+			<td>
+				<strong>AVAILABLE:</strong>
+			</td>
+			<td>
+				<span id="available">...</span>
+			</td>
+		</tr>
+	</tbody>
+	</table>
+	
+	<br/>
+	
+	<table border="1">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Parcel</th>
+				<th>Order Number</th>
+				<th>Date Time</th>
+				<th>Kind</th>
+				<th>Price</th>
+				<th>Amount</th>
+				<th>Total</th>
+				<th>Fee</th>
+				<th>Balance</th>
+				<th>State</th>
+				<th>State Date Time</th>
+				<th>Expired</th>
+				<th>Log</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="ord : ${orders}" th:class="${ord.kind} eq 0 ? 'trBuy' : ''">
+				<td th:text="${{ord.id}}"></td>
+				<td th:text="${{ord.parcel}}"></td>
+				<td th:text="${{ord.orderNumber}}"></td>
+				<td th:text="${{ord.dateTime}}"></td>
+				<td th:text="${{ord.kindName}}"></td>
+				<td th:text="${{ord.price}}"></td>
+				<td th:text="${{ord.amount}}"></td>
+				<td th:text="${{ord.total}}"></td>
+				<td th:text="${{ord.fee}}"></td>
+				<td th:text="${{ord.balance}}" th:class="@{tdBalance stateNum{st}(st=${ord.state})}"></td>
+				<td th:text="${ord.stateName}" th:class="@{textState{state}(state=${ord.state})}"></td>
+				<td th:text="${{ord.stateDateTime}}"></td>
+				<td th:text="${{ord.expired}}" th:class="'trExpired ' + (${ord.expired} ? 'trExpiredTrue' : '')"></td>
+				<td th:text="${{ord.log}}"></td>
+				<td>
+					<a th:if="${ord.state} eq 1 or ${ord.state} eq 5" th:href="@{/order/cancel/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Cancel</a>
+					<a th:if="${ord.state} eq 5" th:href="@{/order/retry/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Retry</a>
+					<a th:if="${ord.canSell}" th:href="@{/order/immediateSell/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Immediate Sell</a>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td><strong>Profit:</strong></td>
+				<td><strong class="tdBalanceTotal"></strong></td>
+				<td style="text-align: center;"><strong class="tdBalancePercent"></strong></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td><a th:href="@{/trader/{tjId}(tjId=${tjId})}">Back</a></td>
+			</tr>
+		</tfoot>
+	</table>
+	
+	<script>
+	    /*<![CDATA[*/
+	    $(document).ready(function() {
+	    		$("#linkInformation").click(function() {
+	    	        $("#spanInformation").html("Waiting...<br/>");
+		    		$.getJSON("/order/information/"+$("#tId").val(), function(data) {
+		    	        $("#volume").text(data.formatedBaseVolume);
+		    	        $("#last").text(data.formatedLast);
+		    	        $("#low").text(data.formatedLow);
+		    	        $("#percentChange").text(data.formatedPercentChange);	    	  
+		    	        $("#percentChange").toggleClass("spanChange"+data.formatedPercentChange.startsWith("-"));
+		    	        $("#available").text(data.formatedAvailable);
+		    	        $("#spanInformation").hide();
+		    	        $("#tableInformation").show();
+		    		});	    		
+	    		});
+	    		var total = 0.0;
+	    		var percent = 0.0;
+	    		var prior = 0.0;
+	    		$(".tdBalance").each(function (i,v){
+	    			if ((i % 2) == 1) {
+	    				if ($(v).hasClass("stateNum2")) {
+	    					total += parseFloat($(v).text().replace(',','.')) - prior;
+	    				}
+	    			}
+	    			else {
+		   			prior = parseFloat($(v).text().replace(',','.'));
+	    			}
+	    		});
+	    		percent = (total * 100) / parseFloat($("#investment").val());
+	    		$(".tdBalanceTotal").text(total.toFixed(8).replace('.',','));
+	    		$(".tdBalancePercent").text(("("+percent.toFixed(2)+"%)").replace('.',','));
+	    	});
+	    /*]]>*/
+	</script>	
+			
+</body>
+</html>

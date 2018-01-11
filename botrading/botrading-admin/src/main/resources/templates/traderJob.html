@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Trader</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script src="/js/jquery.min.js"></script>
+<style>
+.trFinished {
+	background-color: #DCDCDC;
+} 
+</style>
+</head>
+<body>
+
+	<h1>Trader Job</h1>
+
+	<ul>
+  		<li th:each="err : ${#fields.errors('*')}" th:text="${err}" />
+	</ul>
+
+	<form id="myform" action="#" th:action="@{/traderJob/add}" th:object="${traderJob}" method="post">
+	<table border="0">
+	<tbody>
+		<tr>
+			<td>
+				<strong>USER NAME:</strong>
+			</td>
+			<td>
+				<span th:text="${traderJob.account.name}"></span>
+			</td>
+			<td>
+			</td>
+			<td>
+				<strong>MARKET COIN:</strong>
+			</td>
+			<td>
+				<select id="selectedMarketCoin">
+	  				<option th:each="marketCoin : ${allMarketCoins}" 
+	          			th:value="${marketCoin.id}" 
+	          			th:text="${marketCoin.id}"
+	          			th:selected="${marketCoin.id == selectedMarketCoin.id}"></option>
+				</select>				
+			</td>
+			<td>
+			</td>
+			<td>
+				<strong>BALANCE (BTC):</strong>
+			</td>
+			<td>
+				<span id="coinBalance">...</span>
+			</td>
+			<td>
+			</td>
+			<td>
+				<strong>AVAILABLE:</strong>
+			</td>
+			<td>
+				<span id="coinAvailable">...</span>
+			</td>
+			<td>
+			</td>
+			<td>
+				<strong>BALANCE (R$):</strong>
+			</td>
+			<td>
+				<span id="realBalance">...</span>
+			</td>
+		</tr>
+	</tbody>
+	</table>
+	
+	<br/>
+	
+	<table border="0">
+	<tbody>
+		<tr>
+			<td>
+				<label for="strategy">Strategy:</label><br/>
+				<select id="strategy" th:field="*{strategy}">
+	  				<option th:each="strategy : ${allStrategies}" 
+	          			th:value="${strategy.name}" 
+	          			th:text="${strategy.name}"></option>
+				</select>
+			</td>
+			<td>
+				<label for="currencyCount">Currency Count:</label><br/>
+				<input id="currencyCount" type="number" th:field="*{currencyCount}" min="1" max="100"/>
+			</td>
+			<td>
+				<label for="amount">Amount:</label><br/>
+				<input id="amount" type="number" th:field="*{amount}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?"/>
+			</td>
+			<td>
+				<label for="tradingPercent">Trading Percent (%):</label><br/>
+				<input id="tradingPercent" type="number" th:field="*{tradingPercent}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
+			</td>
+			<td>
+				<label for="fee">Fee (%):</label><br/>
+				<input id="fee" type="number" th:field="*{fee}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
+			</td>
+			<td>
+				<label for="timeToCancel">Time To Cancel (min):</label><br/>
+				<input id="timeToCancel" type="number" th:field="*{timeToCancel}" min="60" step="1"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label for="parcel1">Parcel 1 (%):</label><br/>
+				<input id="parcel1" type="number" th:field="*{parcel1}" min="1" max="100" step="1"/>
+			</td>
+			<td>
+				<label for="parcel2">Parcel 2 (%):</label><br/>
+				<input id="parcel2" type="number" th:field="*{parcel2}" min="1" max="100" step="1"/>
+			</td>
+			<td>
+				<label for="parcel3">Parcel 3 (%):</label><br/>
+				<input id="parcel3" type="number" th:field="*{parcel3}" min="1" max="100" step="1"/>
+			</td>
+			<td>
+				<label for="parcel4">Parcel 4 (%):</label><br/>
+				<input id="parcel4" type="number" th:field="*{parcel4}" min="1" max="100" step="1"/>
+			</td>
+			<td>
+				<label for="limitToStop">Limit To Stop (%):</label><br/>
+				<input id="limitToStop" type="number" th:field="*{limitToStop}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
+			</td>
+			<td>
+				<a href="#" onclick="document.getElementById('myform').submit()">Create</a>
+			</td>
+		</tr>
+	</tbody>
+	</table>
+	</form>
+	
+	<br/>
+	
+	<table border="1">
+		<thead>
+			<tr>
+				<th>Date Time</th>
+				<th>Strategy</th>
+				<th>Currency Count</th>
+				<th>Amount</th>
+				<th>Trading Percent (%)</th>
+				<th>Trading Amount</th>
+				<th>Fee (%)</th>
+				<th>Time To Cancel (min)</th>
+				<th>Parcel 1 (%)</th>
+				<th>Parcel 2 (%)</th>
+				<th>Parcel 3 (%)</th>
+				<th>Parcel 4 (%)</th>
+				<th>Limit To Stop (%)</th>
+				<th>Options</th>
+				<th>State</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="tr : ${listTraderJobs}" th:class="${tr.state} eq 2 ? 'trFinished' : ''">
+				<td th:text="${{tr.dateTime}}"></td>
+				<td th:text="${{tr.strategy}}"></td>
+				<td th:text="${{tr.currencyCount}}"></td>
+				<td th:text="${{tr.amount}}"></td>
+				<td th:text="${{tr.tradingPercent}}"></td>
+				<td th:text="${{tr.tradingAmount}}"></td>
+				<td th:text="${{tr.fee}}"></td>
+				<td th:text="${{tr.timeToCancel}}"></td>
+				<td th:text="${{tr.parcel1}}"></td>
+				<td th:text="${{tr.parcel2}}"></td>
+				<td th:text="${{tr.parcel3}}"></td>
+				<td th:text="${{tr.parcel4}}"></td>
+				<td th:text="${{tr.limitToStop}}"></td>
+				<td style="text-align: center;">
+					<input type="checkbox" class="continuoModeCheck" th:checked="${{tr.continuoMode}}" th:onclick="@{changeContinuoMode({id},checked)(id=${tr.id})}"/>
+					Continuo Mode<br/>
+					<input type="checkbox" class="cancelBuyWhenExpire" th:checked="${{tr.cancelBuyWhenExpire}}" th:onclick="@{changeCancelBuyWhenExpire({id},checked)(id=${tr.id})}"/>
+					Cancel Buy When Expire
+					<br/>
+					<input type="checkbox" class="executeSellWhenExpire" th:checked="${{tr.executeSellWhenExpire}}" th:onclick="@{changeExecuteSellWhenExpire({id},checked)(id=${tr.id})}"/>
+					Execute Sell When Expire
+				</td>
+				<td th:text="${{tr.stateName}}"></td>
+				<td>
+					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>
+					<a th:if="${tr.state} eq 2" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Delete</a>
+					<a th:if="${tr.state} eq 0" th:href="@{/traderJob/start/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Start</a>
+					<a th:if="${tr.state} neq 0" th:href="@{/trader/{id}(id=${tr.id})}">View</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<script>
+	    /*<![CDATA[*/
+	    $(document).ready(function() {
+	    		$.getJSON("/traderJob/traderJobExchangeInfo", function(data) {
+	    	        $("#coinBalance").text(data.formatedCoinBalance);
+	    	        $("#realBalance").text(data.formatedRealBalance);
+	    	        $("#coinAvailable").text(data.formatedAmount);
+	    	        $("#amount").val(data.amount);
+	    		});	 
+	    		$("#selectedMarketCoin").change(function (event){
+	    			window.location.href = "/traderJob/"+event.target.value;
+	    		});
+	    });
+	    function changeContinuoMode(tjId,value) {
+   			$.getJSON("/traderJob/changeContinuoMode/"+tjId+"/"+value, function(data) {
+   				alert("Option changed");
+    			});	 
+	    }
+	    function changeCancelBuyWhenExpire(tjId,value) {
+   			$.getJSON("/traderJob/changeCancelBuyWhenExpire/"+tjId+"/"+value, function(data) {
+   				alert("Option changed");
+    			});	 
+	    }	    
+	    function changeExecuteSellWhenExpire(tjId,value) {
+   			$.getJSON("/traderJob/changeExecuteSellWhenExpire/"+tjId+"/"+value, function(data) {
+   				alert("Option changed");
+    			});	 
+	    }
+	    /*]]>*/
+	</script>	
+			
+</body>
+</html>
