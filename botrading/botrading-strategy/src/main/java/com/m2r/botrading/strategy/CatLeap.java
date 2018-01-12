@@ -1,11 +1,9 @@
 package com.m2r.botrading.strategy;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.m2r.botrading.api.model.IMarketCoin;
@@ -18,37 +16,46 @@ public class CatLeap implements Comparable<CatLeap> {
 
 	private static int CAT_LEAP_SIZE = 6;
 	
-	private static List<CatLeap> catLeapList = new LinkedList<>();
-	private static Map<String, CatLeap> catLeapMap = new TreeMap<>();
+	private static Map<String, CatLeapMarketCoin> catLeapMarketCoinMap = new HashMap<>();
 	
 	private String currencyPair;
 	private BigDecimal[] percents; 
 	private int index;
 
-	synchronized public static void foodCatLeap(IMarketCoin marketCoin, IExchangeSession session, int count) throws Exception {
+	synchronized public static void foodCatLeap(IExchangeSession session, int count) throws Exception {
+		IMarketCoin marketCoin = session.getMarketCoin();
+		CatLeapMarketCoin catLeapMarketCoin = getCatLeapMarketCoin(marketCoin.getId());
 		ITickerList tl = session.getTikers();
 		List<ITicker> sorted = tl.getTickers(marketCoin.getId()).stream().sorted((c1,c2) -> c2.getBaseVolume().compareTo(c1.getBaseVolume())).collect(Collectors.toList());
 		int limit = count;
 		for (int i=0; i<sorted.size(); i++) {
-			addTicker(sorted.get(i));
+			addTicker(catLeapMarketCoin, sorted.get(i));
 			limit--;
 			if (limit == 0) {
 				break;
 			}				
 		}
-		Collections.sort(catLeapList);
+		catLeapMarketCoin.sort();
 	}
 	
-	synchronized public static List<CatLeap> getList() {
-		return catLeapList;
+	synchronized public static List<CatLeap> getList(IMarketCoin marketCoin) {
+		return catLeapMarketCoinMap.get(marketCoin.getId()).getCatLeapList();
 	}
 	
-	private static void addTicker(ITicker ticker) {
-		CatLeap catLeap = catLeapMap.get(ticker.getCurrencyPair());
+	private static CatLeapMarketCoin getCatLeapMarketCoin(String marketCoinId) {
+		CatLeapMarketCoin leapMarketCoin = catLeapMarketCoinMap.get(marketCoinId);
+		if (leapMarketCoin == null) {
+			leapMarketCoin = new CatLeapMarketCoin();
+			catLeapMarketCoinMap.put(marketCoinId, leapMarketCoin);
+		}
+		return leapMarketCoin;
+	}
+	
+	private static void addTicker(CatLeapMarketCoin catLeapMarketCoin  , ITicker ticker) {
+		CatLeap catLeap = catLeapMarketCoin.get(ticker.getCurrencyPair());
 		if (catLeap == null) {
 			catLeap = new CatLeap(ticker.getCurrencyPair());
-			catLeapList.add(catLeap);
-			catLeapMap.put(ticker.getCurrencyPair(), catLeap);
+			catLeapMarketCoin.put(ticker.getCurrencyPair(), catLeap);
 		}
 		catLeap.enqueue(ticker);
 	}

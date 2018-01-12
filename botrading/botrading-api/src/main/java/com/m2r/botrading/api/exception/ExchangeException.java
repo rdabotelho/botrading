@@ -13,7 +13,7 @@ public class ExchangeException extends Exception {
 	}
 	
 	public ExchangeException(Throwable cause) {
-		super(cause);
+		super(cause.getMessage(), cause);
 	}
 	
 }

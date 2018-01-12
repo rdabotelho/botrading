@@ -167,9 +167,9 @@ public class AdminServiceImpl implements AdminService {
     		try {
     			IExchangeSession session = getExchangeService().getSession(account.getSelectedMarketCoin(), false, true);
     			IBalanceList balanceList = session.getBanlances(account);
-    			IBalance btcBalance = balanceList.getBalance(account.getSelectedMarketCoin().getId());
+    			IBalance coinBalance = balanceList.getBalance(account.getSelectedMarketCoin().getId());
     			AccountExchangeInfo tei = new AccountExchangeInfo();
-    			tei.setAmount(btcBalance == null ? BigDecimal.ZERO : btcBalance.getAvailable());
+    			tei.setAmount(coinBalance == null ? BigDecimal.ZERO : coinBalance.getAvailable());
     			tei.setCoinBalance(balanceList.getAmount());
     			if (account.getSelectedMarketCoin().getId().equals(ICurrency.BTC)) {
     				tei.setRealBalance(CalcUtil.multiply(getLastRealBTC(), tei.getCoinBalance()));

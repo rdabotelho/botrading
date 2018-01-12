@@ -62,12 +62,15 @@ public class OrderScheduledTasks {
 	}
 	
 	private void executeCatLeapTask() {
-		IMarketCoin marketCoin = scheduleService.getMarketCoin(ICurrency.BTC);
-		IExchangeSession session = scheduleService.getExchangeSession(marketCoin, false, false);
-		try {
-			CatLeap.foodCatLeap(marketCoin, session, 20);
-		} catch (Exception e) {
-			LOG.warning(e.getMessage());
+		String[] marketCoinIds = new String[] {ICurrency.BTC, ICurrency.USDT}; 
+		for (String marketCoinId : marketCoinIds) {
+			IMarketCoin marketCoin = scheduleService.getMarketCoin(marketCoinId);
+			IExchangeSession session = scheduleService.getExchangeSession(marketCoin, false, false);
+			try {
+				CatLeap.foodCatLeap(session, 20);
+			} catch (Exception e) {
+				LOG.warning(e.getMessage());
+			}			
 		}
 	}
 	

@@ -39,8 +39,8 @@ public class Balance implements IBalance {
 		return new BigDecimal(btcValue);
 	}
 
-	public void setBtcValue(String btcValue) {
-		this.btcValue = btcValue;
+	public void setBtcValue(String coinValue) {
+		this.btcValue = coinValue;
 	}
 
 }
