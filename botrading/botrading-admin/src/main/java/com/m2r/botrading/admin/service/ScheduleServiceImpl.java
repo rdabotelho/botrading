@@ -157,16 +157,16 @@ public class ScheduleServiceImpl implements ScheduleService {
 		for (Order order : orders) {
 			String currencyPair = session.getCurrencyOfTrader(trader).getCurrencyPair();
 			List<IExchangeOrder> jsonOrders = orderList.getOrders(currencyPair);
-			boolean exist = false;
+			boolean notExistInTheExchangeOrders = true;
 			if (jsonOrders != null) {
 				for (IExchangeOrder jsonOrder : jsonOrders) {
 					if (jsonOrder.getOrderNumber().equals(order.getOrderNumber())) {
-						exist = true;
+						notExistInTheExchangeOrders = false;
 						break;
 					}
 				}
 			}
-			if (!exist) {
+			if (notExistInTheExchangeOrders) {
 				// order to cancel
 				if (order.isOrderedToCancel()) {
 					order.cancel();
@@ -280,7 +280,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				try {
 					String number = session.immediateSell(order);
 					order.setOrderNumber(number);
-					order.liquided();
+					order.ordered();
 					if (!(order.getLog() != null && order.getLog().contains("expiration"))) {
 						order.setLog("Immediate sell");
 					}
