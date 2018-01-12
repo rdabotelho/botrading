@@ -3,7 +3,7 @@
 
 	<groupId>com.m2r</groupId>
 	<artifactId>botrading</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>botrading</name>
@@ -39,18 +39,16 @@
 	</dependencyManagement>
 
 	<distributionManagement>
-		<!--
 		<repository>
-			<id>jammbo</id>
-			<name>Archiva-Jammbo</name>
-			<url>http://187.18.59.22:9980/repository/internal/</url>
+			<id>Yuhull</id>
+			<name>Yuhull</name>
+			<url>http://yuhull.com:8082/repository/internal/</url>
 		</repository>
 		<snapshotRepository>
-			<id>jammbo</id>
-			<name>Archiva-Jammbo</name>
-			<url>http://187.18.59.22:9980/repository/snapshots/</url>
+			<id>Yuhull</id>
+			<name>Yuhull</name>
+			<url>http://yuhull.com:8082/repository/snapshots/</url>
 		</snapshotRepository>
-		-->
 	</distributionManagement>
 	
 </project>
