@@ -1,6 +1,7 @@
 package com.m2r.botrading.poloniex;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -327,7 +328,9 @@ public class PoloniexExchange extends ExchangeService {
 	protected String immediateSell(IOrder order, IExchangeSession session) throws ExchangeException {
 		try {
 			cancel(order, session);
-			order.setAmount(session.calculateSellToAmount(order.getTrader(), order.getAmount()));
+			Thread.sleep(3000);
+			BigDecimal newAmount = session.calculateSellToAmount(order.getTrader(), order.getAmount());
+			order.setAmount(newAmount);
 			order.setPrice(session.getLastPrice(order.getTrader().getCoin()));
 			return sell(order, session);
 		} 

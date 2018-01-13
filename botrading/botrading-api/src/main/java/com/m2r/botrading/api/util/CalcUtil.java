@@ -35,9 +35,8 @@ public class CalcUtil {
 		return !valueEmpty(value); 		
 	}
 	
-	public static boolean valueLessThanOne(BigDecimal value) {
-		BigDecimal newValue = value.setScale(0, RoundingMode.DOWN);
-		return valueEmpty(newValue); 		
+	public static boolean isNotZeroPercent(BigDecimal value) {
+		return !BigDecimal.ZERO.setScale(SCALE_PERCENT).equals(value.setScale(SCALE_PERCENT, RoundingMode.FLOOR));
 	}
 
 	public static String formatUS(BigDecimal value) {
@@ -86,6 +85,10 @@ public class CalcUtil {
 	
 	public static boolean greaterThen(BigDecimal a, BigDecimal b) {
 		return a.setScale(SCALE_COIN, RoundingMode.HALF_UP).compareTo(b.setScale(SCALE_COIN, RoundingMode.HALF_UP)) > 0;
+	}
+	
+	public static boolean isZero(BigDecimal value) {
+		return BigDecimal.ZERO.setScale(SCALE_COIN).equals(value.setScale(SCALE_COIN, RoundingMode.FLOOR));
 	}
 	
 }

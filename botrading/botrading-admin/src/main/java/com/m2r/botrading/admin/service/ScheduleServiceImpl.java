@@ -299,7 +299,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 				Order buyOrder = this.findByTraderAndParcelAndKind(order.getTrader(), order.getParcel(), Order.KIND_BUY);
 				if (buyOrder == null || buyOrder.isLiquided()) {
 					try {
-						order.setAmount(session.calculateSellToAmount(order.getTrader(), order.getAmount()));
+						BigDecimal newAmount = session.calculateSellToAmount(order.getTrader(), order.getAmount());
+						order.setAmount(newAmount);
 						String number = session.sell(order);
 						order.setOrderNumber(number);
 						order.ordered();

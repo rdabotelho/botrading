@@ -20,7 +20,7 @@ public class OrderBuilder {
 		
 		int parcelNum = 1;
 		
-		if (!CalcUtil.valueLessThanOne(t.getParcel1())) {
+		if (CalcUtil.isNotZeroPercent(t.getParcel1())) {
 			total = countParcels == 1 ? residue : total;
 			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel1(), t.getFee());
 			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel1(), t.getFee());
@@ -30,7 +30,7 @@ public class OrderBuilder {
 			countParcels--;
 		}
 		
-		if (!CalcUtil.valueLessThanOne(t.getParcel2())) {
+		if (CalcUtil.isNotZeroPercent(t.getParcel2())) {
 			total = countParcels == 1 ? residue : total;
 			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel2(), t.getFee());
 			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel2(), t.getFee());
@@ -40,7 +40,7 @@ public class OrderBuilder {
 			countParcels--;
 		}
 		
-		if (!CalcUtil.valueLessThanOne(t.getParcel3())) {
+		if (CalcUtil.isNotZeroPercent(t.getParcel3())) {
 			total = countParcels == 1 ? residue : total;
 			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel3(), t.getFee());
 			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel3(), t.getFee());
@@ -50,7 +50,7 @@ public class OrderBuilder {
 			countParcels--;
 		}
 		
-		if (!CalcUtil.valueLessThanOne(t.getParcel4())) {
+		if (CalcUtil.isNotZeroPercent(t.getParcel4())) {
 			total = countParcels == 1 ? residue : total;
 			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel4(), t.getFee());
 			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel4(), t.getFee());
