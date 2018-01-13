@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +73,12 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public List<TraderJob> findAllTraderJobs(Account account) {
-    		return traderJobRepository.findAllByAccountAndMarketCoinOrderByDateTimeDesc(account, account.getSelectedMarketCoin().getId());
+    		return traderJobRepository.findAllByAccountAndMarketCoinOrderByStateAscDateTimeDesc(account, account.getSelectedMarketCoin().getId());
+    }
+    
+    @Override
+    public Page<Trader> findAllTraderByTraderJob(TraderJob traderJob, Pageable pageable) {
+    		return traderRepository.findAllTraderByTraderJobOrderByStateAscDateTimeDesc(traderJob, pageable);
     }
     
     @Override

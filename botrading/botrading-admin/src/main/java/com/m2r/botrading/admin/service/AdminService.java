@@ -1,6 +1,10 @@
 package com.m2r.botrading.admin.service;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.m2r.botrading.admin.model.Account;
 import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.Trader;
@@ -14,6 +18,7 @@ public interface AdminService {
 	
 	public Account findAccount(String apiKey);	
     public List<TraderJob> findAllTraderJobs(Account account);
+    public Page<Trader> findAllTraderByTraderJob(TraderJob traderJob, Pageable pageable);
     public TraderJob newTraderJob(Account account);
 	public void saveTraderJob(TraderJob traderJob);
 	public void finishTraderJob(Long id);

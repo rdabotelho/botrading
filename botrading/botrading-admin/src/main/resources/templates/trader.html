@@ -58,13 +58,19 @@
 				<td></td>
 				<td></td>
 				<td></td>
+				<td style="text-align: center;">
+					<a th:if="${hasPrevious}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}-1,size=20)}">&laquo; Prior</a>
+				</td>
+				<td style="text-align: center;">
+					<span th:text="${page.pageNumber}+1"></span>
+				</td>
+				<td style="text-align: center;">
+					<a th:if="${hasNext}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}+1,size=20)}">Next &raquo;</a>
+				</td>
 				<td></td>
 				<td></td>
 				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td><a th:href="@{/}">Back</a></td>
+				<td><a href="JavaScript:history.back();">Back</a></td>
 			</tr>
 		</tfoot>
 	</table>

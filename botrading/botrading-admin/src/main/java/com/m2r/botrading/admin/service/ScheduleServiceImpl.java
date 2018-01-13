@@ -76,8 +76,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
     
     @Override
-    public List<Trader> findAllByTraderJob(TraderJob traderJob) {
-    	return traderRepository.findAllByTraderJob(traderJob);    
+    public List<Trader> findAllByTraderJobAndStateNotComplete(TraderJob traderJob) {
+    		return traderRepository.findAllByTraderJobAndStateNot(traderJob, Trader.STATE_COMPLETED);    
     }
     
     @Override

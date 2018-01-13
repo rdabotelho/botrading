@@ -11,6 +11,6 @@ public interface TraderJobRepository extends JpaRepository<TraderJob, Long> {
 	
 	TraderJob findByIdAndAccount(Long id, Account account);
     List<TraderJob> findAllByStateOrderByDateTimeAsc(Integer state);
-	List<TraderJob> findAllByAccountAndMarketCoinOrderByDateTimeDesc(Account account, String marketCoin);
+	List<TraderJob> findAllByAccountAndMarketCoinOrderByStateAscDateTimeDesc(Account account, String marketCoin);
 
 }

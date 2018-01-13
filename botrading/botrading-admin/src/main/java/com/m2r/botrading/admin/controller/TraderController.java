@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -113,11 +115,23 @@ public class TraderController {
     /*
      * TRADER
      */
-    @GetMapping("/trader/{tjId}")
-    public String getTrader(@PathVariable("tjId") Long tjId, Model model, Principal principal) {
+    @GetMapping("/trader2/{tjId}")
+    public String getTrader2(@PathVariable("tjId") Long tjId, Model model, Principal principal) {
 		validateAccount(principal, tjId);
         model.addAttribute("tjId", tjId);
 		model.addAttribute("listTraders", traderJob.getTraders());
+    		return "trader"; 
+    }
+    
+    @GetMapping("/trader/{tjId}")
+    public String getTrader(@PathVariable("tjId") Long tjId, Model model, Principal principal, Pageable pageable) {
+		validateAccount(principal, tjId);
+        model.addAttribute("tjId", tjId);
+        model.addAttribute("page", pageable);
+        Page<Trader> list = adminService.findAllTraderByTraderJob(traderJob, pageable);
+		model.addAttribute("hasPrevious", list.hasPrevious());        
+		model.addAttribute("hasNext", list.hasNext());        
+		model.addAttribute("listTraders", list);
     		return "trader"; 
     }
     

@@ -78,7 +78,7 @@ public class OrderScheduledTasks {
 		List<TraderJob> traderJobs = scheduleService.findAllTraderJobsByState(TraderJob.STATE_STARTED);
 		for (TraderJob traderJob : traderJobs) {
 			try {
-		    	List<Trader> traders = scheduleService.findAllByTraderJob(traderJob);
+		    	List<Trader> traders = scheduleService.findAllByTraderJobAndStateNotComplete(traderJob);
 		    	if (!traders.isEmpty()) {
 					for (Trader trader : traders) {
 						IExchangeSession session = loadSession(trader);

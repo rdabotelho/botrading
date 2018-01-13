@@ -184,7 +184,7 @@
 					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>
 					<a th:if="${tr.state} eq 2" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Delete</a>
 					<a th:if="${tr.state} eq 0" th:href="@{/traderJob/start/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Start</a>
-					<a th:if="${tr.state} neq 0" th:href="@{/trader/{id}(id=${tr.id})}">View</a>
+					<a th:if="${tr.state} neq 0" th:href="@{/trader/{id}(id=${tr.id},page=0,size=20)}">View</a>
 				</td>
 			</tr>
 		</tbody>
