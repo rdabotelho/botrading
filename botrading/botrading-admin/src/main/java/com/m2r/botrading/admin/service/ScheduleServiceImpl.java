@@ -225,9 +225,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 	    		if (sellOrder != null) {
 	    			// canceled
 	    			if (order.isCanceled()) {
-	    				sellOrder.cancel();
+	    				sellOrder.newCancel();
+					order.setLog("Canceled buy expiration");
 	    				orderRepository.save(sellOrder);
-	    				continueTrading(sellOrder, session);
 	    			}
 	    		}
     		}

@@ -81,7 +81,7 @@ public class PoloniexExchange extends ExchangeService {
 	
 	private static final long H24 = 86400000;
 	
-	synchronized private String generateNonce() {
+	private String generateNonce() {
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e) {
@@ -90,7 +90,7 @@ public class PoloniexExchange extends ExchangeService {
 		return Long.toString(System.currentTimeMillis()+H24)+"000"; 
 	}
 	
-	synchronized private String execPublicAPI(String command, Map<String, String> parameters) throws Exception {
+	private String execPublicAPI(String command, Map<String, String> parameters) throws Exception {
 		
 	    StringBuilder queryArgs = new StringBuilder();
 	    queryArgs.append(URL_PUBLIC_API).append("?command=").append(command);
@@ -106,7 +106,7 @@ public class PoloniexExchange extends ExchangeService {
 	    return EntityUtils.toString(responseEntity);
 	}
 	
-	synchronized private String execTradingAPI(IAccount account, String command, Map<String, String> parameters) throws Exception {
+	private String execTradingAPI(IAccount account, String command, Map<String, String> parameters) throws Exception {
 		
 		parameters.put("nonce", generateNonce());
 		

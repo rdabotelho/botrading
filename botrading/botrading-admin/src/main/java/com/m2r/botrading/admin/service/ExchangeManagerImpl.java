@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,7 @@ import com.m2r.botrading.poloniex.PoloniexExchange;
 
 @Service("exchangeManager")
 @Transactional
+@Scope(value="prototype")
 public class ExchangeManagerImpl implements IExchangeManager {
 
 	private Map<String, IExchangeService> exchangeServicesMap = new HashMap<>();

@@ -38,7 +38,7 @@ import com.m2r.botrading.strategy.DefaultStrategyRepository;
 @Service("adminService")
 @Transactional
 public class AdminServiceImpl implements AdminService {
-
+    
     @Autowired
     private ScheduleService scheduleService;
     
