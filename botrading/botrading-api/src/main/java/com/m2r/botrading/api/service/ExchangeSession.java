@@ -54,7 +54,7 @@ public class ExchangeSession implements IExchangeSession {
 	
 	@Override
 	public IMarketCoin getMarketCoinOfTrader(ITrader trader) {
-		return service.getMarkeyCoin(trader.getCoin());
+		return service.getMarketCoin(trader.getCoin());
 	}
 	
 	@Override
@@ -120,6 +120,16 @@ public class ExchangeSession implements IExchangeSession {
 	    		return amount;
 	    	}
     }
+	
+	@Override
+	public BigDecimal getFee() {
+		return service.getFee();
+	}
+	
+	@Override
+	public BigDecimal getImmediateFee() {
+		return service.getImmediateFee();
+	}
 	
 	/*
 	 * ORDERS

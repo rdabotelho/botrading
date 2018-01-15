@@ -21,6 +21,5 @@ public interface ScheduleService {
     public void executeOrder(Order order, IExchangeSession session);
 	public void saveOrder(Order order);
     public void verifyAndCreateNewTrading(TraderJob traderJob, IExchangeSession session) throws Exception;
-	public List<Order> findAllTeste();
     
 }

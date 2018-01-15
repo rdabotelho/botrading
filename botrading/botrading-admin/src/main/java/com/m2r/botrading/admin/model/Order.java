@@ -73,15 +73,21 @@ public class Order implements Serializable, IOrder {
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00000000")
     private BigDecimal amount;
+    
+    @NotNull
+    @Column(precision = 19, scale = 8)
+    @NumberFormat(style=Style.NUMBER, pattern="0.00")
+    private BigDecimal fee;
 
     private String log;
     
     private LocalDateTime stateDateTime;
     
     public Order() {
-    		this.state = STATE_NEW;
-    		this.immediate = false;
-    		this.pending = false;
+		this.state = STATE_NEW;
+		this.immediate = false;
+		this.pending = false;
+		this.fee = new BigDecimal("0.00");
     }
     
 	public Long getId() {
@@ -186,12 +192,12 @@ public class Order implements Serializable, IOrder {
 	}
 	
     @NumberFormat(style=Style.NUMBER, pattern="0.00000000")
-	public BigDecimal getFee() {
+	public BigDecimal getFeeValue() {
 		if (isBuy()) {
-			return CalcUtil.percent(getAmount(), getTrader().getFee());
+			return CalcUtil.multiply(getPrice(), CalcUtil.percent(getAmount(), getFee()));
 		}
 		else {
-			return CalcUtil.percent(getTotal(), getTrader().getFee());
+			return CalcUtil.percent(getTotal(), getFee());
 		}
 	}
 	
@@ -201,7 +207,7 @@ public class Order implements Serializable, IOrder {
 			return getTotal();
 		}
 		else {
-			return CalcUtil.subtract(getTotal(), getFee());
+			return CalcUtil.subtract(getTotal(), getFeeValue());
 		}
 	}
 	
@@ -252,9 +258,9 @@ public class Order implements Serializable, IOrder {
 	public String getStateName() {
 		switch (this.state) {
 		case 0: return "NEW";
-		case 1: return "ORDERED";
+		case 1: return "ORDERED" + (isPending()?" (*)" : "");
 		case 2: return "LIQUIDED";
-		case 3: return "ORDERED TO CANCEL";
+		case 3: return "ORDERED TO CANCEL" + (isPending()?" (*)" : "");
 		case 4: return "CANCELED";
 		case 5: return "ERROR";
 		}
@@ -286,6 +292,14 @@ public class Order implements Serializable, IOrder {
 		this.stateDateTime = stateDateTime;
 	}
 
+	public BigDecimal getFee() {
+		return fee;
+	}
+
+	public void setFee(BigDecimal fee) {
+		this.fee = fee;
+	}
+
 	public boolean isBuy() {
 		return this.kind == KIND_BUY;
 	}
@@ -295,7 +309,7 @@ public class Order implements Serializable, IOrder {
 	}
 	
 	public boolean isCanSell() {
-		return isOrdered() && pending == false;
+		return isOrdered() && pending == true;
 	}
 	
 	/*

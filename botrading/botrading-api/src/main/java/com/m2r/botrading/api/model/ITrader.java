@@ -23,8 +23,6 @@ public interface ITrader {
 
 	public BigDecimal getParcel4();
 	
-	public BigDecimal getFee();
-	
 	public ITraderJob getTraderJob();
 
 }

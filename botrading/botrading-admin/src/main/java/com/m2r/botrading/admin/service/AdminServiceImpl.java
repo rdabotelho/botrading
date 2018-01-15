@@ -125,7 +125,7 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public void startTraderJob(TraderJob traderJob) throws Exception {
-    		IMarketCoin marketCoin = getExchangeService().getMarkeyCoin(traderJob.getMarketCoin());
+    		IMarketCoin marketCoin = getExchangeService().getMarketCoin(traderJob.getMarketCoin());
 	    	IExchangeSession session = getExchangeService().getSession(marketCoin, false, true);
 	    	scheduleService.verifyAndCreateNewTrading(traderJob, session);
     }
@@ -213,7 +213,7 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public IMarketCoin getMarketCoin(String id) {
-    		return getExchangeService().getMarkeyCoin(id);
+    		return getExchangeService().getMarketCoin(id);
     }
     
     /*

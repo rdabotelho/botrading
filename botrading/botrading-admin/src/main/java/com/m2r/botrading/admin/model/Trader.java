@@ -71,6 +71,11 @@ public class Trader implements Serializable, ITrader {
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal parcel4;
+        
+    @NotNull
+    @Column(precision = 19, scale = 8)
+    @NumberFormat(style=Style.NUMBER, pattern="0.00000000")
+    private BigDecimal profit;
     
 	@OneToMany(mappedBy="trader", cascade=CascadeType.REMOVE)
 	private List<Order> orders;
@@ -83,6 +88,10 @@ public class Trader implements Serializable, ITrader {
 
     @Transient
     private long liquidedTotal = 0;
+    
+    public Trader() {
+    	this.profit = BigDecimal.ZERO;
+    }
     
 	public Long getId() {
 		return id;
@@ -124,6 +133,14 @@ public class Trader implements Serializable, ITrader {
 		this.investment = investment;
 	}
 
+	public BigDecimal getFee() {
+		return fee;
+	}
+
+	public void setFee(BigDecimal fee) {
+		this.fee = fee;
+	}
+
 	public BigDecimal getParcel1() {
 		return parcel1;
 	}
@@ -154,14 +171,6 @@ public class Trader implements Serializable, ITrader {
 
 	public void setParcel4(BigDecimal parcel4) {
 		this.parcel4 = parcel4;
-	}
-	
-	public BigDecimal getFee() {
-		return fee;
-	}
-	
-	public void setFee(BigDecimal fee) {
-		this.fee = fee;
 	}
 	
 	public TraderJob getTraderJob() {
@@ -211,6 +220,14 @@ public class Trader implements Serializable, ITrader {
 		return null;
 	}
 	
+	public BigDecimal getProfit() {
+		return profit;
+	}
+
+	public void setProfit(BigDecimal profit) {
+		this.profit = profit;
+	}
+
 	public List<Order> getOrders() {
 		return orders;
 	}
@@ -239,6 +256,10 @@ public class Trader implements Serializable, ITrader {
 		return this.state == STATE_COMPLETED;
 	}
 	
+	public void addProfit(BigDecimal profit) {
+		this.profit = CalcUtil.add(this.profit, profit);
+	}
+	
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).
@@ -247,7 +268,6 @@ public class Trader implements Serializable, ITrader {
 			       append("dateTime", dateTime).
 			       append("state", state).
 			       append("investment", investment).
-			       append("fee", fee).
 			       append("parcel1", parcel1).
 			       append("parcel2", parcel2).
 			       append("parcel3", parcel3).

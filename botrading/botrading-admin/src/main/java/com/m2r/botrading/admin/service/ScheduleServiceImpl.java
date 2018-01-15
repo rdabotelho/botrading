@@ -58,7 +58,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     @Override
     public IMarketCoin getMarketCoin(String id) {
-    		return getExchangeService().getMarkeyCoin(id);
+    		return getExchangeService().getMarketCoin(id);
     }
     
     @Override
@@ -134,13 +134,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     		}
     }
     
-    @Override
-    public List<Order> findAllTeste() {
-    		return orderRepository.findAll();
-    }
-    
     private Trader createTrader(String coin, BigDecimal investment, TraderJob traderJob, IExchangeSession session) throws Exception {
-		Trader t = TraderBuilder.create(coin, investment, traderJob);
+		Trader t = TraderBuilder.create(coin, investment, session.getFee(), traderJob);
 		BigDecimal lastPrice = session.getLastPrice(coin);
 		if (lastPrice == null) {
 			return null;
@@ -181,8 +176,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 				// order to liquidate (buy or sell)
 				else {
+					order.setFee(order.isImmediate() ? session.getImmediateFee() : session.getFee());
 					orderRepository.save(order.confirmLiquidation());
 					LOG.info("Order ("+(order.isBuy()?"buy":"sell")+") " + order.getOrderNumber() + " liquided in the exchange.");
+					this.calculateProfit(order);
 				}
 				concludeSynchronize(order, session);					
 			}
@@ -233,6 +230,17 @@ public class ScheduleServiceImpl implements ScheduleService {
 		    		}
 	    		}
     		}
+    }
+    
+    private void calculateProfit(Order sellOrder) {
+		Order buyOrder = orderRepository.findByTraderAndParcelAndKind(sellOrder.getTrader(), sellOrder.getParcel(), Order.KIND_BUY);
+    	if (buyOrder != null) {
+    		BigDecimal profit = CalcUtil.subtract(sellOrder.getBalance(), buyOrder.getBalance());
+    		sellOrder.getTrader().addProfit(profit);
+    		sellOrder.getTrader().getTraderJob().addProfit(profit);
+    		traderRepository.save(sellOrder.getTrader());
+    		traderJobRepository.save(sellOrder.getTrader().getTraderJob());
+    	}
     }
     
     private boolean hasNotOpenedOrders(Trader trader) {

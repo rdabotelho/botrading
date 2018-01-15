@@ -27,5 +27,7 @@ public interface IExchangeSession extends IExchangeOrder {
     public IOrderList getOrders(IApiAccess apiAccess) throws Exception;
     public BigDecimal getAvailableBalance(String coin, IApiAccess apiAccess) throws Exception;
     public BigDecimal calculateAmountToImmediateSell(ITrader trader, BigDecimal amount);
+	public BigDecimal getFee();
+	public BigDecimal getImmediateFee();
 	
 }

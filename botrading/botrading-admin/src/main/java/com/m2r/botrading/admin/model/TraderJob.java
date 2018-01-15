@@ -61,11 +61,6 @@ public class TraderJob implements Serializable, ITraderJob {
     @NotNull
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
-    private BigDecimal fee = new BigDecimal("0.15");
-    
-    @NotNull
-    @Column(precision = 19, scale = 8)
-    @NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal parcel1 = new BigDecimal("3.0");
     
     @Column(precision = 19, scale = 8)
@@ -88,6 +83,11 @@ public class TraderJob implements Serializable, ITraderJob {
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal limitToStop = new BigDecimal("50.0");
     
+	@NotNull
+	@Column(precision = 19, scale = 8)
+	@NumberFormat(style=Style.NUMBER, pattern="0.00000000")
+	private BigDecimal profit;
+    
 	@OneToMany(mappedBy="traderJob", cascade=CascadeType.REMOVE)
 	private List<Trader> traders;
 	
@@ -107,6 +107,7 @@ public class TraderJob implements Serializable, ITraderJob {
     
 	public TraderJob() {
 		this.traders = new ArrayList<>();
+		this.profit = BigDecimal.ZERO;
 	}
 	
 	public Long getId() {
@@ -210,18 +211,18 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.continuoMode = continuoMode;
 	}
 
+	public BigDecimal getProfit() {
+		return profit;
+	}
+
+	public void setProfit(BigDecimal profit) {
+		this.profit = profit;
+	}
+
 	public void start() {
 		this.setState(STATE_STARTED);
 	}
 	
-	public BigDecimal getFee() {
-		return fee;
-	}
-
-	public void setFee(BigDecimal fee) {
-		this.fee = fee;
-	}
-
 	public BigDecimal getParcel1() {
 		return parcel1;
 	}
@@ -300,6 +301,10 @@ public class TraderJob implements Serializable, ITraderJob {
 	
 	public boolean isFinished() {
 		return this.state == STATE_FINISHED;
+	}
+	
+	public void addProfit(BigDecimal profit) {
+		this.profit = CalcUtil.add(this.profit, profit);
 	}
 	
 	@Override

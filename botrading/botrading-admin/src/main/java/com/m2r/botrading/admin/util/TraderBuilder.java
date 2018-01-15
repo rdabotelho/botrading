@@ -8,11 +8,11 @@ import com.m2r.botrading.admin.model.TraderJob;
 
 public class TraderBuilder {
 
-    public static Trader create(String coin, BigDecimal investment, TraderJob traderJob) {
+    public static Trader create(String coin, BigDecimal investment, BigDecimal fee, TraderJob traderJob) {
 		return create(
 					coin, 
 					investment, 
-					traderJob.getFee(), 
+					fee, 
 					traderJob.getParcel1(), 
 					traderJob.getParcel2(), 
 					traderJob.getParcel3(), 
