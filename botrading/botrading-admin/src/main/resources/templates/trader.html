@@ -28,6 +28,7 @@
 				<th>State</th>
 				<th>Ordered Total</th>
 				<th>Liquided Total</th>
+				<th>Profit</th>
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -45,6 +46,7 @@
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.orderedTotal}}"></td>
 				<td th:text="${{tr.liquidedTotal}}"></td>
+				<td th:text="${{tr.profit}}"></td>
 				<td>
 					<a th:href="@{/order/{tId}(tId=${tr.id})}">View</a>
 				</td>
@@ -67,6 +69,7 @@
 				<td style="text-align: center;">
 					<a th:if="${hasNext}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}+1,size=20)}">Next &raquo;</a>
 				</td>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td></td>

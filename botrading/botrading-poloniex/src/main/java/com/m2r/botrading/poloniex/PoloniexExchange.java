@@ -360,11 +360,36 @@ public class PoloniexExchange extends ExchangeService {
 		return IMMEDIATE_FEE;
 	}
 	
-	public static void clearAllInTheExchange(IApiAccess apiAccess) throws Exception {
+	public static void cancelAllOrdersInTheExchange(IApiAccess apiAccess) throws Exception {
 		IExchangeService service = new PoloniexExchange().init();
 		IMarketCoin mc = service.getDefaultMarketCoin();
 		IExchangeSession session = service.getSession(mc, true, true);
-
+		BigDecimal amin = new BigDecimal("0.000001");
+		IOrderList lords = session.getOrders(apiAccess);
+		for (String coin : mc.getCurrencies().keySet()) {
+			ICurrency currency = mc.getCurrency(coin);
+			List<IExchangeOrder> list = lords.getOrders(currency.getCurrencyPair());
+			for (IExchangeOrder order : list) {
+				if (CalcUtil.greaterThen(order.getTotal(), amin)) {
+					System.out.print(coin+"\t"+order.getTotal());
+					String orderNumber = order.getOrderNumber();
+					try {
+						service.cancel(apiAccess, orderNumber);
+						System.out.print("\t CANCELED");
+					}
+					catch (ExchangeException ex) {
+						System.out.print("\t ERRO: " + ex.getMessage());						
+					}
+					System.out.println();
+				}
+			}
+		}
+	}
+	
+	public static void sellAllInTheExchange(IApiAccess apiAccess) throws Exception {
+		IExchangeService service = new PoloniexExchange().init();
+		IMarketCoin mc = service.getDefaultMarketCoin();
+		IExchangeSession session = service.getSession(mc, true, true);
 		BigDecimal amin = new BigDecimal("0.000001");
 		IBalanceList blist = session.getBanlances(apiAccess);
 		for (IBalance b : blist.getBalances()) {
@@ -375,13 +400,28 @@ public class PoloniexExchange extends ExchangeService {
 				String amount = CalcUtil.formatUS(b.getAvailable());
 				try {
 					service.sell(apiAccess, currencyPair, price, amount);
+					System.out.print("\t SOLD");
 				}
-				catch (Exception e) {
+				catch (ExchangeException ex) {
+					System.out.print("\t ERRO: " + ex.getMessage());						
 				}
 				System.out.println();
 			}
 		}
-		System.out.println();
 	}
+	
+//	public static void main(String[] args) throws Exception {
+//		IApiAccess apiAccess = new IApiAccess() {
+//			public String getSecretKey() {
+//				return "c034c84ba459f281e3c5ad43694f3f24d024316bb30bdb8a0071f38879b56424b976a5613da101ecf256ae8a43e100ad835d37040b46d607c4738402cfd828e0";
+//			}
+//			@Override
+//			public String getApiKey() {
+//				return "A6MSDX56-KPVBAZED-YJ53MWN6-GN8JWZ0X";
+//			}
+//		};
+//		cancelAllOrdersInTheExchange(apiAccess);
+//		sellAllInTheExchange(apiAccess);
+//	}
 	
 }

@@ -95,13 +95,10 @@
 				<input id="tradingPercent" type="number" th:field="*{tradingPercent}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
 			</td>
 			<td>
-				<label for="fee">Fee (%):</label><br/>
-				<input id="fee" type="number" th:field="*{fee}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
-			</td>
-			<td>
 				<label for="timeToCancel">Time To Cancel (min):</label><br/>
 				<input id="timeToCancel" type="number" th:field="*{timeToCancel}" min="60" step="1"/>
 			</td>
+			<td></td>
 		</tr>
 		<tr>
 			<td>
@@ -143,7 +140,6 @@
 				<th>Amount</th>
 				<th>Trading Percent (%)</th>
 				<th>Trading Amount</th>
-				<th>Fee (%)</th>
 				<th>Time To Cancel (min)</th>
 				<th>Parcel 1 (%)</th>
 				<th>Parcel 2 (%)</th>
@@ -152,6 +148,7 @@
 				<th>Limit To Stop (%)</th>
 				<th>Options</th>
 				<th>State</th>
+				<th>Profit</th>
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -163,7 +160,6 @@
 				<td th:text="${{tr.amount}}"></td>
 				<td th:text="${{tr.tradingPercent}}"></td>
 				<td th:text="${{tr.tradingAmount}}"></td>
-				<td th:text="${{tr.fee}}"></td>
 				<td th:text="${{tr.timeToCancel}}"></td>
 				<td th:text="${{tr.parcel1}}"></td>
 				<td th:text="${{tr.parcel2}}"></td>
@@ -180,6 +176,7 @@
 					Execute Sell When Expire
 				</td>
 				<td th:text="${{tr.stateName}}"></td>
+				<td th:text="${{tr.profit}}"></td>
 				<td>
 					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>
 					<a th:if="${tr.state} eq 2" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Delete</a>

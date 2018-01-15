@@ -114,7 +114,7 @@
 				<td th:text="${{ord.price}}"></td>
 				<td th:text="${{ord.amount}}"></td>
 				<td th:text="${{ord.total}}"></td>
-				<td th:text="${{ord.fee}}"></td>
+				<td th:text="${{ord.feeValue}}"></td>
 				<td th:text="${{ord.balance}}" th:class="@{tdBalance stateNum{st}(st=${ord.state})}"></td>
 				<td th:text="${ord.stateName}" th:class="@{textState{state}(state=${ord.state})}"></td>
 				<td th:text="${{ord.stateDateTime}}"></td>
@@ -129,7 +129,7 @@
 		</tbody>
 		<tfoot>
 			<tr>
-				<td></td>
+				<td>(*) Pending</td>
 				<td></td>
 				<td></td>
 				<td></td>
