@@ -19,4 +19,9 @@ public interface TraderRepository extends JpaRepository<Trader, Long> {
 
 	Page<Trader> findAllTraderByTraderJobOrderByStateAscDateTimeDesc(TraderJob traderJob, Pageable pageable);
 	
+	default void complete(Trader trader) {
+		trader.complete();
+		this.save(trader);		
+	}
+	
 }

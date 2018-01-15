@@ -122,7 +122,7 @@
 				<td th:text="${{ord.log}}"></td>
 				<td>
 					<a th:if="${ord.state} eq 1 or ${ord.state} eq 5 or ${ord.state} eq 8" th:href="@{/order/cancel/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Cancel</a>
-					<a th:if="${ord.state} eq 5 or ${ord.state} eq 8" th:href="@{/order/retry/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Retry</a>
+					<a th:if="${ord.state} eq 5" th:href="@{/order/retry/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Retry</a>
 					<a th:if="${ord.canSell}" th:href="@{/order/immediateSell/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')">Immediate Sell</a>
 				</td>
 			</tr>

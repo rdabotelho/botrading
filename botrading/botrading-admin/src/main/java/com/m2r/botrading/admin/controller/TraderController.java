@@ -149,7 +149,7 @@ public class TraderController {
     public String cancelOrder(@PathVariable("oId") Long oId, Model model, Principal principal) {
     		Order order = adminService.findOrder(oId);
     		validateAccount(principal, order.getTrader().getTraderJob().getId());
-    		adminService.cancelOrder(order);
+    		adminService.orderCancel(order);
         return returnOrder(order.getTrader().getId(), model, principal);
     }
     
@@ -165,7 +165,7 @@ public class TraderController {
     public String immediateSell(@PathVariable("oId") Long oId, Model model, Principal principal) {
    		Order order = adminService.findOrder(oId);
    		validateAccount(principal, order.getTrader().getTraderJob().getId());
-   		adminService.immediateSell(order);
+   		adminService.orderImmediateSel(order);
         return returnOrder(order.getTrader().getId(), model, principal);
     }
         

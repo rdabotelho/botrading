@@ -5,7 +5,7 @@ import java.util.Map;
 import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IMarketCoin;
 
-public interface IExchangeService {
+public interface IExchangeService extends IExchangeOrder {
 
 	public IExchangeService init();
 	public ICurrency getCurrency(String marketCoinId, String id);

@@ -28,6 +28,7 @@ import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.api.strategy.StrategyRepository;
+import com.m2r.botrading.api.util.CalcUtil;
 import com.m2r.botrading.poloniex.PoloniexExchange;
 import com.m2r.botrading.strategy.DefaultStrategyRepository;
 
@@ -57,7 +58,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     @Override
     public IMarketCoin getMarketCoin(String id) {
-    	return getExchangeService().getMarkeyCoin(id);
+    		return getExchangeService().getMarkeyCoin(id);
     }
     
     @Override
@@ -66,8 +67,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
     
     @Override
-    public List<Order> findAllToSchedule() {
-    		return orderRepository.findAllToSchedule();
+    public List<Order> findAllToScheduleTaskOrders() {
+    		return orderRepository.findAllToScheduleTaskOrders();
+    }
+    
+    @Override
+    public List<Order> findAllToScheduleTaskSynch(Trader trader) {
+    		return orderRepository.findAllByTraderAndPendingAndStateIn(trader, true, Order.STATE_ORDERED, Order.STATE_ORDERED_CANCEL);
     }
     
     @Override
@@ -128,6 +134,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     		}
     }
     
+    @Override
+    public List<Order> findAllTeste() {
+    		return orderRepository.findAll();
+    }
+    
     private Trader createTrader(String coin, BigDecimal investment, TraderJob traderJob, IExchangeSession session) throws Exception {
 		Trader t = TraderBuilder.create(coin, investment, traderJob);
 		BigDecimal lastPrice = session.getLastPrice(coin);
@@ -144,11 +155,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     @Override
 	public void synchronize(Trader trader, IExchangeSession session) throws Exception {
-		if (trader == null) {
-			return;
-		}
-		
-		final List<Order> orders = this.orderRepository.findAllByTraderAndStateIn(trader, Order.STATE_ORDERED, Order.STATE_ORDERED_TO_CANCEL);
+		final List<Order> orders = this.findAllToScheduleTaskSynch(trader);
 		if (orders.isEmpty()) {
 			return;
 		}
@@ -168,18 +175,16 @@ public class ScheduleServiceImpl implements ScheduleService {
 			}
 			if (notExistInTheExchangeOrders) {
 				// order to cancel
-				if (order.isOrderedToCancel()) {
-					order.cancel();
-					orderRepository.save(order);
+				if (order.isOrderedCancel()) {
+					orderRepository.save(order.confirmCancellation());
 					LOG.info("Order ("+(order.isBuy()?"buy":"sell")+") " + order.getOrderNumber() + " canceled in the exchange.");
 				}
-				// order to liquidate
+				// order to liquidate (buy or sell)
 				else {
-					order.liquided();
-					orderRepository.save(order);
+					orderRepository.save(order.confirmLiquidation());
 					LOG.info("Order ("+(order.isBuy()?"buy":"sell")+") " + order.getOrderNumber() + " liquided in the exchange.");
 				}
-				continueTrading(order, session);					
+				concludeSynchronize(order, session);					
 			}
 			// Automatic canceling and selling
 			else if (order.isOrdered()) {
@@ -187,22 +192,20 @@ public class ScheduleServiceImpl implements ScheduleService {
 				if (order.isExpired()) {
 					// Expired Buy (Cancel buy)
 					if (order.isBuy() && order.getTrader().getTraderJob().getCancelBuyWhenExpire()) {
-						order.newCancel();
 						order.setLog("Canceled buy expiration");
-						orderRepository.save(order);
+						orderRepository.save(order.preperToCancel());
 					}
 					// Expired Sell (Immediate sell)
 					else if (order.getTrader().getTraderJob().getExecuteSellWhenExpire()) {
-						order.immediateSell();
 						order.setLog("Immediate sell buy expiration");
-						orderRepository.save(order);
+						orderRepository.save(order.preperToImmediateSel());
 					}
 				}				
 			}
 		};
 	}	
     
-    private void continueTrading(Order order, IExchangeSession session) throws Exception {
+    private void concludeSynchronize(Order order, IExchangeSession session) throws Exception {
     		Trader trader = order.getTrader();
     		if (trader.isCompleted()) {
     			return;
@@ -212,8 +215,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     		if (order.isSell()) {
     			// finish the trading
     			if (hasNotOpenedOrders(trader)) {
-	    			trader.complete();
-	    			traderRepository.save(trader);
+	    			traderRepository.complete(trader);
 	    			if (trader.getTraderJob().getContinuoMode()) {
 	    				verifyAndCreateNewTrading(trader.getTraderJob(), session);
 	    			}
@@ -223,12 +225,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     		else {
 	    		Order sellOrder = orderRepository.findByTraderAndParcelAndKind(trader, order.getParcel(), Order.KIND_SELL);
 	    		if (sellOrder != null) {
-	    			// canceled
-	    			if (order.isCanceled()) {
-	    				sellOrder.newCancel();
-					order.setLog("Canceled buy expiration");
-	    				orderRepository.save(sellOrder);
-	    			}
+		    		if (order.isCanceled()) {
+	    				orderRepository.save(sellOrder.preperToCancel());
+		    		}
+		    		else if (order.isLiquided()) {
+	    				orderRepository.save(sellOrder.preperToSell());		    			
+		    		}
 	    		}
     		}
     }
@@ -244,77 +246,83 @@ public class ScheduleServiceImpl implements ScheduleService {
   
     @Override
     public void executeOrder(Order order, IExchangeSession session) {
-		// Cancel
-		if (order.isNewCancel()) {
-			try {
-				session.cancel(order);
-				order.orderToCancel();
+		// Order to Cancel
+		if (order.isOrderedCancel() ) {
+			cancel(order, session);
+		}
+		// Order to Buy
+		else if (order.isBuy()) {
+			buy(order, session);
+		}
+		// Order to Sell
+		else if (order.isSell()) {
+			sell(order, session);
+		}
+    }
+    
+    /*
+     * ORDERS
+     */
+    
+    private void buy(Order order, IExchangeSession session) {
+		try {
+			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
+			String price = CalcUtil.formatUS(order.getPrice());
+			String amount = CalcUtil.formatUS(order.getAmount());
+			String orderNumber = session.buy(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
+			order.setOrderNumber(orderNumber);
+			order.setPending(true);
+			LOG.info("Order (buy) " + order.getOrderNumber() + " created in the exchange.");					
+		}
+		catch (ExchangeException e) {
+			order.setLog(e.getMessage());
+			order.setState(Order.STATE_ERROR);
+			LOG.warning("Order (buy) " + order.getOrderNumber() + " not create in the exchange due to error: " + order.getLog());					
+		}
+		order.setStateDateTime(LocalDateTime.now());
+		this.saveOrder(order);
+    }
+    
+    private void sell(Order order, IExchangeSession session) {
+		try {
+			BigDecimal priceToSell = order.getPrice(); 
+			BigDecimal amountToSell = session.calculateAmountToImmediateSell(order.getTrader(), order.getAmount());
+			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
+			if (order.isImmediate()) {
+				priceToSell = session.getLastPrice(order.getTrader().getCoin());
+			}
+			String price = CalcUtil.formatUS(priceToSell);
+			String amount = CalcUtil.formatUS(amountToSell);
+			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
+			order.setOrderNumber(orderNumber);
+			order.setPending(true);
+			order.setAmount(amountToSell);
+			LOG.info("Order (sell) " + order.getOrderNumber() + " created in the exchange.");						
+		}
+		catch (Exception e) {
+			order.setLog(e.getMessage());
+			order.setState(Order.STATE_ERROR);
+			LOG.warning("Order (sell) " + order.getOrderNumber() + " not create in the exchange due to error: " + order.getLog());
+		}
+		order.setStateDateTime(LocalDateTime.now());
+		this.saveOrder(order);	
+    }
+    
+    private void cancel(Order order, IExchangeSession session) {
+		try {
+			if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
+				session.cancel(order.getTrader().getTraderJob().getAccount(), order.getOrderNumber());
 				LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
 			}
-			catch (ExchangeException e) {
-				order.setLog(e.getMessage());
-				LOG.warning("Cancel rder " + order.getOrderNumber() + " not created in the exchange due to error: " + order.getLog());					
-			}
-			order.setStateDateTime(LocalDateTime.now());
-			this.saveOrder(order);
+			order.setPending(true);
 		}
-		// Order
-		else {
-			// Buy
-			if (order.isBuy()) {
-				try {
-					String number = session.buy(order);
-					order.setOrderNumber(number);
-					order.ordered();
-					LOG.info("Order (buy) " + order.getOrderNumber() + " created in the exchange.");					
-				}
-				catch (ExchangeException e) {
-					order.setLog(e.getMessage());					
-					LOG.warning("Order (buy) " + order.getOrderNumber() + " not create in the exchange due to error: " + order.getLog());					
-				}
-				order.setStateDateTime(LocalDateTime.now());
-				this.saveOrder(order);
-			}
-			// Immediate Sell
-			else if (order.isImmediateSell()) {
-				try {
-					String number = session.immediateSell(order);
-					order.setOrderNumber(number);
-					order.ordered();
-					if (!(order.getLog() != null && order.getLog().contains("expiration"))) {
-						order.setLog("Immediate sell");
-					}
-					LOG.info("Order (immediate sell) " + order.getOrderNumber() + " created in the exchange.");
-				}
-				catch (ExchangeException e) {
-					order.setLog(e.getMessage());					
-					LOG.warning("Order (immediate sell) " + order.getOrderNumber() + " not create in the exchange due to error: " + order.getLog());
-				}
-				order.setStateDateTime(LocalDateTime.now());
-				this.saveOrder(order);
-			}
-			// Sell if was already bought
-			else 
-			{
-				Order buyOrder = this.findByTraderAndParcelAndKind(order.getTrader(), order.getParcel(), Order.KIND_BUY);
-				if (buyOrder == null || buyOrder.isLiquided()) {
-					try {
-						BigDecimal newAmount = session.calculateSellToAmount(order.getTrader(), order.getAmount());
-						order.setAmount(newAmount);
-						String number = session.sell(order);
-						order.setOrderNumber(number);
-						order.ordered();
-						LOG.info("Order (sell) " + order.getOrderNumber() + " created in the exchange.");						
-					}
-					catch (ExchangeException e) {
-						order.setLog(e.getMessage());					
-						LOG.warning("Order (sell) " + order.getOrderNumber() + " not create in the exchange due to error: " + order.getLog());
-					}
-					order.setStateDateTime(LocalDateTime.now());
-					this.saveOrder(order);
-				}
-			}
+		catch (ExchangeException e) {
+			order.setLog(e.getMessage());
+			order.setState(Order.STATE_ERROR);
+			LOG.warning("Cancel order " + order.getOrderNumber() + " not created in the exchange due to error: " + order.getLog());					
 		}
+		order.setStateDateTime(LocalDateTime.now());
+		this.saveOrder(order);    	
     }
     
 }

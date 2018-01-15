@@ -14,11 +14,13 @@ public interface ScheduleService {
 	public IExchangeSession getExchangeSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
     public List<TraderJob> findAllTraderJobsByState(Integer state);
 	public List<Trader> findAllByTraderJobAndStateNotComplete(TraderJob traderJob);
-	public List<Order> findAllToSchedule();
+	public List<Order> findAllToScheduleTaskOrders();
+	public List<Order> findAllToScheduleTaskSynch(Trader trader);
     public Order findByTraderAndParcelAndKind(Trader trader, Integer parcel, Integer kind);
     public void synchronize(Trader trader, IExchangeSession session) throws Exception;
     public void executeOrder(Order order, IExchangeSession session);
 	public void saveOrder(Order order);
     public void verifyAndCreateNewTrading(TraderJob traderJob, IExchangeSession session) throws Exception;
-        
+	public List<Order> findAllTeste();
+    
 }

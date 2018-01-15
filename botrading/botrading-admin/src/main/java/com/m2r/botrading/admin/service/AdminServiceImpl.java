@@ -63,7 +63,7 @@ public class AdminServiceImpl implements AdminService {
     private StrategyRepository strategyRepository = new DefaultStrategyRepository();
     
     protected IExchangeService getExchangeService() {
-    	return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
+    		return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
     }
     
     @Override
@@ -108,7 +108,7 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public void deleteTraderJob(Long id) {
-    	traderJobRepository.delete(id);
+    		traderJobRepository.delete(id);
     }
     
     @Override
@@ -148,25 +148,6 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<IStrategy> getStrategies() {
     		return strategyRepository.getStrategies();
-    }
-    
-    @Override
-    public void cancelOrder(Order order) {
-  		order.newCancel();
-    		orderRepository.save(order);
-    }
-    
-    @Override
-    public void retryOrder(Order order) {
-		order.retry();
-		order.setLog("");
-		orderRepository.save(order);    	
-    }
-    
-    @Override
-    public void immediateSell(Order order) {
-		order.immediateSell();
-		orderRepository.save(order);    	    	
     }
     
     @Override
@@ -233,6 +214,37 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public IMarketCoin getMarketCoin(String id) {
     		return getExchangeService().getMarkeyCoin(id);
+    }
+    
+    /*
+     * ORDERS
+     */
+    
+    @Override
+    public void orderBuy(Order order) {
+		orderRepository.save(order.preperToBuy());	
+    }
+    
+    @Override
+    public void orderSell(Order order) {
+		orderRepository.save(order.preperToSell());	    	
+    }
+    
+    @Override
+    public void orderImmediateSel(Order order) {
+		orderRepository.save(order.preperToImmediateSel());    		    	    	
+    }
+    
+    @Override
+    public void orderCancel(Order order) {
+		orderRepository.save(order.preperToCancel());   		    	    	    	
+    }
+    
+    @Override
+    public void retryOrder(Order order) {
+		order.setState(Order.STATE_ORDERED);
+		order.setLog("");
+		orderRepository.save(order);    	
     }
       
 }

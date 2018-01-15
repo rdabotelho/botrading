@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.IAccount;
+import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IMarketCoin;
-import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
@@ -109,27 +109,7 @@ public class ExchangeSession implements IExchangeSession {
 	}
 
 	@Override
-	public String buy(IOrder order) throws ExchangeException {
-		return service.buy(order, this);
-	}
-
-	@Override
-	public String sell(IOrder order) throws ExchangeException {
-		return service.sell(order, this);
-	}
-
-	@Override
-	public String immediateSell(IOrder order) throws ExchangeException {
-		return service.immediateSell(order, this);
-	}
-
-	@Override
-	public void cancel(IOrder order) throws ExchangeException {
-		service.cancel(order, null);
-	}
-	
-	@Override
-	public BigDecimal calculateSellToAmount(ITrader trader, BigDecimal amount) {
+	public BigDecimal calculateAmountToImmediateSell(ITrader trader, BigDecimal amount) {
 	    	try {
 		    	BigDecimal availableBalance = this.getAvailableBalance(trader.getCoin(), trader.getTraderJob().getAccount());
 		    	if (availableBalance == null) {
@@ -141,5 +121,24 @@ public class ExchangeSession implements IExchangeSession {
 	    		return amount;
 	    	}
     }
+	
+	/*
+	 * ORDERS
+	 */
+	
+	@Override
+	public String buy(IApiAccess apiAccess, String currencyPair, String price, String amount) throws ExchangeException {
+		return service.buy(apiAccess, currencyPair, price, amount);
+	}
+
+	@Override
+	public String sell(IApiAccess apiAccess, String currencyPair, String price, String amount) throws ExchangeException {
+		return service.sell(apiAccess, currencyPair, price, amount);
+	}
+	
+	@Override
+	public void cancel(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
+		service.cancel(apiAccess, orderNumber);		
+	}
 	
 }

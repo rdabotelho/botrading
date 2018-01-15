@@ -54,7 +54,7 @@ public class OrderScheduledTasks {
 	
 	private void executeOrdersTask() {
 		initSessions();
-		List<Order> orders = scheduleService.findAllToSchedule();
+		List<Order> orders = scheduleService.findAllToScheduleTaskOrders();
 		for (Order order : orders) {
 			IExchangeSession session = loadSession(order.getTrader());
 			scheduleService.executeOrder(order, session);
@@ -78,13 +78,11 @@ public class OrderScheduledTasks {
 		List<TraderJob> traderJobs = scheduleService.findAllTraderJobsByState(TraderJob.STATE_STARTED);
 		for (TraderJob traderJob : traderJobs) {
 			try {
-		    	List<Trader> traders = scheduleService.findAllByTraderJobAndStateNotComplete(traderJob);
-		    	if (!traders.isEmpty()) {
-					for (Trader trader : traders) {
-						IExchangeSession session = loadSession(trader);
-						scheduleService.synchronize(trader, session);
-					}    	
-		    	}
+				List<Trader> traders = scheduleService.findAllByTraderJobAndStateNotComplete(traderJob);
+				for (Trader trader : traders) {
+					IExchangeSession session = loadSession(trader);
+					scheduleService.synchronize(trader, session);
+				}    	
 			} 
 			catch (Exception e) {
 				LOG.warning(e.getMessage());

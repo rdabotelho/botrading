@@ -74,7 +74,7 @@ public class OrderBuilder {
 		o.setDateTime(LocalDateTime.now());
 		o.setParcel(parcel);
 		o.setKind(Order.KIND_BUY);
-		o.setState(Order.STATE_NEW);
+		o.setState(Order.STATE_ORDERED);
 		o.setPrice(priceToBuy);
 		o.setAmount(CalcUtil.divide(total, priceToBuy));
 		return o;

@@ -29,13 +29,20 @@ public interface AdminService {
     public Trader findTrader(Long id);
     public List<IStrategy> getStrategies();
     public void startTraderJob(TraderJob traderJob) throws Exception;
-    public void cancelOrder(Order order);
-	public void retryOrder(Order order);
-	public void immediateSell(Order order);
 	public AccountExchangeInfo getAccountExchangeInfo(Account account);
 	public OrderExchangeInfo getOrderExchangeInfo(Trader trader);
 	public IMarketCoin getDefaultMarketCoin();
 	public List<IMarketCoin> getMarketCoins();
 	public IMarketCoin getMarketCoin(String id);
+	
+	/*
+	 * ORDERS
+	 */
+	
+	public void orderBuy(Order order);
+	public void orderSell(Order order);
+	public void orderImmediateSel(Order order);
+	public void orderCancel(Order order);
+	public void retryOrder(Order order);
 	
 }

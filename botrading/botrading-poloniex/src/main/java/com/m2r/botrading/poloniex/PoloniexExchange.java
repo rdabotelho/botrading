@@ -1,7 +1,6 @@
 package com.m2r.botrading.poloniex;
 
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -32,6 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.IAccount;
+import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartData;
@@ -39,7 +39,6 @@ import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IMarketCoin;
-import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
@@ -47,7 +46,6 @@ import com.m2r.botrading.api.model.MarketCoinDefault;
 import com.m2r.botrading.api.service.ExchangeService;
 import com.m2r.botrading.api.service.ExchangeSession;
 import com.m2r.botrading.api.service.IExchangeSession;
-import com.m2r.botrading.api.util.CalcUtil;
 import com.m2r.botrading.api.util.JsonException;
 import com.m2r.botrading.api.util.JsonSuccess;
 import com.m2r.botrading.poloniex.model.Balance;
@@ -107,7 +105,7 @@ public class PoloniexExchange extends ExchangeService {
 	    return EntityUtils.toString(responseEntity);
 	}
 	
-	private String execTradingAPI(IAccount account, String command, Map<String, String> parameters) throws Exception {
+	private String execTradingAPI(IApiAccess apiAccess, String command, Map<String, String> parameters) throws Exception {
 		
 		parameters.put("nonce", generateNonce());
 		
@@ -118,7 +116,7 @@ public class PoloniexExchange extends ExchangeService {
 	    });
 
 	    Mac shaMac = Mac.getInstance("HmacSHA512");
-	    SecretKeySpec keySpec = new SecretKeySpec(account.getSecretKey().getBytes(), "HmacSHA512");
+	    SecretKeySpec keySpec = new SecretKeySpec(apiAccess.getSecretKey().getBytes(), "HmacSHA512");
 	    shaMac.init(keySpec);
 	    final byte[] macData = shaMac.doFinal(queryArgs.toString().getBytes());
 	    String sign = Hex.encodeHexString(macData);
@@ -126,7 +124,7 @@ public class PoloniexExchange extends ExchangeService {
 	    CloseableHttpClient httpClient = HttpClients.createDefault();
 	    
 	    HttpPost post = new HttpPost(URL_TRADING_API);
-	    post.addHeader("Key", account.getApiKey()); 
+	    post.addHeader("Key", apiAccess.getApiKey()); 
 	    post.addHeader("Sign", sign);
 
 	    List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -210,15 +208,6 @@ public class PoloniexExchange extends ExchangeService {
 	    return parseReturn(data, new TypeToken<Map<String, Map<String, String>>>(){}.getType());
 	}
 	
-	public JsonSuccess commandBuy(IAccount account, String currencyPair, String rate, String amount) throws Exception {
-		Map<String, String> params = new HashMap<>();
-		params.put("currencyPair", currencyPair);
-		params.put("rate", rate);
-		params.put("amount", amount);
-		String data = this.execTradingAPI(account, COMMAND_BUY, params);
-	    return parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
-	}
-	
 	public JsonSuccess commandSell(IAccount account, String currencyPair, String rate, String amount) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("currencyPair", currencyPair);
@@ -287,62 +276,6 @@ public class PoloniexExchange extends ExchangeService {
 	}    
 	
 	@Override
-	protected String buy(IOrder order, IExchangeSession session) throws ExchangeException {
-		try {
-			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
-			String rate = CalcUtil.formatUS(order.getPrice());
-			String amount = CalcUtil.formatUS(order.getAmount());
-			JsonSuccess result = this.commandBuy(order.getTrader().getTraderJob().getAccount(), currencyPair, rate, amount);
-			return result.getOrderNumber();
-		}
-		catch (Exception e) {
-			throw new ExchangeException(e);
-		}
-	}
-	
-	@Override
-	protected String sell(IOrder order, IExchangeSession session) throws ExchangeException {
-		try {
-			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
-			String rate = CalcUtil.formatUS(order.getPrice());
-			String amount = CalcUtil.formatUS(order.getAmount());
-			JsonSuccess result = this.commandSell(order.getTrader().getTraderJob().getAccount(), currencyPair, rate, amount);
-			return result.getOrderNumber();
-		}
-		catch (Exception e) {
-			throw new ExchangeException(e);
-		}
-	}
-	
-	@Override
-	protected void cancel(IOrder order, IExchangeSession session) throws ExchangeException {
-		try {
-			this.commandCancelOrder(order.getTrader().getTraderJob().getAccount(), order.getOrderNumber());
-		}
-		catch (Exception e) {
-			throw new ExchangeException(e);
-		}
-	}
-	
-	@Override
-	protected String immediateSell(IOrder order, IExchangeSession session) throws ExchangeException {
-		try {
-			cancel(order, session);
-			Thread.sleep(3000);
-			BigDecimal newAmount = session.calculateSellToAmount(order.getTrader(), order.getAmount());
-			order.setAmount(newAmount);
-			order.setPrice(session.getLastPrice(order.getTrader().getCoin()));
-			return sell(order, session);
-		} 
-		catch (ExchangeException e1) {
-			throw e1;
-		}
-		catch (Exception e2) {
-			throw new ExchangeException(e2);
-		}
-	}
-	
-	@Override
 	protected Map<String, IMarketCoin> loadMarketCoins() {
 		Map<String, IMarketCoin> map = new HashMap<>();
 		try {
@@ -366,6 +299,50 @@ public class PoloniexExchange extends ExchangeService {
 	@Override
 	public IMarketCoin getDefaultMarketCoin() {
 		return getMarkeyCoin(ICurrency.BTC);
+	}
+
+	@Override
+	public String buy(IApiAccess apiAccess, String currencyPair, String price, String amount) throws ExchangeException {
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("currencyPair", currencyPair);
+			params.put("rate", price);
+			params.put("amount", amount);
+			String data = this.execTradingAPI(apiAccess, COMMAND_BUY, params);
+			JsonSuccess result = parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
+			return result.getOrderNumber();
+		}
+		catch (Exception e) {
+			throw new ExchangeException(e);
+		}
+	}
+
+	@Override
+	public String sell(IApiAccess apiAccess, String currencyPair, String price, String amount) throws ExchangeException {
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("currencyPair", currencyPair);
+			params.put("rate", price);
+			params.put("amount", amount);
+			String data = this.execTradingAPI(apiAccess, COMMAND_SELL, params);
+			JsonSuccess result = parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
+			return result.getOrderNumber();
+		}
+		catch (Exception e) {
+			throw new ExchangeException(e);
+		}
+	}
+
+	@Override
+	public void cancel(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
+		try {
+			Map<String, String> params = new HashMap<>();
+			params.put("orderNumber", orderNumber);
+			this.execTradingAPI(apiAccess, COMMAND_CANCEL_ORDER, params);
+		}
+		catch (Exception e) {
+			throw new ExchangeException(e);
+		}
 	}
 	
 }

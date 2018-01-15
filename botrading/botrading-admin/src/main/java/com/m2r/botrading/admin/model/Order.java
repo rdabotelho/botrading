@@ -29,13 +29,10 @@ public class Order implements Serializable, IOrder {
 
 	public static final Integer STATE_NEW = 0;
 	public static final Integer STATE_ORDERED = 1;
-	public static final Integer STATE_LIQUIDED = 2; 	// complete
-	public static final Integer STATE_NEW_CANCEL = 3;
-	public static final Integer STATE_CANCELED = 4;	// complete
+	public static final Integer STATE_LIQUIDED = 2;
+	public static final Integer STATE_ORDERED_CANCEL = 3;
+	public static final Integer STATE_CANCELED = 4;
 	public static final Integer STATE_ERROR = 5;
-	public static final Integer STATE_ERROR_CANCEL = 6;
-	public static final Integer STATE_ORDERED_TO_CANCEL = 7;
-	public static final Integer STATE_IMMEDIATE_SELL = 8;
 	
 	public static final Integer KIND_BUY = 0;
 	public static final Integer KIND_SELL = 1;
@@ -56,7 +53,13 @@ public class Order implements Serializable, IOrder {
     private LocalDateTime dateTime;
 
     @NotNull
-    private Integer state = STATE_NEW; //0: New, 1: Ordered, 2: Liquided, 3: Canceled, 4: Error
+    private Integer state = STATE_NEW;
+    
+    @NotNull
+    private Boolean immediate = false;
+    
+    @NotNull
+    private Boolean pending = true;
     
     @NotNull
     private Integer kind; //0: Buy, 1: Sell
@@ -74,6 +77,12 @@ public class Order implements Serializable, IOrder {
     private String log;
     
     private LocalDateTime stateDateTime;
+    
+    public Order() {
+    		this.state = STATE_NEW;
+    		this.immediate = false;
+    		this.pending = false;
+    }
     
 	public Long getId() {
 		return id;
@@ -121,6 +130,22 @@ public class Order implements Serializable, IOrder {
 
 	public void setState(Integer state) {
 		this.state = state;
+	}
+
+	public Boolean getImmediate() {
+		return immediate;
+	}
+
+	public void setImmediate(Boolean immediate) {
+		this.immediate = immediate;
+	}
+
+	public Boolean getPending() {
+		return pending;
+	}
+
+	public void setPending(Boolean pending) {
+		this.pending = pending;
 	}
 
 	public Integer getKind() {
@@ -180,34 +205,6 @@ public class Order implements Serializable, IOrder {
 		}
 	}
 	
-	public void ordered() {
-		this.setState(STATE_ORDERED);
-	}
-	
-	public void liquided() {
-		this.setState(STATE_LIQUIDED);
-	}
-	
-	public void newCancel() {
-		this.setState(STATE_NEW_CANCEL);
-	}
-	
-	public void retry() {
-		this.setState(STATE_NEW);
-	}
-	
-	public void immediateSell() {
-		this.setState(STATE_IMMEDIATE_SELL);
-	}
-	
-	public void orderToCancel() {
-		this.setState(STATE_ORDERED_TO_CANCEL);
-	}
-	
-	public void cancel() {
-		this.setState(STATE_CANCELED);
-	}
-	
 	public boolean isNew() {
 		return this.state == STATE_NEW;
 	}
@@ -216,24 +213,32 @@ public class Order implements Serializable, IOrder {
 		return this.state == STATE_ORDERED;
 	}	
 	
-	public boolean isNewCancel() {
-		return this.state == STATE_NEW_CANCEL;
+	public boolean isLiquided() {
+		return this.state == STATE_LIQUIDED;
 	}
 	
-	public boolean isOrderedToCancel() {
-		return this.state == STATE_ORDERED_TO_CANCEL;
+	public boolean isOrderedCancel() {
+		return this.state == STATE_ORDERED_CANCEL;
 	}	
 	
 	public boolean isCanceled() {
 		return this.state == STATE_CANCELED;
 	}
 	
-	public boolean isLiquided() {
-		return this.state == STATE_LIQUIDED;
+	public boolean isError() {
+		return this.state == STATE_ERROR;
 	}
 	
-	public boolean isImmediateSell() {
-		return this.state == STATE_IMMEDIATE_SELL;
+	public boolean isCompleted() {
+		return isLiquided() || isCanceled();
+	}
+	
+	public boolean isImmediate() {
+		return getImmediate();
+	}
+	
+	public boolean isPending() {
+		return getPending();
 	}
 	
 	public boolean isExpired() {
@@ -244,30 +249,14 @@ public class Order implements Serializable, IOrder {
 		return false;
 	}
 	
-	public void error(String msg) {
-		this.setState(STATE_ERROR);
-		this.setLog(msg);
-	}
-	
-	public void errorCancel(String msg) {
-		this.setState(STATE_ERROR_CANCEL);
-		this.setLog(msg);
-	}
-	
 	public String getStateName() {
 		switch (this.state) {
 		case 0: return "NEW";
 		case 1: return "ORDERED";
 		case 2: return "LIQUIDED";
-		case 3: return "NEW CANCEL";
+		case 3: return "ORDERED TO CANCEL";
 		case 4: return "CANCELED";
 		case 5: return "ERROR";
-		case 6: return "CANCEL ERROR";
-		case 7: return "ORDERED TO CANCEL";
-		case 8: return "IMMEDIATE SELL";
-		case 9: return "NEW EXPIRE";
-		case 10: return "EXPIRED";
-		case 11: return "ORDERED TO EXPIRE";
 		}
 		return null;
 	}
@@ -306,8 +295,57 @@ public class Order implements Serializable, IOrder {
 	}
 	
 	public boolean isCanSell() {
-		return this.kind == KIND_SELL && (this.state == STATE_ORDERED || this.state == STATE_CANCELED);
+		return isOrdered() && pending == false;
 	}
+	
+	/*
+	 * PREPERS
+	 */
+	
+     public Order preperToBuy() {
+ 		this.setState(Order.STATE_ORDERED);
+ 		this.setImmediate(false);
+ 		this.setPending(false);
+		return this;    		
+    }
+    
+     public Order preperToSell() {
+ 		this.setState(Order.STATE_ORDERED);
+ 		this.setImmediate(false);
+ 		this.setPending(false);
+		return this;    		
+    }
+    
+     public Order preperToImmediateSel() {
+ 		this.setState(Order.STATE_ORDERED_CANCEL);
+ 		this.setImmediate(true);
+ 		this.setPending(false);
+		return this;    		
+    }
+    
+     public Order preperToCancel() {
+ 		this.setState(Order.STATE_ORDERED_CANCEL);
+ 		this.setImmediate(false);
+ 		this.setPending(false);
+		return this;    		
+    }
+    
+     public Order confirmLiquidation() {
+		this.setState(Order.STATE_LIQUIDED);
+ 		this.setPending(false);
+		return this;    		
+    }
+    
+     public Order confirmCancellation() {
+		if (this.isImmediate()) {
+	 		this.setState(Order.STATE_ORDERED);
+		}
+		else {
+			this.setState(Order.STATE_CANCELED);
+		}
+ 		this.setPending(false);
+		return this;    		
+    }
 	
 	@Override
 	public String toString() {
