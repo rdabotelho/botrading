@@ -31,7 +31,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.IAccount;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
@@ -82,6 +81,9 @@ public class PoloniexExchange extends ExchangeService {
 	private static final String COMMAND_SELL = "sell";
 	
 	private static final long H24 = 86400000;
+	
+	private static final BigDecimal FEE = new BigDecimal("0.15");
+	private static final BigDecimal IMMEDIATE_FEE = new BigDecimal("0.25");
 	
 	private String generateNonce() {
 		try {
@@ -204,9 +206,9 @@ public class PoloniexExchange extends ExchangeService {
 		return parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
 	}
 	
-	public Map<String, Map<String, String>> commandAvailableAccountBalances(IAccount userAccount, String account) throws Exception {
+	public Map<String, Map<String, String>> commandAvailableAccountBalances(IApiAccess userAccount, String apiAccess) throws Exception {
 		Map<String, String> params = new HashMap<>();
-		params.put("account", account);
+		params.put("apiAccess", apiAccess);
 		String data = this.execTradingAPI(userAccount, COMMAND_ACCOUNT_BALANCES, params);
 	    return parseReturn(data, new TypeToken<Map<String, Map<String, String>>>(){}.getType());
 	}
@@ -301,7 +303,7 @@ public class PoloniexExchange extends ExchangeService {
 	
 	@Override
 	public IMarketCoin getDefaultMarketCoin() {
-		return getMarkeyCoin(ICurrency.BTC);
+		return getMarketCoin(ICurrency.BTC);
 	}
 
 	@Override
@@ -346,6 +348,16 @@ public class PoloniexExchange extends ExchangeService {
 		catch (Exception e) {
 			throw new ExchangeException(e);
 		}
+	}
+
+	@Override
+	public BigDecimal getFee() {
+		return FEE;
+	}
+
+	@Override
+	public BigDecimal getImmediateFee() {
+		return IMMEDIATE_FEE;
 	}
 	
 	public static void clearAllInTheExchange(IApiAccess apiAccess) throws Exception {
