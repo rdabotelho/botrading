@@ -1,6 +1,7 @@
 package com.m2r.botrading.poloniex;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -45,7 +46,9 @@ import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoinDefault;
 import com.m2r.botrading.api.service.ExchangeService;
 import com.m2r.botrading.api.service.ExchangeSession;
+import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.util.CalcUtil;
 import com.m2r.botrading.api.util.JsonException;
 import com.m2r.botrading.api.util.JsonSuccess;
 import com.m2r.botrading.poloniex.model.Balance;
@@ -175,29 +178,29 @@ public class PoloniexExchange extends ExchangeService {
 	    return parseReturn(data, new TypeToken<List<ChartData>>(){}.getType());
 	}
 	
-	public Map<String, Object> commandBalances(IAccount account) throws Exception {
+	public Map<String, Object> commandBalances(IApiAccess apiAccess) throws Exception {
 		Map<String, String> params = new HashMap<>();
-		String data = this.execTradingAPI(account, COMMAND_BALANCES, params);
+		String data = this.execTradingAPI(apiAccess, COMMAND_BALANCES, params);
 	    return parseReturn(data, new TypeToken<Map<String, Object>>(){}.getType());
 	}
 	
-	public Map<String, IBalance> commandCompleteBalances(IAccount account) throws Exception {
+	public Map<String, IBalance> commandCompleteBalances(IApiAccess apiAccess) throws Exception {
 		Map<String, String> params = new HashMap<>();
-		String data = this.execTradingAPI(account, COMMAND_COMPLETE_BALANCES, params);
+		String data = this.execTradingAPI(apiAccess, COMMAND_COMPLETE_BALANCES, params);
 	    return parseReturn(data, new TypeToken<Map<String, Balance>>(){}.getType());
 	}
 	
-	public Map<String, List<IExchangeOrder>> commandOpenOrders(IAccount account) throws Exception {
+	public Map<String, List<IExchangeOrder>> commandOpenOrders(IApiAccess apiAccess) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("currencyPair", "all");
-		String data = this.execTradingAPI(account, COMMAND_OPEN_ORDERS, params);
+		String data = this.execTradingAPI(apiAccess, COMMAND_OPEN_ORDERS, params);
 		return parseReturn(data, new TypeToken<Map<String, List<ExchangeOrder>>>(){}.getType());
 	}
 	
-	public JsonSuccess commandCancelOrder(IAccount account, String orderNumber) throws Exception {
+	public JsonSuccess commandCancelOrder(IApiAccess apiAccess, String orderNumber) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("orderNumber", orderNumber);
-		String data = this.execTradingAPI(account, COMMAND_CANCEL_ORDER, params);
+		String data = this.execTradingAPI(apiAccess, COMMAND_CANCEL_ORDER, params);
 		return parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
 	}
 	
@@ -208,12 +211,12 @@ public class PoloniexExchange extends ExchangeService {
 	    return parseReturn(data, new TypeToken<Map<String, Map<String, String>>>(){}.getType());
 	}
 	
-	public JsonSuccess commandSell(IAccount account, String currencyPair, String rate, String amount) throws Exception {
+	public JsonSuccess commandSell(IApiAccess apiAccess, String currencyPair, String rate, String amount) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("currencyPair", currencyPair);
 		params.put("rate", rate);
 		params.put("amount", amount);
-		String data = this.execTradingAPI(account, COMMAND_SELL, params);
+		String data = this.execTradingAPI(apiAccess, COMMAND_SELL, params);
 	    return parseReturn(data, new TypeToken<JsonSuccess>(){}.getType());
 	}
 	
@@ -254,9 +257,9 @@ public class PoloniexExchange extends ExchangeService {
 	}
 
 	@Override
-	protected IBalanceList getBanlances(IAccount account, IExchangeSession session) throws ExchangeException {
+	protected IBalanceList getBanlances(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException {
 		try {
-			Map<String, IBalance>  map = commandCompleteBalances(account);
+			Map<String, IBalance>  map = commandCompleteBalances(apiAccess);
 			return BalanceList.of(map);
 		}
 		catch (Exception e) {
@@ -265,9 +268,9 @@ public class PoloniexExchange extends ExchangeService {
 	}
 
 	@Override
-	protected IOrderList getOrders(IAccount account, IExchangeSession session) throws ExchangeException {
+	protected IOrderList getOrders(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException {
 		try {
-			Map<String, List<IExchangeOrder>> orderMap = commandOpenOrders(account);
+			Map<String, List<IExchangeOrder>> orderMap = commandOpenOrders(apiAccess);
 			return ExchangeOrderList.of(orderMap);
 		}
 		catch (Exception e) {
@@ -343,6 +346,30 @@ public class PoloniexExchange extends ExchangeService {
 		catch (Exception e) {
 			throw new ExchangeException(e);
 		}
+	}
+	
+	public static void clearAllInTheExchange(IApiAccess apiAccess) throws Exception {
+		IExchangeService service = new PoloniexExchange().init();
+		IMarketCoin mc = service.getDefaultMarketCoin();
+		IExchangeSession session = service.getSession(mc, true, true);
+
+		BigDecimal amin = new BigDecimal("0.000001");
+		IBalanceList blist = session.getBanlances(apiAccess);
+		for (IBalance b : blist.getBalances()) {
+			if (!b.getCoin().equals("BTC") && !b.getCoin().equals("USDT") && CalcUtil.greaterThen(b.getAvailable(), amin)) {
+				System.out.print(b.getCoin()+"\t"+b.getBtcValue());
+				String currencyPair = mc.getCurrency(b.getCoin()).getCurrencyPair();
+				String price = CalcUtil.formatUS(session.getLastPrice(b.getCoin()));
+				String amount = CalcUtil.formatUS(b.getAvailable());
+				try {
+					service.sell(apiAccess, currencyPair, price, amount);
+				}
+				catch (Exception e) {
+				}
+				System.out.println();
+			}
+		}
+		System.out.println();
 	}
 	
 }

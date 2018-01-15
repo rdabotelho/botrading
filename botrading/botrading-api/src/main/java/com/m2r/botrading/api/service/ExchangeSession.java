@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.IAccount;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
@@ -71,9 +70,9 @@ public class ExchangeSession implements IExchangeSession {
 	}
 
 	@Override
-	public IBalanceList getBanlances(IAccount account) throws Exception {
+	public IBalanceList getBanlances(IApiAccess apiAccess) throws Exception {
 		if (balances == null) {
-			balances = service.getBanlances(account, this);
+			balances = service.getBanlances(apiAccess, this);
 		}
 		return balances;
 	}
@@ -95,16 +94,16 @@ public class ExchangeSession implements IExchangeSession {
 	}
 	
 	@Override
-	public IOrderList getOrders(IAccount account) throws Exception {
+	public IOrderList getOrders(IApiAccess apiAccess) throws Exception {
 		if (orders == null) {
-			orders = service.getOrders(account, this);
+			orders = service.getOrders(apiAccess, this);
 		}
 		return orders;
 	}
 	
 	@Override
-	public BigDecimal getAvailableBalance(String coin, IAccount account) throws Exception {
-	    	IBalance balance = this.getBanlances(account).getBalance(coin);
+	public BigDecimal getAvailableBalance(String coin, IApiAccess apiAccess) throws Exception {
+	    	IBalance balance = this.getBanlances(apiAccess).getBalance(coin);
 	    	return balance != null ? balance.getAvailable() : null;
 	}
 

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.IAccount;
+import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.ICurrency;
@@ -40,7 +40,7 @@ public abstract class ExchangeService implements IExchangeService {
 	public abstract IExchangeSession getSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
 	protected abstract ITickerList getTikers(IExchangeSession session) throws ExchangeException;
 	protected abstract IChartDataList getChartDatas(String currencyPair, DataChartPeriod period, LocalDateTime start, LocalDateTime end, IExchangeSession session) throws ExchangeException;
-	protected abstract IBalanceList getBanlances(IAccount IAccount, IExchangeSession session) throws ExchangeException;
-	protected abstract IOrderList getOrders(IAccount IAccount, IExchangeSession session) throws ExchangeException;
+	protected abstract IBalanceList getBanlances(IApiAccess access, IExchangeSession session) throws ExchangeException;
+	protected abstract IOrderList getOrders(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException;
 
 }
