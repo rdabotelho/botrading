@@ -20,9 +20,9 @@ import com.m2r.botrading.admin.repositories.TraderRepository;
 import com.m2r.botrading.admin.util.OrderBuilder;
 import com.m2r.botrading.admin.util.TraderBuilder;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
@@ -103,35 +103,52 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
     		
 		int countOfNewCoins = (int) (traderJob.getCurrencyCount() - countOfRunningCoins);
-    		if (countOfNewCoins > 0) {
-        		IStrategy strategy = strategyRepository.getStrategy(traderJob.getStrategy());
-        		if (strategy == null) {
-        			return;
-        		}    		
-        		try {
-	    			List<String> ignoredCoins = new ArrayList<>();
-	    			List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
-	    			for (Trader t : tradersToIgnoreCoin) {
-	    				ignoredCoins.add(t.getCoin());
-	    			}
-		    		List<ICurrency> currencies = strategy.selectCurrencies(session, countOfNewCoins, ignoredCoins);
-		    		BigDecimal investment = traderJob.getTradingAmount().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
-		    		int limit = countOfNewCoins;
-		    		for (ICurrency currency : currencies) {
-		    			traderJob.getTraders().add(createTrader(currency.getId(), investment, traderJob, session));
-		    			limit--;
-		    			if (limit == 0) {
-		    				break;
-		    			}
-		    		}    		
-        		}
-        		finally {
-	        		if (traderJob.isNew()) {
-	            		traderJob.start();        			
-	        		}
-	        		traderJobRepository.save(traderJob); 
-        		}
-    		}
+		if (countOfNewCoins > 0) {
+			IStrategy strategy = strategyRepository.getStrategy(traderJob.getStrategy());
+			if (strategy == null) {
+				return;
+			}
+			try {
+				// Eliminate the duplicity
+				List<String> ignoredCoins = new ArrayList<>();
+				List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
+				for (Trader t : tradersToIgnoreCoin) {
+					ignoredCoins.add(t.getCoin());
+				}
+
+				// Get the order intent strategy
+				List<IOrderIntent> orderIntents = strategy.selectOrderIntent(session, countOfNewCoins, ignoredCoins);
+				
+				BigDecimal investment = traderJob.getTradingAmount().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
+				int limit = countOfNewCoins;
+				for (IOrderIntent orderIntent : orderIntents) {
+					
+					// Create trader and its orders
+					traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session));
+					
+					//Check if the order intent strategy change the original prices 
+					if (orderIntent.isReplacePrice()) {
+						traderJob.getTraders().forEach(t -> {
+							t.getOrders().forEach(o -> {
+								o.setPrice(o.isBuy() ? orderIntent.getBuyPrice() : orderIntent.getSellPrice());
+							});
+						});
+					}
+					
+					// Exit on limit
+					limit--;
+					if (limit == 0) {
+						break;
+					}
+				}
+			} 
+			finally {
+				if (traderJob.isNew()) {
+					traderJob.start();
+				}
+				traderJobRepository.save(traderJob);
+			}
+		}
     }
     
     private Trader createTrader(String coin, BigDecimal investment, TraderJob traderJob, IExchangeSession session) throws Exception {

@@ -3,15 +3,15 @@ package com.m2r.botrading.api.model;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MarketCoinDefault extends CurrencyDefault implements IMarketCoin {
+public class MarketCoin extends Currency implements IMarketCoin {
 
 	private Map<String, ICurrency> currencies;
 	
-	public static MarketCoinDefault of(String id) {
-		return new MarketCoinDefault(id);
+	public static MarketCoin of(String id) {
+		return new MarketCoin(id);
 	}
 	
-	public MarketCoinDefault(String id) {
+	public MarketCoin(String id) {
 		super(id, id);
 		this.currencies = new HashMap<>();
 	}

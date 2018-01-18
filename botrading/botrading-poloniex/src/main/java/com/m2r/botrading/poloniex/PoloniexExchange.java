@@ -42,7 +42,7 @@ import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
-import com.m2r.botrading.api.model.MarketCoinDefault;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.ExchangeService;
 import com.m2r.botrading.api.service.ExchangeSession;
 import com.m2r.botrading.api.service.IExchangeService;
@@ -251,7 +251,7 @@ public class PoloniexExchange extends ExchangeService {
 		try {
 	    		ZonedDateTime endDate = ZonedDateTime.of(end, EXCHANGE_ZONE_ID);
 	    		ZonedDateTime startDate = ZonedDateTime.of(start, EXCHANGE_ZONE_ID);
-	    		return ChartDataList.of(this.commandChartDatas(currencyPair, DataChartPeriod.FIVE_MINUTES, startDate.toInstant().getEpochSecond(), endDate.toInstant().getEpochSecond()));
+	    		return ChartDataList.of(this.commandChartDatas(currencyPair, period, startDate.toInstant().getEpochSecond(), endDate.toInstant().getEpochSecond()));
 		}
 		catch (Exception e) {
 			throw new ExchangeException(e);
@@ -286,13 +286,13 @@ public class PoloniexExchange extends ExchangeService {
 		try {
 			Map<String, ITicker> tikersMap = commandTicker();
 			tikersMap.forEach((k, v) -> {
-				String marketCoinId = MarketCoinDefault.currencyPairToMarketCoinId(k);
+				String marketCoinId = MarketCoin.currencyPairToMarketCoinId(k);
 				IMarketCoin marketCoin = map.get(marketCoinId);
 				if (marketCoin == null) {
-					marketCoin = MarketCoinDefault.of(marketCoinId);
+					marketCoin = MarketCoin.of(marketCoinId);
 					map.put(marketCoinId, marketCoin);
 				}
-				String currencyId = MarketCoinDefault.currencyPairToCurrencyId(k);
+				String currencyId = MarketCoin.currencyPairToCurrencyId(k);
 				marketCoin.createAndAddCurrency(currencyId, currencyId);
 			});
 		} catch (Exception e) {
