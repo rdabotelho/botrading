@@ -20,6 +20,6 @@ public interface ScheduleService {
     public void synchronize(Trader trader, IExchangeSession session) throws Exception;
     public void executeOrder(Order order, IExchangeSession session);
 	public void saveOrder(Order order);
-    public void verifyAndCreateNewTrading(TraderJob traderJob, IExchangeSession session) throws Exception;
+    public void verifyAndCreateNewTrading(Long traderJobId, IExchangeSession session) throws Exception;
     
 }

@@ -14,6 +14,7 @@ import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.service.PropertiesService;
 import com.m2r.botrading.admin.service.ScheduleService;
+import com.m2r.botrading.admin.util.TimeCounter;
 import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.service.IExchangeSession;
@@ -24,9 +25,11 @@ public class OrderScheduledTasks {
 
     private final static Logger LOG = Logger.getLogger(OrderScheduledTasks.class.getSimpleName());
 
-    private final static int SCHEDULE_TIME = 10000; 	// milliseconds
+    private final static int SCHEDULE_TIME = 1000; 	// milliseconds
     
-    private final static int LIMIT_TO_SYNCH = 60000;	// milliseconds
+    private TimeCounter orderTaskTimeCounter = TimeCounter.of(10000, this::executeOrdersTask);
+    private TimeCounter synchTaskTimeCounter = TimeCounter.of(30000, this::executeSynchTask);
+    private TimeCounter catLeapTaskTimeCounter = TimeCounter.of(10000, this::executeCatLeapTask);
     
     @Autowired
     private ScheduleService scheduleService;
@@ -36,29 +39,40 @@ public class OrderScheduledTasks {
     
 	private Map<Long, IExchangeSession> sessions = new HashMap<>();
 	
-	private long startTime, time = 0;
-	
-	@Scheduled(fixedRate = SCHEDULE_TIME)
+	@Scheduled(fixedDelay = SCHEDULE_TIME)
 	public void scheduleTask() {
 		if (!propertiesService.getEnableScheduling()) {
 			return;
 		}
-		time = System.currentTimeMillis() - startTime;
-		executeOrdersTask();
-		if (time > LIMIT_TO_SYNCH) {
-			executeSynchTask();
-			startTime = System.currentTimeMillis();
-		}
-		executeCatLeapTask();
+		orderTaskTimeCounter.ifTimeoutExecute();
+		synchTaskTimeCounter.ifTimeoutExecute();
+		catLeapTaskTimeCounter.ifTimeoutExecute();
 	}
 	
 	private void executeOrdersTask() {
 		initSessions();
 		List<Order> orders = scheduleService.findAllToScheduleTaskOrders();
 		for (Order order : orders) {
-			IExchangeSession session = loadSession(order.getTrader());
+			IExchangeSession session = loadSession(order.getTrader().getTraderJob());
 			scheduleService.executeOrder(order, session);
 		}		
+	}
+	
+	private void executeSynchTask() {
+		List<TraderJob> traderJobs = scheduleService.findAllTraderJobsByState(TraderJob.STATE_STARTED);
+		for (TraderJob traderJob : traderJobs) {
+			try {
+				IExchangeSession session = loadSession(traderJob);
+				List<Trader> traders = scheduleService.findAllByTraderJobAndStateNotComplete(traderJob);
+				for (Trader trader : traders) {
+					scheduleService.synchronize(trader, session);
+				}
+				scheduleService.verifyAndCreateNewTrading(traderJob.getId(), session);
+			} 
+			catch (Exception e) {
+				LOG.warning(e.getMessage());
+			}
+		}
 	}
 	
 	private void executeCatLeapTask() {
@@ -74,33 +88,16 @@ public class OrderScheduledTasks {
 		}
 	}
 	
-	private void executeSynchTask() {
-		List<TraderJob> traderJobs = scheduleService.findAllTraderJobsByState(TraderJob.STATE_STARTED);
-		for (TraderJob traderJob : traderJobs) {
-			try {
-				List<Trader> traders = scheduleService.findAllByTraderJobAndStateNotComplete(traderJob);
-				for (Trader trader : traders) {
-					IExchangeSession session = loadSession(trader);
-					scheduleService.synchronize(trader, session);
-				}    	
-			} 
-			catch (Exception e) {
-				LOG.warning(e.getMessage());
-			}
-		}
-	}
-	
 	private void initSessions() {
 		sessions.clear();
 	}
 	
-	public IExchangeSession loadSession(Trader trader) {
-		Long tjId = trader.getTraderJob().getId();
-		IExchangeSession session = sessions.get(tjId);
+	public IExchangeSession loadSession(TraderJob traderJob) {
+		IExchangeSession session = sessions.get(traderJob.getId());
 		if (session == null) {
-			IMarketCoin marketCoin = scheduleService.getMarketCoin(trader.getTraderJob().getMarketCoin());
+			IMarketCoin marketCoin = scheduleService.getMarketCoin(traderJob.getMarketCoin());
 			session = scheduleService.getExchangeSession(marketCoin, false, true);
-			sessions.put(tjId, session);
+			sessions.put(traderJob.getId(), session);
 		}
 		return session;
 	}

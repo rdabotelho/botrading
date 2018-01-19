@@ -38,6 +38,19 @@
 	        	<artifactId>guava</artifactId>
 	        	<version>16.0.1</version>
         </dependency>
+        
+        <!--  Websocket Test -->
+		<dependency>
+		    <groupId>ws.wamp.jawampa</groupId>
+		    <artifactId>jawampa-core</artifactId>
+		    <version>0.5.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>ws.wamp.jawampa</groupId>
+		    <artifactId>jawampa-netty</artifactId>
+		    <version>0.5.0</version>
+		</dependency>
+		
 	</dependencies>
 
 </project>

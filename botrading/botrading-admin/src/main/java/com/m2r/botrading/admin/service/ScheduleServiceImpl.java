@@ -92,8 +92,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
     
     @Override
-    public void verifyAndCreateNewTrading(TraderJob traderJob, IExchangeSession session) throws Exception {
-		if (traderJob.isFinished()) {
+    public void verifyAndCreateNewTrading(Long traderJobId, IExchangeSession session) throws Exception {
+    	TraderJob traderJob = traderJobRepository.findOne(traderJobId);
+		if (!traderJob.isStarted()) {
 			return;
 		}
 
@@ -108,44 +109,41 @@ public class ScheduleServiceImpl implements ScheduleService {
 			if (strategy == null) {
 				return;
 			}
-			try {
-				// Eliminate the duplicity
-				List<String> ignoredCoins = new ArrayList<>();
-				List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
-				for (Trader t : tradersToIgnoreCoin) {
-					ignoredCoins.add(t.getCoin());
-				}
 
-				// Get the order intent strategy
-				List<IOrderIntent> orderIntents = strategy.selectOrderIntent(session, countOfNewCoins, ignoredCoins);
+			// Eliminate the duplicity
+			List<String> ignoredCoins = new ArrayList<>();
+			List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
+			for (Trader t : tradersToIgnoreCoin) {
+				ignoredCoins.add(t.getCoin());
+			}
+
+			// Get the order intent strategy
+			List<IOrderIntent> orderIntents = strategy.selectOrderIntent(session, countOfNewCoins, ignoredCoins);
+			
+			BigDecimal investment = traderJob.getTradingAmount().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
+			int limit = countOfNewCoins;
+			for (IOrderIntent orderIntent : orderIntents) {
 				
-				BigDecimal investment = traderJob.getTradingAmount().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
-				int limit = countOfNewCoins;
-				for (IOrderIntent orderIntent : orderIntents) {
-					
-					// Create trader and its orders
-					traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session));
-					
-					//Check if the order intent strategy change the original prices 
-					if (orderIntent.isReplacePrice()) {
-						traderJob.getTraders().forEach(t -> {
-							t.getOrders().forEach(o -> {
-								o.setPrice(o.isBuy() ? orderIntent.getBuyPrice() : orderIntent.getSellPrice());
-							});
+				// Create trader and its orders
+				traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session));
+				
+				//Check if the order intent strategy change the original prices 
+				if (orderIntent.isReplacePrice()) {
+					traderJob.getTraders().forEach(t -> {
+						t.getOrders().forEach(o -> {
+							o.setPrice(o.isBuy() ? orderIntent.getBuyPrice() : orderIntent.getSellPrice());
 						});
-					}
-					
-					// Exit on limit
-					limit--;
-					if (limit == 0) {
-						break;
-					}
+					});
 				}
-			} 
-			finally {
-				if (traderJob.isNew()) {
-					traderJob.start();
+				
+				// Exit on limit
+				limit--;
+				if (limit == 0) {
+					break;
 				}
+			}
+			
+			if (!orderIntents.isEmpty()) {
 				traderJobRepository.save(traderJob);
 			}
 		}
@@ -230,9 +228,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     			// finish the trading
     			if (hasNotOpenedOrders(trader)) {
 	    			traderRepository.complete(trader);
-	    			if (trader.getTraderJob().getContinuoMode()) {
-	    				verifyAndCreateNewTrading(trader.getTraderJob(), session);
-	    			}
     			}
     		}
     		// For liquided buy orders

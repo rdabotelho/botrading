@@ -125,9 +125,8 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public void startTraderJob(TraderJob traderJob) throws Exception {
-    		IMarketCoin marketCoin = getExchangeService().getMarketCoin(traderJob.getMarketCoin());
-	    	IExchangeSession session = getExchangeService().getSession(marketCoin, false, true);
-	    	scheduleService.verifyAndCreateNewTrading(traderJob, session);
+		traderJob.start();
+		traderJobRepository.save(traderJob);
     }
     
     @Override

@@ -121,6 +121,7 @@
 			<artifactId>botrading-poloniex</artifactId>
 			<version>${botrading.poloniex.version}</version>
 		</dependency>
+		
 	</dependencies>
 
 	<build>
