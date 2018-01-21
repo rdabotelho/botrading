@@ -2,28 +2,36 @@ package com.m2r.botrading.api.model;
 
 import java.math.BigDecimal;
 
+import com.m2r.botrading.api.util.CalcUtil;
+
 public class OrderIntent implements IOrderIntent {
 
 	private ICurrency currency;
 	private BigDecimal buyPrice;
 	private BigDecimal sellPrice;
+	private boolean replacePrice;
 	
-	public static OrderIntent of(ICurrency currency, BigDecimal buyPrice, BigDecimal sellPrice) {
-		return new OrderIntent(currency, buyPrice, sellPrice);
+	public static OrderIntent of(ICurrency currency, BigDecimal buyPrice, BigDecimal sellPrice, boolean replacePrice) {
+		return new OrderIntent(currency, buyPrice, sellPrice, replacePrice);
 	}
 	
 	public static OrderIntent of(ICurrency currency) {
 		return new OrderIntent(currency);
 	}
 	
-	public OrderIntent(ICurrency currency, BigDecimal buyPrice, BigDecimal sellPrice) {
+	public OrderIntent(ICurrency currency, BigDecimal buyPrice, BigDecimal sellPrice, boolean replacePrice) {
 		this.currency = currency;
-		this.buyPrice = buyPrice;
-		this.sellPrice = sellPrice;
+		if (buyPrice != null) {
+			this.buyPrice = CalcUtil.toCoinScale(buyPrice);
+		}
+		if (sellPrice != null) {
+			this.sellPrice = CalcUtil.toCoinScale(sellPrice);
+		}
+		this.replacePrice = replacePrice;
 	}
 	
 	public OrderIntent(ICurrency currency) {
-		this(currency, null, null);
+		this(currency, null, null, false);
 	}
 
 	@Override
@@ -39,6 +47,10 @@ public class OrderIntent implements IOrderIntent {
 	@Override
 	public BigDecimal getSellPrice() {
 		return sellPrice;
+	}
+	
+	public boolean isReplacePrice() {
+		return replacePrice;
 	}
 
 }

@@ -48,4 +48,9 @@ public class CatLeapStrategy implements IStrategy {
 		return list;
 	}
 	
+	@Override
+	public boolean isReplacePrice() {
+		return false;
+	}
+	
 }

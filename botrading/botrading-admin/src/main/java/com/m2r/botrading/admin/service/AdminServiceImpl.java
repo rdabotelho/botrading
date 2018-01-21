@@ -40,9 +40,6 @@ import com.m2r.botrading.strategy.DefaultStrategyRepository;
 public class AdminServiceImpl implements AdminService {
     
     @Autowired
-    private ScheduleService scheduleService;
-    
-    @Autowired
     private TraderJobRepository traderJobRepository;
     
     @Autowired

@@ -49,5 +49,10 @@ public class HighCoinsStrategy implements IStrategy {
 		}		
 		return list;
 	}
+	
+	@Override
+	public boolean isReplacePrice() {
+		return false;
+	}
 
 }

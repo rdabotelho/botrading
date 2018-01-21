@@ -12,6 +12,7 @@ public class DefaultStrategyRepository extends StrategyRepository {
 		this.registerStrategy(new LowCoinsStrategy());
 		this.registerStrategy(new RandomCoinsStrategy());
 		this.registerStrategy(new CatLeapStrategy());
+		this.registerStrategy(new LowBollingerStrategy());
 	}
 
 }

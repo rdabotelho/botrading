@@ -9,5 +9,6 @@ public interface IStrategy {
 
 	public String getName();
 	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, int count, List<String> ignoredCoins);
+	public boolean isReplacePrice();
 	
 }

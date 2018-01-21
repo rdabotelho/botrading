@@ -7,11 +7,12 @@ import java.util.List;
 
 import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.Trader;
+import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.util.CalcUtil;
 
 public class OrderBuilder {
 
-    public static List<Order> createAll(Trader t, BigDecimal lastPrice) {
+    public static List<Order> createAll(Trader t, BigDecimal lastPrice, IOrderIntent intent) {
     		List<Order> list = new ArrayList<>();
     	
 		int countParcels = t.countParcels();
@@ -20,20 +21,24 @@ public class OrderBuilder {
 		
 		int parcelNum = 1;
 		
-		if (CalcUtil.isNotZeroPercent(t.getParcel1())) {
+		if (CalcUtil.isNotZeroPercent(t.getParcel1()) || intent.isReplacePrice()) {
 			total = countParcels == 1 ? residue : total;
-			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel1(), t.getFee());
-			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel1(), t.getFee());
+			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel1(), t.getFee(), intent);
+			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel1(), t.getFee(), intent);
 			list.add(buyOrder);
 			list.add(selOrder);
 			residue = residue.subtract(total);
 			countParcels--;
 		}
 		
+		if (intent.isReplacePrice()) {
+			return list;
+		}
+		
 		if (CalcUtil.isNotZeroPercent(t.getParcel2())) {
 			total = countParcels == 1 ? residue : total;
-			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel2(), t.getFee());
-			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel2(), t.getFee());
+			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel2(), t.getFee(), intent);
+			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel2(), t.getFee(), intent);
 			list.add(buyOrder);
 			list.add(selOrder);
 			residue = residue.subtract(total);
@@ -42,8 +47,8 @@ public class OrderBuilder {
 		
 		if (CalcUtil.isNotZeroPercent(t.getParcel3())) {
 			total = countParcels == 1 ? residue : total;
-			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel3(), t.getFee());
-			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel3(), t.getFee());
+			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel3(), t.getFee(), intent);
+			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel3(), t.getFee(), intent);
 			list.add(buyOrder);
 			list.add(selOrder);
 			residue = residue.subtract(total);
@@ -52,8 +57,8 @@ public class OrderBuilder {
 		
 		if (CalcUtil.isNotZeroPercent(t.getParcel4())) {
 			total = countParcels == 1 ? residue : total;
-			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel4(), t.getFee());
-			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel4(), t.getFee());
+			Order buyOrder = createBuying(t, parcelNum++, lastPrice, total, t.getParcel4(), t.getFee(), intent);
+			Order selOrder = createSelling(buyOrder, lastPrice, t.getParcel4(), t.getFee(), intent);
 			list.add(buyOrder);
 			list.add(selOrder);
 			residue = residue.subtract(total);
@@ -66,9 +71,15 @@ public class OrderBuilder {
     /*
      * amount = price / total
      */
-    public static Order createBuying(Trader t, Integer parcel, BigDecimal lastPrice, BigDecimal total, BigDecimal percent, BigDecimal fee) {
-		BigDecimal priceToBuy = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
-		priceToBuy = lastPrice.add(priceToBuy.negate());
+    public static Order createBuying(Trader t, Integer parcel, BigDecimal lastPrice, BigDecimal total, BigDecimal percent, BigDecimal fee, IOrderIntent intent) {
+		BigDecimal priceToBuy = null;
+		if (intent.isReplacePrice()) {
+			priceToBuy = intent.getBuyPrice();
+		}
+		else {
+	    		priceToBuy = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
+			priceToBuy = lastPrice.add(priceToBuy.negate());
+		}		
 		Order o = new Order();
 		o.setTrader(t);
 		o.setDateTime(LocalDateTime.now());
@@ -83,9 +94,15 @@ public class OrderBuilder {
     /*
      * total = price * amount
      */
-    public static Order createSelling(Order buyOrder, BigDecimal lastPrice, BigDecimal percent, BigDecimal fee) {
-		BigDecimal priceToSell = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
-		priceToSell = lastPrice.add(priceToSell);
+    public static Order createSelling(Order buyOrder, BigDecimal lastPrice, BigDecimal percent, BigDecimal fee, IOrderIntent intent) {
+		BigDecimal priceToSell = null;
+		if (intent.isReplacePrice()) {
+			priceToSell = intent.getSellPrice();
+		}
+		else {
+			priceToSell = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
+			priceToSell = lastPrice.add(priceToSell);
+		}		
 		Order o = new Order();
 		o.setTrader(buyOrder.getTrader());
 		o.setDateTime(LocalDateTime.now());

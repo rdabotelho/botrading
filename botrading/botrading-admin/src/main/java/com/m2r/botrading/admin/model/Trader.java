@@ -90,7 +90,7 @@ public class Trader implements Serializable, ITrader {
     private long liquidedTotal = 0;
     
     public Trader() {
-    	this.profit = BigDecimal.ZERO;
+    		this.profit = BigDecimal.ZERO;
     }
     
 	public Long getId() {

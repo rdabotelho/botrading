@@ -53,7 +53,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private StrategyRepository strategyRepository = new DefaultStrategyRepository();
     
     protected IExchangeService getExchangeService() {
-    	return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
+    		return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
     }
     
     @Override
@@ -93,7 +93,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     @Override
     public void verifyAndCreateNewTrading(Long traderJobId, IExchangeSession session) throws Exception {
-    	TraderJob traderJob = traderJobRepository.findOne(traderJobId);
+    		TraderJob traderJob = traderJobRepository.findOne(traderJobId);
 		if (!traderJob.isStarted()) {
 			return;
 		}
@@ -109,7 +109,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			if (strategy == null) {
 				return;
 			}
-
+			
 			// Eliminate the duplicity
 			List<String> ignoredCoins = new ArrayList<>();
 			List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
@@ -125,16 +125,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			for (IOrderIntent orderIntent : orderIntents) {
 				
 				// Create trader and its orders
-				traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session));
-				
-				//Check if the order intent strategy change the original prices 
-				if (orderIntent.isReplacePrice()) {
-					traderJob.getTraders().forEach(t -> {
-						t.getOrders().forEach(o -> {
-							o.setPrice(o.isBuy() ? orderIntent.getBuyPrice() : orderIntent.getSellPrice());
-						});
-					});
-				}
+				traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session, orderIntent));
 				
 				// Exit on limit
 				limit--;
@@ -149,7 +140,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
     }
     
-    private Trader createTrader(String coin, BigDecimal investment, TraderJob traderJob, IExchangeSession session) throws Exception {
+    private Trader createTrader(String coin, BigDecimal investment, TraderJob traderJob, IExchangeSession session, IOrderIntent intent) throws Exception {
 		Trader t = TraderBuilder.create(coin, investment, session.getFee(), traderJob);
 		BigDecimal lastPrice = session.getLastPrice(coin);
 		if (lastPrice == null) {
@@ -157,7 +148,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
 		t.start();
 		traderRepository.save(t);
-		OrderBuilder.createAll(t, lastPrice).forEach(o -> {
+		OrderBuilder.createAll(t, lastPrice, intent).forEach(o -> {
 			orderRepository.save(o);
 		});
 		return t;

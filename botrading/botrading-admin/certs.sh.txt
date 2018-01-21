@@ -1,0 +1,48 @@
+#!/bin/bash
+
+PASS=123456
+DOMAIN=bt1.yuhull.com
+USER=raimundo.botelho
+USERNAME="Raimundo Botelho"
+KEY=A6MSDX56-KPVBAZED-YJ53MWN6-GN8JWZ0X
+JAVAHOME=/usr/java/jdk1.8.0_152
+
+echo "Creating Server Certificate..."
+
+keytool -genkey -alias ca -keyalg RSA -keysize 2048 -keystore ca.jks -dname "CN=Botrading,OU=M2R,O=M2R,L=Belem,ST=PA,C=BR" -storepass "$PASS" -keypass "$PASS"
+keytool -exportcert -keystore ca.jks -alias ca -file ca.crt -storepass "$PASS" -keypass "$PASS"
+keytool -genkey -alias server -keyalg RSA -keysize 2048 -keystore server.jks -dname "CN=$DOMAIN,OU=Botrading,O=M2R,L=Belem,ST=PA,C=BR"  -storepass "$PASS" -keypass "$PASS"
+keytool -certreq -alias server -keyalg RSA -file server.csr -keystore server.jks -storepass "$PASS" -keypass "$PASS"
+keytool -exportcert -keystore server.jks -alias server -file server.crt -storepass "$PASS" -keypass "$PASS"
+keytool -importkeystore -srckeystore ca.jks -destkeystore ca.p12 -srcalias ca -srcstoretype jks -deststoretype pkcs12 -storepass "$PASS" -keypass "$PASS" -srckeypass "$PASS" 
+openssl pkcs12 -in ca.p12 -out ca.pem.txt -passin pass:"$PASS" -passout pass:"$PASS"
+openssl pkcs12 -in ca.p12 -out ca-key.pem.txt -passin pass:"$PASS" -passout pass:"$PASS"
+openssl x509 -req -CA ca.pem.txt -CAkey ca-key.pem.txt -in server.csr -out server.cer -days 365 -CAcreateserial
+keytool -J-Duser.language=en -trustcacerts -importcert -alias ca -file ca.crt -keystore server.jks -storepass "$PASS" -keypass "$PASS"
+keytool -J-Duser.language=en -trustcacerts -importcert -alias server -file server.cer -keystore server.jks -storepass "$PASS" -keypass "$PASS"
+
+echo "Server Certificate Created!"
+
+echo "Creating Personal Certificate..."
+
+keytool -genkey -alias 1 -keyalg RSA -keysize 2048 -keystore "$USER".jks -dname "EmailAddress=$KEY,CN=$USERNAME,OU=Account,O=Botrading,L=Belem,ST=PA,C=BR" -storepass "$PASS" -keypass "$PASS"
+keytool -certreq -alias 1 -keyalg RSA -file "$USER".csr -keystore "$USER".jks -storepass "$PASS" -keypass "$PASS"
+openssl x509 -req -CA ca.pem.txt -CAkey ca-key.pem.txt -in "$USER".csr -out "$USER".cer -days 365 -CAcreateserial
+keytool -J-Duser.language=en -trustcacerts -importcert -alias ca -file ca.crt -keystore "$USER".jks -storepass "$PASS" -keypass "$PASS"
+keytool -J-Duser.language=en -trustcacerts -importcert -alias 1 -file "$USER".cer -keystore "$USER".jks -storepass "$PASS" -keypass "$PASS"
+keytool -importkeystore -srckeystore "$USER".jks -srcstoretype JKS -deststoretype PKCS12 -destkeystore "$USER".pfx -storepass "$PASS" -keypass "$PASS"
+
+echo "Personal Certificate Created!"
+
+echo "Creating Truststore Repository..."
+
+keytool -J-Duser.language=en -import -file ca.crt -alias root -keystore truststore.jks -storepass "$PASS" -keypass "$PASS"
+keytool -delete -alias ca -keystore "$JAVAHOME"/jre/lib/security/cacerts  -storepass changeit -keypass changeit
+keytool -J-Duser.language=en -importcert -alias ca -file ca.crt -keystore "$JAVAHOME"/jre/lib/security/cacerts  -storepass changeit -keypass changeit
+keytool -exportcert -keystore "$USER".jks -alias 1 -file "$USER".crt  -storepass "$PASS" -keypass "$PASS"
+keytool -J-Duser.language=en -importcert -file "$USER".crt -keystore truststore.jks -alias 1  -storepass "$PASS" -keypass "$PASS"
+
+cp server.jks botrading-admin.jks
+cp truststore.jks botrading-admin-truststore.jks
+
+echo "Truststore Repository Created!"

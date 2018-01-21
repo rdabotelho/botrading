@@ -25,8 +25,8 @@ public class LowBollingerStrategy implements IStrategy {
 
     private final static Logger LOG = Logger.getLogger(LowBollingerStrategy.class.getSimpleName());
     
-	private static final String TARGET_URL = "http://localhost:8080/intantions";
-
+    public static final String TARGET_URL = "http://208.113.135.137:8180/intentions";
+    
 	private static final String NAME = "LOW BOLLINGER";
 	
 	@Override
@@ -47,7 +47,7 @@ public class LowBollingerStrategy implements IStrategy {
 				Intention intention = intentions.get(i);
 				String coin = MarketCoin.currencyPairToCurrencyId(intention.getCurrencyPair());
 				if (!ignoredCoins.contains(coin)) {
-					list.add(OrderIntent.of(new Currency(coin, coin), intention.getBuyPrice(), intention.getSalePrice()));					
+					list.add(OrderIntent.of(new Currency(coin, coin), intention.getBuyPrice(), intention.getSalePrice(), true));					
 	    			limit--;
 	    			if (limit == 0) {
 	    				break;
@@ -100,6 +100,11 @@ public class LowBollingerStrategy implements IStrategy {
 			this.salePrice = salePrice;
 		}
 
+	}
+	
+	@Override
+	public boolean isReplacePrice() {
+		return true;
 	}
 
 }

@@ -91,4 +91,8 @@ public class CalcUtil {
 		return BigDecimal.ZERO.setScale(SCALE_COIN).equals(value.setScale(SCALE_COIN, RoundingMode.FLOOR));
 	}
 	
+	public static BigDecimal toCoinScale(BigDecimal value) {
+		return value.setScale(SCALE_COIN, RoundingMode.HALF_UP);
+	}
+	
 }
