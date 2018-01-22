@@ -149,6 +149,7 @@
 				<th>Options</th>
 				<th>State</th>
 				<th>Profit</th>
+				<th>Balance</th>
 				<th>Action</th>
 			</tr>
 		</thead>
@@ -177,6 +178,7 @@
 				</td>
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.profit}}"></td>
+				<td th:text="${{tr.balance}}"></td>
 				<td>
 					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>
 					<a th:if="${tr.state} eq 2" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Delete</a>

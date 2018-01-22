@@ -97,6 +97,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 		if (!traderJob.isStarted()) {
 			return;
 		}
+		
+		if (!traderJob.getContinuoMode()) {
+			return;
+		}
 
 		long countOfRunningCoins = 0;
 		if (!traderJob.isNew()) {
@@ -120,7 +124,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			// Get the order intent strategy
 			List<IOrderIntent> orderIntents = strategy.selectOrderIntent(session, countOfNewCoins, ignoredCoins);
 			
-			BigDecimal investment = traderJob.getTradingAmount().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
+			BigDecimal investment = traderJob.getBalance().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
 			int limit = countOfNewCoins;
 			for (IOrderIntent orderIntent : orderIntents) {
 				

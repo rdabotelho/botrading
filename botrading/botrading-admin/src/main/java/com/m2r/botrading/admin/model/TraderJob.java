@@ -158,6 +158,7 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.tradingPercent = tradingPercent;
 	}
 	
+	@NumberFormat(style=Style.NUMBER, pattern="0.00000000")
 	public BigDecimal getTradingAmount() {
 		return CalcUtil.percent(amount, tradingPercent);
 	}
@@ -217,6 +218,11 @@ public class TraderJob implements Serializable, ITraderJob {
 
 	public void setProfit(BigDecimal profit) {
 		this.profit = profit;
+	}
+	
+	@NumberFormat(style=Style.NUMBER, pattern="0.00000000")
+	public BigDecimal getBalance() {
+		return CalcUtil.add(this.getTradingAmount(), this.getProfit());
 	}
 
 	public void start() {

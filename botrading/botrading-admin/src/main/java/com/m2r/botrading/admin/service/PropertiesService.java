@@ -4,11 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 
-import com.m2r.botrading.api.util.IConfigProperties;
-
 @Service("propertiesService")
 @ConfigurationProperties
-public class PropertiesService implements IConfigProperties {
+public class PropertiesService {
 
 	public String profile;
 	private Integer httpPort;
@@ -48,11 +46,6 @@ public class PropertiesService implements IConfigProperties {
 
 	public void setEnableScheduling(Boolean enableScheduling) {
 		this.enableScheduling = enableScheduling;
-	}
-
-	@Override
-	public String getProperty(String name) {
-		return null;
 	}
 	
 }
