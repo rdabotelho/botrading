@@ -307,6 +307,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
 			order.setOrderNumber(orderNumber);
 			order.setPending(true);
+			order.setPrice(priceToSell);
 			order.setAmount(amountToSell);
 			LOG.info("Order (sell) " + order.getOrderNumber() + " created in the exchange.");						
 		}

@@ -35,6 +35,18 @@ public abstract class ExchangeService implements IExchangeService {
 	public Map<String, IMarketCoin> getMarketCoins() {
 		return this.marketCoinsMap;
 	}
+	
+	@Override
+	public IExchangeSession getSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
+		IExchangeSession session = ExchangeSession.createSession(this, marketCoin);
+		if (resetPublic) {
+			session.resetPublicCache();
+		}
+		if (resetPrivate) {
+			session.resetPrivateCache();
+		}
+		return session;
+	}
 
 	/**
 	 * Method which load all market coins of the exchange.
