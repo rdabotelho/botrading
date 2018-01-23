@@ -3,6 +3,7 @@ package com.m2r.botrading.admin.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -89,8 +90,11 @@ public class Trader implements Serializable, ITrader {
     @Transient
     private long liquidedTotal = 0;
     
+    @Transient
+    private List<BigDecimal> parcels;
+    
     public Trader() {
-    		this.profit = BigDecimal.ZERO;
+    	this.profit = BigDecimal.ZERO;
     }
     
 	public Long getId() {
@@ -181,18 +185,23 @@ public class Trader implements Serializable, ITrader {
 		this.traderJob = traderJob;
 	}
 
-	public int countParcels() {
-		int c = (CalcUtil.valueNotEmpty(parcel1) ? 1 : 0);
-		if ((CalcUtil.valueNotEmpty(parcel2)) ) {
-			c++;
+	public List<BigDecimal> getParcels() {
+		if (parcels == null) {
+	    	this.parcels = new ArrayList<>();
+			if (CalcUtil.isNotZeroPercent(this.getParcel1())) {
+				this.parcels.add(this.getParcel1());
+			}
+			if (CalcUtil.isNotZeroPercent(this.getParcel2())) {
+				this.parcels.add(this.getParcel2());
+			}
+			if (CalcUtil.isNotZeroPercent(this.getParcel3())) {
+				this.parcels.add(this.getParcel3());
+			}
+			if (CalcUtil.isNotZeroPercent(this.getParcel4())) {
+				this.parcels.add(this.getParcel4());
+			}
 		}
-		if ((CalcUtil.valueNotEmpty(parcel3)) ) {
-			c++;
-		}
-		if ((CalcUtil.valueNotEmpty(parcel4)) ) {
-			c++;
-		}
-		return c;
+		return parcels;
 	}
 	
 	public void setLiquidedTotal(long liquidadTotal) {

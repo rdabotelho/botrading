@@ -27,15 +27,10 @@ public class CalcUtil {
 		return value.equals(BigDecimal.ZERO);		
 	}
 	
-	public static boolean valueEmpty(BigDecimal value) {
-		return value == null || valueEqualZero(value); 		
-	}
-	
-	public static boolean valueNotEmpty(BigDecimal value) {
-		return !valueEmpty(value); 		
-	}
-	
 	public static boolean isNotZeroPercent(BigDecimal value) {
+		if (value == null) {
+			return false;
+		}
 		return !BigDecimal.ZERO.setScale(SCALE_PERCENT).equals(value.setScale(SCALE_PERCENT, RoundingMode.FLOOR));
 	}
 
