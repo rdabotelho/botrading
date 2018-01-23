@@ -1,7 +1,6 @@
 package com.m2r.botrading.admin.service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,21 +123,30 @@ public class ScheduleServiceImpl implements ScheduleService {
 			// Get the order intent strategy
 			List<IOrderIntent> orderIntents = strategy.selectOrderIntent(session, countOfNewCoins, ignoredCoins);
 			
-			BigDecimal investment = traderJob.getBalance().divide(new BigDecimal(traderJob.getCurrencyCount().toString()), MathContext.DECIMAL64);
-			int limit = countOfNewCoins;
-			for (IOrderIntent orderIntent : orderIntents) {
-				
-				// Create trader and its orders
-				traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session, orderIntent));
-				
-				// Exit on limit
-				limit--;
-				if (limit == 0) {
-					break;
-				}
-			}
-			
 			if (!orderIntents.isEmpty()) {
+				
+				// Get the used value
+				BigDecimal used = traderRepository.sumByTraderJobAndStateIn(traderJob, Trader.STATE_NEW, Trader.STATE_STARTED);
+				if (used == null) {
+					used = BigDecimal.ZERO;
+				}
+				
+				// calculate the new investment
+				BigDecimal investment = CalcUtil.divide(CalcUtil.subtract(traderJob.getBalance(), used), new BigDecimal(new Integer(countOfNewCoins).toString()));
+				
+				int limit = countOfNewCoins;
+				for (IOrderIntent orderIntent : orderIntents) {
+					
+					// Create trader and its orders
+					traderJob.getTraders().add(createTrader(orderIntent.getCurrency().getId(), investment, traderJob, session, orderIntent));
+					
+					// Exit on limit
+					limit--;
+					if (limit == 0) {
+						break;
+					}
+				}
+				
 				traderJobRepository.save(traderJob);
 			}
 		}

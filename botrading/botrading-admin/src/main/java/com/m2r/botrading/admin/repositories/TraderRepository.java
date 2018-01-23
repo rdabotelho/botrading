@@ -1,10 +1,13 @@
 package com.m2r.botrading.admin.repositories;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
@@ -23,5 +26,8 @@ public interface TraderRepository extends JpaRepository<Trader, Long> {
 		trader.complete();
 		this.save(trader);		
 	}
+
+	@Query("select sum(t.investment) from Trader t where t.traderJob = :traderJob and t.state in :states")
+	BigDecimal sumByTraderJobAndStateIn(@Param("traderJob") TraderJob traderJob, @Param("states") Integer ... states);
 	
 }

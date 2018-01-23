@@ -16,10 +16,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IOrderIntent;
+import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
+import com.m2r.botrading.api.util.CalcUtil;
 
 public class LowBollingerStrategy implements IStrategy {
 
@@ -46,7 +48,7 @@ public class LowBollingerStrategy implements IStrategy {
 			for (int i=0; i<intentions.size(); i++) {
 				Intention intention = intentions.get(i);
 				String coin = MarketCoin.currencyPairToCurrencyId(intention.getCurrencyPair());
-				if (!ignoredCoins.contains(coin)) {
+				if (!ignoredCoins.contains(coin) && isNotLowVolume(session, intention.getCurrencyPair())) {
 					list.add(OrderIntent.of(new Currency(coin, coin), intention.getBuyPrice(), intention.getSalePrice(), true));					
 	    			limit--;
 	    			if (limit == 0) {
@@ -59,6 +61,13 @@ public class LowBollingerStrategy implements IStrategy {
 			LOG.warning(e.getMessage());
 		}		
 		return list;
+	}
+	
+	private static final BigDecimal MIN_VOLUME = new BigDecimal("150.00");
+	
+	private boolean isNotLowVolume(IExchangeSession session, String currencyPair) throws Exception {
+		ITicker ticker = session.getTikers().getTicker(currencyPair);
+		return !CalcUtil.lessThen(ticker.getBaseVolume(), MIN_VOLUME);
 	}
 	
 	private List<Intention> getIntantions(String marketCoin) throws Exception {
