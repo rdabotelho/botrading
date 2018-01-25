@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -61,15 +62,15 @@ public class TraderJob implements Serializable, ITraderJob {
     @NotNull
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
-    private BigDecimal parcel1 = new BigDecimal("3.0");
+    private BigDecimal parcel1 = new BigDecimal("1.0");
     
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
-    private BigDecimal parcel2 = new BigDecimal("5.0");
+    private BigDecimal parcel2 = new BigDecimal("0.0");
     
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
-    private BigDecimal parcel3 = new BigDecimal("10.0");
+    private BigDecimal parcel3 = new BigDecimal("0.0");
     
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
@@ -105,9 +106,14 @@ public class TraderJob implements Serializable, ITraderJob {
     
     private String marketCoin;
     
+    @Transient
+	@NumberFormat(style=Style.NUMBER, pattern="0.00")
+    private BigDecimal todayProfitPercent = BigDecimal.ZERO;
+    
 	public TraderJob() {
 		this.traders = new ArrayList<>();
 		this.profit = BigDecimal.ZERO;
+		this.todayProfitPercent = BigDecimal.ZERO;
 	}
 	
 	public Long getId() {
@@ -220,9 +226,22 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.profit = profit;
 	}
 	
+	@NumberFormat(style=Style.NUMBER, pattern="0.00")
+	public BigDecimal getProfitPercent() {
+		return this.getProfit().divide(this.getTradingAmount(), CalcUtil.DECIMAL_COIN).multiply(CalcUtil.HUNDRED, CalcUtil.DECIMAL_PERCENT);
+	}
+	
 	@NumberFormat(style=Style.NUMBER, pattern="0.00000000")
 	public BigDecimal getBalance() {
 		return CalcUtil.add(this.getTradingAmount(), this.getProfit());
+	}
+
+	public BigDecimal getTodayProfitPercent() {
+		return todayProfitPercent;
+	}
+
+	public void setTodayProfitPercent(BigDecimal todayProfitPercent) {
+		this.todayProfitPercent = todayProfitPercent;
 	}
 
 	public void start() {

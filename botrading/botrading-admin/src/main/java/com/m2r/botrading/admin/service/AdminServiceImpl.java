@@ -70,7 +70,16 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public List<TraderJob> findAllTraderJobs(Account account) {
-    		return traderJobRepository.findAllByAccountAndMarketCoinOrderByStateAscDateTimeDesc(account, account.getSelectedMarketCoin().getId());
+    	List<TraderJob> list = traderJobRepository.findAllByAccountAndMarketCoinOrderByStateAscDateTimeDesc(account, account.getSelectedMarketCoin().getId());
+    	final LocalDateTime now = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+    	list.forEach(tj -> {
+    		BigDecimal todayProfit = traderRepository.sumProfitByTraderJobAndStateDateTimeGreaterThanEqual(tj, now);
+    		if (todayProfit == null) {
+        		todayProfit = BigDecimal.ZERO;
+    		}
+    		tj.setTodayProfitPercent(todayProfit.divide(tj.getTradingAmount(), CalcUtil.DECIMAL_COIN).multiply(CalcUtil.HUNDRED, CalcUtil.DECIMAL_PERCENT));
+    	});
+    	return list;
     }
     
     @Override
@@ -241,6 +250,12 @@ public class AdminServiceImpl implements AdminService {
 		order.setState(Order.STATE_ORDERED);
 		order.setLog("");
 		orderRepository.save(order);    	
+    }
+
+    @Override
+    public void noProfit(Order order) {
+    	order.setNoProfit(true);
+    	this.orderImmediateSel(order);
     }
       
 }

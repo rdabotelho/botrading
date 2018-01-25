@@ -93,6 +93,8 @@ public class Trader implements Serializable, ITrader {
     @Transient
     private List<BigDecimal> parcels;
     
+    private LocalDateTime stateDateTime;
+    
     public Trader() {
     	this.profit = BigDecimal.ZERO;
     }
@@ -118,6 +120,9 @@ public class Trader implements Serializable, ITrader {
 	}
 
 	public void setDateTime(LocalDateTime dateTime) {
+		if (this.stateDateTime == null) {
+			this.stateDateTime = dateTime;
+		}
 		this.dateTime = dateTime;
 	}
 
@@ -250,6 +255,7 @@ public class Trader implements Serializable, ITrader {
 	}
 	
 	public void complete() {
+		this.setStateDateTime(LocalDateTime.now());
 		this.setState(STATE_COMPLETED);
 	}
 	
@@ -282,6 +288,17 @@ public class Trader implements Serializable, ITrader {
 			       append("parcel3", parcel3).
 			       append("parcel4", parcel4).
 			       toString();
+	}
+
+	public LocalDateTime getStateDateTime() {
+		if (stateDateTime == null) {
+			stateDateTime = dateTime;
+		}
+		return stateDateTime;
+	}
+
+	public void setStateDateTime(LocalDateTime stateDateTime) {
+		this.stateDateTime = stateDateTime;
 	}
 	
 }

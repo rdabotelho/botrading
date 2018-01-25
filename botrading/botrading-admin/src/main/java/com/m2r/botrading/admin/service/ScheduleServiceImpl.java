@@ -19,6 +19,7 @@ import com.m2r.botrading.admin.repositories.TraderRepository;
 import com.m2r.botrading.admin.util.OrderBuilder;
 import com.m2r.botrading.admin.util.TraderBuilder;
 import com.m2r.botrading.api.exception.ExchangeException;
+import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderIntent;
@@ -126,7 +127,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			if (!orderIntents.isEmpty()) {
 				
 				// Get the used value
-				BigDecimal used = traderRepository.sumByTraderJobAndStateIn(traderJob, Trader.STATE_NEW, Trader.STATE_STARTED);
+				BigDecimal used = traderRepository.sumInvestmentByTraderJobAndStateIn(traderJob, Trader.STATE_NEW, Trader.STATE_STARTED);
 				if (used == null) {
 					used = BigDecimal.ZERO;
 				}
@@ -310,13 +311,24 @@ public class ScheduleServiceImpl implements ScheduleService {
 		try {
 			BigDecimal priceToSell = order.getPrice(); 
 			BigDecimal amountToSell = session.calculateAmountToImmediateSell(order.getTrader(), order.getAmount());
-			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
+			ICurrency currency = session.getCurrencyOfTrader(order.getTrader());
 			if (order.isImmediate()) {
-				priceToSell = session.getLastPrice(order.getTrader().getCoin());
+				if (order.isNoProfit()) {
+					Order buyOrder = orderRepository.findByTraderAndParcelAndKind(order.getTrader(), order.getParcel(), Order.KIND_BUY);
+					priceToSell = CalcUtil.add(buyOrder.getPrice(), CalcUtil.percent(buyOrder.getPrice(), session.getFee()));   
+					BigDecimal lastPrice = session.getLastPrice(currency.getId());
+					if (!CalcUtil.greaterThen(priceToSell, lastPrice)) {
+						priceToSell = CalcUtil.add(buyOrder.getPrice(), CalcUtil.percent(buyOrder.getPrice(), session.getImmediateFee()));   
+					}
+			    	order.setNoProfit(false);
+				}
+				else {
+					priceToSell = session.getLastPrice(order.getTrader().getCoin());
+				}
 			}
 			String price = CalcUtil.formatUS(priceToSell);
 			String amount = CalcUtil.formatUS(amountToSell);
-			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
+			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currency.getCurrencyPair(), price, amount);
 			order.setOrderNumber(orderNumber);
 			order.setPending(true);
 			order.setPrice(priceToSell);

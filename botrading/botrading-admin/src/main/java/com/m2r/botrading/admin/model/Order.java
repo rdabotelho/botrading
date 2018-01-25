@@ -83,10 +83,13 @@ public class Order implements Serializable, IOrder {
     
     private LocalDateTime stateDateTime;
     
+    private Boolean noProfit = false;
+    
     public Order() {
 		this.state = STATE_NEW;
 		this.immediate = false;
 		this.pending = false;
+		this.noProfit = false;
 		this.fee = new BigDecimal("0.00");
     }
     
@@ -243,6 +246,10 @@ public class Order implements Serializable, IOrder {
 		return getImmediate();
 	}
 	
+	public boolean isNoProfit() {
+		return getNoProfit();
+	}
+	
 	public boolean isPending() {
 		return getPending();
 	}
@@ -361,6 +368,17 @@ public class Order implements Serializable, IOrder {
 		return this;    		
     }
 	
+	public Boolean getNoProfit() {
+		if (noProfit == null) {
+			noProfit = false;
+		}
+		return noProfit;
+	}
+
+	public void setNoProfit(Boolean noProfit) {
+		this.noProfit = noProfit;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).

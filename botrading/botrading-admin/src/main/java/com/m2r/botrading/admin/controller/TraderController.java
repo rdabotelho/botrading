@@ -161,6 +161,14 @@ public class TraderController {
         return returnOrder(order.getTrader().getId(), model, principal);
     }
     
+    @GetMapping("/order/noProfit/{oId}")
+    public String noProfitOrder(@PathVariable("oId") Long oId, Model model, Principal principal) {
+    		Order order = adminService.findOrder(oId);
+    		validateAccount(principal, order.getTrader().getTraderJob().getId());
+   		adminService.noProfit(order);
+        return returnOrder(order.getTrader().getId(), model, principal);
+    }
+    
     @GetMapping("/order/immediateSell/{oId}")
     public String immediateSell(@PathVariable("oId") Long oId, Model model, Principal principal) {
    		Order order = adminService.findOrder(oId);

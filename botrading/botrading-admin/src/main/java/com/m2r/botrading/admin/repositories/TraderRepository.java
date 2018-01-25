@@ -1,6 +1,7 @@
 package com.m2r.botrading.admin.repositories;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -28,6 +29,9 @@ public interface TraderRepository extends JpaRepository<Trader, Long> {
 	}
 
 	@Query("select sum(t.investment) from Trader t where t.traderJob = :traderJob and t.state in :states")
-	BigDecimal sumByTraderJobAndStateIn(@Param("traderJob") TraderJob traderJob, @Param("states") Integer ... states);
+	BigDecimal sumInvestmentByTraderJobAndStateIn(@Param("traderJob") TraderJob traderJob, @Param("states") Integer ... states);
+	
+	@Query("select sum(t.profit) from Trader t where t.traderJob = :traderJob and t.stateDateTime >= :stateDateTime")
+	BigDecimal sumProfitByTraderJobAndStateDateTimeGreaterThanEqual(@Param("traderJob") TraderJob traderJob, @Param("stateDateTime") LocalDateTime stateDateTime);
 	
 }

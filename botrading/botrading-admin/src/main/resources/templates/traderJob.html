@@ -8,6 +8,9 @@
 .trFinished {
 	background-color: #DCDCDC;
 } 
+table.listTable td {
+	text-align: center;
+}
 </style>
 </head>
 <body>
@@ -131,24 +134,26 @@
 	
 	<br/>
 	
-	<table border="1">
+	<table border="1" class="listTable">
 		<thead>
 			<tr>
 				<th>Date Time</th>
 				<th>Strategy</th>
-				<th>Currency Count</th>
+				<th>Currency<br/>Count</th>
 				<th>Amount</th>
-				<th>Trading Percent (%)</th>
-				<th>Trading Amount</th>
-				<th>Time To Cancel (min)</th>
-				<th>Parcel 1 (%)</th>
-				<th>Parcel 2 (%)</th>
-				<th>Parcel 3 (%)</th>
-				<th>Parcel 4 (%)</th>
-				<th>Limit To Stop (%)</th>
+				<th>Trading<br/>Percent (%)</th>
+				<th>Trading<br/>Amount</th>
+				<th>Time To<br/>Cancel (min)</th>
+				<th>Parcel 1<br/>(%)</th>
+				<th>Parcel 2<br/>(%)</th>
+				<th>Parcel 3<br/>(%)</th>
+				<th>Parcel 4<br/>(%)</th>
+				<th>Limit To<br/>Stop (%)</th>
 				<th>Options</th>
 				<th>State</th>
 				<th>Profit</th>
+				<th>Profit<br/>(%)</th>
+				<th>Today<br/>Profit (%)</th>
 				<th>Balance</th>
 				<th>Action</th>
 			</tr>
@@ -178,6 +183,8 @@
 				</td>
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.profit}}"></td>
+				<td th:text="${{tr.profitPercent}}"></td>
+				<td th:text="${{tr.todayProfitPercent}}"></td>
 				<td th:text="${{tr.balance}}"></td>
 				<td>
 					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>

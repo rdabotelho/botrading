@@ -44,5 +44,6 @@ public interface AdminService {
 	public void orderImmediateSel(Order order);
 	public void orderCancel(Order order);
 	public void retryOrder(Order order);
+	public void noProfit(Order order);
 	
 }
