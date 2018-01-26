@@ -339,7 +339,7 @@ public class PoloniexExchange extends ExchangeService {
 	}
 
 	@Override
-	public void cancel(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
+	public void cancel(IApiAccess apiAccess, String currencyPair, String orderNumber) throws ExchangeException {
 		try {
 			Map<String, String> params = new HashMap<>();
 			params.put("orderNumber", orderNumber);
@@ -374,7 +374,7 @@ public class PoloniexExchange extends ExchangeService {
 					System.out.print(coin+"\t"+order.getTotal());
 					String orderNumber = order.getOrderNumber();
 					try {
-						service.cancel(apiAccess, orderNumber);
+						service.cancel(apiAccess, currency.getCurrencyPair(), orderNumber);
 						System.out.print("\t CANCELED");
 					}
 					catch (ExchangeException ex) {

@@ -30,9 +30,10 @@ public interface IExchangeOrder {
 	/**
 	 * Method which cancel an order in the exchange.
 	 * @param apiAccess: API access
+	 * @param currencyPair: Currency pair
 	 * @param orderNumber: Order number
 	 * @throws ExchangeException
 	 */
-    public void cancel(IApiAccess apiAccess, String orderNumber) throws ExchangeException;
+    public void cancel(IApiAccess apiAccess, String currencyPair, String orderNumber) throws ExchangeException;
 
 }

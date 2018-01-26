@@ -146,8 +146,8 @@ public class ExchangeSession implements IExchangeSession {
 	}
 	
 	@Override
-	public void cancel(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
-		service.cancel(apiAccess, orderNumber);		
+	public void cancel(IApiAccess apiAccess, String currencyPair, String orderNumber) throws ExchangeException {
+		service.cancel(apiAccess, currencyPair, orderNumber);		
 	}
 	
 }

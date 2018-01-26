@@ -347,7 +347,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private void cancel(Order order, IExchangeSession session) {
 		try {
 			if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
-				session.cancel(order.getTrader().getTraderJob().getAccount(), order.getOrderNumber());
+				ICurrency currency = session.getCurrencyOfTrader(order.getTrader());
+				session.cancel(order.getTrader().getTraderJob().getAccount(), currency.getCurrencyPair(), order.getOrderNumber());
 				LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
 			}
 			order.setPending(true);
