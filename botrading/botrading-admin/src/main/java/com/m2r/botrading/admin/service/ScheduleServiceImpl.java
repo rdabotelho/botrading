@@ -348,11 +348,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     private void cancel(Order order, IExchangeSession session) {
 		try {
-			if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
-				Currency currency = session.getCurrencyOfTrader(order.getTrader());
-				String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
-				session.cancel(order.getTrader().getTraderJob().getAccount(), currencyPair, order.getOrderNumber());
-				LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
+			if (existInTheExchangeOrders(order, session)) {			
+				if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
+					Currency currency = session.getCurrencyOfTrader(order.getTrader());
+					String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
+					session.cancel(order.getTrader().getTraderJob().getAccount(), currencyPair, order.getOrderNumber());
+					LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
+				}
+			}
+			// already liquided in the exchange
+			else {
+				order.setState(Order.STATE_ORDERED);
 			}
 			order.setPending(true);
 		}
@@ -363,6 +369,28 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
 		order.setStateDateTime(LocalDateTime.now());
 		this.saveOrder(order);    	
+    }
+    
+    private boolean existInTheExchangeOrders(Order order, IExchangeSession session) throws ExchangeException {
+		IOrderList orderList = null;
+		try {
+			orderList = session.getOrders(order.getTrader().getTraderJob().getAccount());
+		} catch (Exception e) {
+			throw new ExchangeException(e.getMessage());
+		}
+		Currency currency = session.getCurrencyOfTrader(order.getTrader());
+		String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
+		List<IExchangeOrder> jsonOrders = orderList.getOrders(currencyPair);
+		boolean existInTheExchangeOrders = false;
+		if (jsonOrders != null) {
+			for (IExchangeOrder jsonOrder : jsonOrders) {
+				if (jsonOrder.getOrderNumber().equals(order.getOrderNumber())) {
+					existInTheExchangeOrders = true;
+					break;
+				}
+			}
+		}
+		return existInTheExchangeOrders;
     }
     
 }
