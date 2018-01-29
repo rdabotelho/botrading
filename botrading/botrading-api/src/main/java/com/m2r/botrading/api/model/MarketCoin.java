@@ -3,30 +3,34 @@ package com.m2r.botrading.api.model;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MarketCoin extends Currency implements IMarketCoin {
-
-	private Map<String, ICurrency> currencies;
+public class MarketCoin {
 	
-	public static MarketCoin of(String id) {
-		return new MarketCoin(id);
-	}
+	private Currency currency;
+	public Map<String, Currency> currencies;
 	
-	public MarketCoin(String id) {
-		super(id, id);
+	public MarketCoin(Currency currency) {
 		this.currencies = new HashMap<>();
+		this.currency = currency;
 	}
 	
-	@Override
-	public Map<String, ICurrency> getCurrencies() {
-		return this.currencies;
-	}
-	
-	public static String currencyPairToMarketCoinId(String currencyPair) {
-		return currencyPair.split("_")[0];
-	}
-	
-	public static String currencyPairToCurrencyId(String currencyPair) {
-		return currencyPair.split("_")[1];
+	public String getId() {
+		return this.currency.getId();
 	}
 
+	public Currency getCurrency() {
+		return this.currency;
+	}
+	
+	public void addCurrency(Currency currency) {
+		currencies.put(currency.getId(), currency);
+	}
+	
+	public Currency getCurrency(String coin) {
+		return currencies.get(coin);
+	}
+	
+	public Map<String, Currency> getCurrencies() {
+		return currencies;
+	}
+	
 }

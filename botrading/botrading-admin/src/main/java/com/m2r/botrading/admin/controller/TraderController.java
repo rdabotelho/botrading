@@ -28,7 +28,7 @@ import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.service.AdminService;
 import com.m2r.botrading.admin.util.AccountExchangeInfo;
 import com.m2r.botrading.admin.util.OrderExchangeInfo;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.strategy.IStrategy;
 
 @Controller
@@ -43,7 +43,7 @@ public class TraderController {
 	
 	private Account account;
 	private TraderJob traderJob;
-	private IMarketCoin selectedMarketCoin;
+	private MarketCoin selectedMarketCoin;
 	
 	@GetMapping("/")
     public String home(Model model, Principal principal) {
@@ -183,7 +183,7 @@ public class TraderController {
     }
     
 	@ModelAttribute("allMarketCoins")
-	public List<IMarketCoin> getAllMarketCoins() {
+	public List<MarketCoin> getAllMarketCoins() {
 	    return this.adminService.getMarketCoins();
 	}
     

@@ -24,6 +24,7 @@
 		<botrading.api.version>1.0.0-SNAPSHOT</botrading.api.version>
 		<botrading.strategy.version>1.0.0-SNAPSHOT</botrading.strategy.version>
 		<botrading.poloniex.version>1.0.0-SNAPSHOT</botrading.poloniex.version>
+		<botrading.binance.version>1.0.0-SNAPSHOT</botrading.binance.version>
 	</properties>
 
 	<dependencies>
@@ -120,6 +121,11 @@
 			<groupId>com.m2r.botrading</groupId>
 			<artifactId>botrading-poloniex</artifactId>
 			<version>${botrading.poloniex.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.m2r.botrading</groupId>
+			<artifactId>botrading-binance</artifactId>
+			<version>${botrading.binance.version}</version>
 		</dependency>
 
 		<dependency>

@@ -5,32 +5,33 @@ import java.time.LocalDateTime;
 
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
+import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.ITrader;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.util.CalcUtil;
 
 public class ExchangeSession implements IExchangeSession {
 
-	private IMarketCoin marketCoin;
+	private MarketCoin marketCoin;
 	private ExchangeService service;
 	private ITickerList tickers;
 	private IBalanceList balances;
 	private IOrderList orders;
 	private IChartDataList chartDataList;
 	
-	public static ExchangeSession createSession(ExchangeService service, IMarketCoin marketCoin) {
+	public static ExchangeSession createSession(ExchangeService service, MarketCoin marketCoin) {
 		return new ExchangeSession(service, marketCoin);
 	}
 	
-	private ExchangeSession(ExchangeService service, IMarketCoin marketCoin) {
+	private ExchangeSession(ExchangeService service, MarketCoin marketCoin) {
 		this.service = service;
 		this.marketCoin = marketCoin;
 	}
@@ -48,23 +49,23 @@ public class ExchangeSession implements IExchangeSession {
 	}
 	
 	@Override
-	public IMarketCoin getMarketCoin() {
+	public MarketCoin getMarketCoin() {
 		return this.marketCoin;
 	}
 	
 	@Override
-	public IMarketCoin getMarketCoinOfTrader(ITrader trader) {
+	public MarketCoin getMarketCoinOfTrader(ITrader trader) {
 		return service.getMarketCoin(trader.getCoin());
 	}
 	
 	@Override
-	public ICurrency getCurrencyOfTrader(ITrader trader) {
+	public Currency getCurrencyOfTrader(ITrader trader) {
 		return service.getCurrency(trader.getTraderJob().getMarketCoin(), trader.getCoin());
 	}
 	
 	@Override
 	public BigDecimal getLastPrice(String coin) throws Exception {
-		ICurrency currency = getMarketCoin().getCurrency(coin);
+		Currency currency = getMarketCoin().getCurrency(coin);
 		ITicker ticker = getTikers().getTicker(currency.getCurrencyPair());
 		return ticker != null ? ticker.getLast() : null;
 	}
@@ -129,6 +130,17 @@ public class ExchangeSession implements IExchangeSession {
 	@Override
 	public BigDecimal getImmediateFee() {
 		return service.getImmediateFee();
+	}
+	
+	
+	@Override
+	public CurrencyFactory getCurrencyFactory() {
+		return service.getCurrencyFactory();
+	}
+	
+	@Override
+	public IExchangeService getService() {
+		return service;
 	}
 	
 	/*

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public interface IOrderIntent {
 
-	public ICurrency getCurrency();
+	public Currency getCurrency();
 	public BigDecimal getBuyPrice();
 	public BigDecimal getSellPrice();
 	public boolean isReplacePrice();

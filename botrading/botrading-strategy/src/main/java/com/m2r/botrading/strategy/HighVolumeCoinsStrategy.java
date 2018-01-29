@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
-import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
@@ -34,9 +33,9 @@ public class HighVolumeCoinsStrategy implements IStrategy {
 			
 			int limit = count;
 			for (int i=0; i<sorted.size(); i++) {
-				String coin = MarketCoin.currencyPairToCurrencyId(sorted.get(i).getCurrencyPair());
-				if (!ignoredCoins.contains(coin)) {
-					list.add(OrderIntent.of(new Currency(coin, coin)));					
+				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(sorted.get(i).getCurrencyPair());
+				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId())) {
+					list.add(OrderIntent.of(session.getCurrencyFactory().currencyPairToCurrency(currencyPairIds, session.getService())));					
 	    			limit--;
 	    			if (limit == 0) {
 	    				break;

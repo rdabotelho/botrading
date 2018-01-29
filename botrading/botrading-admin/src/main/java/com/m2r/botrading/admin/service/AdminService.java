@@ -11,7 +11,7 @@ import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.util.AccountExchangeInfo;
 import com.m2r.botrading.admin.util.OrderExchangeInfo;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.strategy.IStrategy;
 
 public interface AdminService {
@@ -31,9 +31,9 @@ public interface AdminService {
     public void startTraderJob(TraderJob traderJob) throws Exception;
 	public AccountExchangeInfo getAccountExchangeInfo(Account account);
 	public OrderExchangeInfo getOrderExchangeInfo(Trader trader);
-	public IMarketCoin getDefaultMarketCoin();
-	public List<IMarketCoin> getMarketCoins();
-	public IMarketCoin getMarketCoin(String id);
+	public MarketCoin getDefaultMarketCoin();
+	public List<MarketCoin> getMarketCoins();
+	public MarketCoin getMarketCoin(String id);
 	
 	/*
 	 * ORDERS

@@ -15,8 +15,8 @@ import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.service.PropertiesService;
 import com.m2r.botrading.admin.service.ScheduleService;
 import com.m2r.botrading.admin.util.TimeCounter;
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.strategy.CatLeap;
 
@@ -76,9 +76,9 @@ public class OrderScheduledTasks {
 	}
 	
 	private void executeCatLeapTask() {
-		String[] marketCoinIds = new String[] {ICurrency.BTC, ICurrency.USDT}; 
+		String[] marketCoinIds = new String[] {Currency.BTC, Currency.USDT}; 
 		for (String marketCoinId : marketCoinIds) {
-			IMarketCoin marketCoin = scheduleService.getMarketCoin(marketCoinId);
+			MarketCoin marketCoin = scheduleService.getMarketCoin(marketCoinId);
 			IExchangeSession session = scheduleService.getExchangeSession(marketCoin, false, false);
 			try {
 				CatLeap.foodCatLeap(session, 20);
@@ -95,7 +95,7 @@ public class OrderScheduledTasks {
 	public IExchangeSession loadSession(TraderJob traderJob) {
 		IExchangeSession session = sessions.get(traderJob.getId());
 		if (session == null) {
-			IMarketCoin marketCoin = scheduleService.getMarketCoin(traderJob.getMarketCoin());
+			MarketCoin marketCoin = scheduleService.getMarketCoin(traderJob.getMarketCoin());
 			session = scheduleService.getExchangeSession(marketCoin, false, true);
 			sessions.put(traderJob.getId(), session);
 		}

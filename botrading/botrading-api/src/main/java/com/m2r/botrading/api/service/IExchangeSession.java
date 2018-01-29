@@ -4,14 +4,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.m2r.botrading.api.enums.DataChartPeriod;
+import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.ITrader;
+import com.m2r.botrading.api.model.MarketCoin;
 
 public interface IExchangeSession extends IExchangeOrder {
 
@@ -27,23 +28,23 @@ public interface IExchangeSession extends IExchangeOrder {
 	
 	/**
 	 * Method which get the market coin of the session context.
-	 * @return {@link IMarketCoin} 
+	 * @return {@link MarketCoin} 
 	 */
-    public IMarketCoin getMarketCoin();
+    public MarketCoin getMarketCoin();
     
     /**
      * Method which extract the trader market coin.
      * @param trader: Trader
-     * @return {@link IMarketCoin}
+     * @return {@link MarketCoin}
      */
-    public IMarketCoin getMarketCoinOfTrader(ITrader trader);
+    public MarketCoin getMarketCoinOfTrader(ITrader trader);
     
     /**
      * Method which extract the trader currency.
      * @param trader: Trader
-     * @return {@link ICurrency}
+     * @return {@link Currency}
      */
-    public ICurrency getCurrencyOfTrader(ITrader trader);
+    public Currency getCurrencyOfTrader(ITrader trader);
     
     /**
      * Method which get the last price of the coin.
@@ -115,5 +116,18 @@ public interface IExchangeSession extends IExchangeOrder {
      * @return {@link BigDecimal}
 	 */
 	public BigDecimal getImmediateFee();
+		
+	/**
+	 * Method which get the currency factory
+	 * @return CurrencyFactory
+	 */
+	public CurrencyFactory getCurrencyFactory();
+	
+	
+	/**
+	 * Method which get the exchange service.
+	 * @return IExchangeService
+	 */
+	public IExchangeService getService();
 	
 }

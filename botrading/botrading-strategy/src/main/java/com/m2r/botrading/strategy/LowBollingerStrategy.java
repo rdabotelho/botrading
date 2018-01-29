@@ -14,10 +14,9 @@ import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.model.ITicker;
-import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
@@ -47,9 +46,9 @@ public class LowBollingerStrategy implements IStrategy {
 			int limit = count;
 			for (int i=0; i<intentions.size(); i++) {
 				Intention intention = intentions.get(i);
-				String coin = MarketCoin.currencyPairToCurrencyId(intention.getCurrencyPair());
-				if (!ignoredCoins.contains(coin) && isNotLowVolume(session, intention.getCurrencyPair())) {
-					list.add(OrderIntent.of(new Currency(coin, coin), intention.getBuyPrice(), intention.getSalePrice(), true));					
+				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(intention.getCurrencyPair());
+				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && isNotLowVolume(session, intention.getCurrencyPair())) {
+					list.add(OrderIntent.of(session.getCurrencyFactory().currencyPairToCurrency(currencyPairIds, session.getService()), intention.getBuyPrice(), intention.getSalePrice(), true));					
 	    			limit--;
 	    			if (limit == 0) {
 	    				break;

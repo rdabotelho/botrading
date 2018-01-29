@@ -31,14 +31,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
+import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyFactory;
+import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartData;
 import com.m2r.botrading.api.model.IChartDataList;
-import com.m2r.botrading.api.model.ICurrency;
 import com.m2r.botrading.api.model.IExchangeOrder;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
@@ -56,6 +57,7 @@ import com.m2r.botrading.poloniex.model.ChartData;
 import com.m2r.botrading.poloniex.model.ChartDataList;
 import com.m2r.botrading.poloniex.model.ExchangeOrder;
 import com.m2r.botrading.poloniex.model.ExchangeOrderList;
+import com.m2r.botrading.poloniex.model.PoloniexCurrencyFactory;
 import com.m2r.botrading.poloniex.model.Ticker;
 import com.m2r.botrading.poloniex.model.TickerList;
 
@@ -223,7 +225,7 @@ public class PoloniexExchange extends ExchangeService {
 	}
 	
 	@Override
-	public IExchangeSession getSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
+	public IExchangeSession getSession(MarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
 		IExchangeSession session = ExchangeSession.createSession(this, marketCoin);
 		if (resetPublic) {
 			session.resetPublicCache();
@@ -281,19 +283,18 @@ public class PoloniexExchange extends ExchangeService {
 	}    
 	
 	@Override
-	protected Map<String, IMarketCoin> loadMarketCoins() {
-		Map<String, IMarketCoin> map = new HashMap<>();
+	protected Map<String, MarketCoin> loadMarketCoins() {
+		Map<String, MarketCoin> map = new HashMap<>();
 		try {
 			Map<String, ITicker> tikersMap = commandTicker();
 			tikersMap.forEach((k, v) -> {
-				String marketCoinId = MarketCoin.currencyPairToMarketCoinId(k);
-				IMarketCoin marketCoin = map.get(marketCoinId);
+				CurrencyPairIds currencyPairIds = getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(k);
+				MarketCoin marketCoin = map.get(currencyPairIds.getMarketCoinId());
 				if (marketCoin == null) {
-					marketCoin = MarketCoin.of(marketCoinId);
-					map.put(marketCoinId, marketCoin);
+					marketCoin = getCurrencyFactory().currencyPairToMarketCoin(currencyPairIds);
+					map.put(currencyPairIds.getMarketCoinId(), marketCoin);
 				}
-				String currencyId = MarketCoin.currencyPairToCurrencyId(k);
-				marketCoin.createAndAddCurrency(currencyId, currencyId);
+				marketCoin.addCurrency(getCurrencyFactory().currencyPairToCurrency(marketCoin, currencyPairIds));
 			});
 		} catch (Exception e) {
 			LOG.log(Level.SEVERE, "Cannot load market coins", e);
@@ -302,8 +303,8 @@ public class PoloniexExchange extends ExchangeService {
 	}
 	
 	@Override
-	public IMarketCoin getDefaultMarketCoin() {
-		return getMarketCoin(ICurrency.BTC);
+	public MarketCoin getDefaultMarketCoin() {
+		return getMarketCoin(Currency.BTC);
 	}
 
 	@Override
@@ -360,14 +361,19 @@ public class PoloniexExchange extends ExchangeService {
 		return IMMEDIATE_FEE;
 	}
 	
+	@Override
+	public CurrencyFactory getCurrencyFactory() {
+		return PoloniexCurrencyFactory.getInstance();
+	}
+	
 	public static void cancelAllOrdersInTheExchange(IApiAccess apiAccess) throws Exception {
 		IExchangeService service = new PoloniexExchange().init();
-		IMarketCoin mc = service.getDefaultMarketCoin();
+		MarketCoin mc = service.getDefaultMarketCoin();
 		IExchangeSession session = service.getSession(mc, true, true);
 		BigDecimal amin = new BigDecimal("0.000001");
 		IOrderList lords = session.getOrders(apiAccess);
 		for (String coin : mc.getCurrencies().keySet()) {
-			ICurrency currency = mc.getCurrency(coin);
+			Currency currency = mc.getCurrency(coin);
 			List<IExchangeOrder> list = lords.getOrders(currency.getCurrencyPair());
 			for (IExchangeOrder order : list) {
 				if (CalcUtil.greaterThen(order.getTotal(), amin)) {
@@ -388,7 +394,7 @@ public class PoloniexExchange extends ExchangeService {
 	
 	public static void sellAllInTheExchange(IApiAccess apiAccess) throws Exception {
 		IExchangeService service = new PoloniexExchange().init();
-		IMarketCoin mc = service.getDefaultMarketCoin();
+		MarketCoin mc = service.getDefaultMarketCoin();
 		IExchangeSession session = service.getSession(mc, true, true);
 		BigDecimal amin = new BigDecimal("0.000001");
 		IBalanceList blist = session.getBanlances(apiAccess);

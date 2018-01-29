@@ -20,6 +20,7 @@
 		<module>botrading-api</module>
 		<module>botrading-strategy</module>
 		<module>botrading-poloniex</module>
+		<module>botrading-ws</module>
 	</modules>
 
 	<dependencyManagement>

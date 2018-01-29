@@ -12,6 +12,7 @@ public class PropertiesService {
 	private Integer httpPort;
 	private Integer httpsPort;
 	private Boolean enableScheduling;
+	private String exchangeId;
 	
 	@Value("bollinger.targetUrl")
 	private String bollingerTargetUrl;
@@ -46,6 +47,14 @@ public class PropertiesService {
 
 	public void setEnableScheduling(Boolean enableScheduling) {
 		this.enableScheduling = enableScheduling;
+	}
+
+	public String getExchangeId() {
+		return exchangeId;
+	}
+
+	public void setExchangeId(String exchangeId) {
+		this.exchangeId = exchangeId;
 	}
 	
 }

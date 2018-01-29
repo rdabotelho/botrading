@@ -1,39 +1,40 @@
 package com.m2r.botrading.api.model;
 
-public class Currency implements ICurrency {
+public class Currency {
 
-	private IMarketCoin marketCoin;
+	public static final String BNB = "BNB";
+	public static final String BTC = "BTC";
+	public static final String ETH = "ETH";
+	public static final String XMR = "XMR";
+	public static final String USDT = "USDT";
+	
+	private CurrencyFactory factory;
+	
+	private MarketCoin marketCoin;
 	private String id;
 	private String name;
-	
-	public static ICurrency of(IMarketCoin marketCoin, String id, String name) {
-		return new Currency(marketCoin, id, name);
-	}
-	
-	public Currency(IMarketCoin marketCoin, String id, String name) {
+
+	public Currency(CurrencyFactory factory, MarketCoin marketCoin, String id, String name) {
+		this.factory = factory;
 		this.marketCoin = marketCoin;
 		this.id = id;
 		this.name = name;
 	}
-	
-	public Currency(String id, String name) {
-		this.id = id;
-		this.name = name;
-	}
 
-	@Override
 	public String getId() {
 		return this.id;
 	}
 
-	@Override
 	public String getName() {
 		return this.name;
 	}
 	
-	@Override
-	public IMarketCoin getMarketCoin() {
+	public MarketCoin getMarketCoin() {
 		return this.marketCoin;
+	}
+	
+	public String getCurrencyPair() {
+		return factory.currencyToCurrencyPair(this);
 	}
 
 }

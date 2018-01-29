@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.util.CalcUtil;
 
@@ -23,7 +23,7 @@ public class CatLeap implements Comparable<CatLeap> {
 	private int index;
 
 	synchronized public static void foodCatLeap(IExchangeSession session, int count) throws Exception {
-		IMarketCoin marketCoin = session.getMarketCoin();
+		MarketCoin marketCoin = session.getMarketCoin();
 		CatLeapMarketCoin catLeapMarketCoin = getCatLeapMarketCoin(marketCoin.getId());
 		ITickerList tl = session.getTikers();
 		List<ITicker> sorted = tl.getTickers(marketCoin.getId()).stream().sorted((c1,c2) -> c2.getBaseVolume().compareTo(c1.getBaseVolume())).collect(Collectors.toList());
@@ -38,7 +38,7 @@ public class CatLeap implements Comparable<CatLeap> {
 		catLeapMarketCoin.sort();
 	}
 	
-	synchronized public static List<CatLeap> getList(IMarketCoin marketCoin) {
+	synchronized public static List<CatLeap> getList(MarketCoin marketCoin) {
 		return catLeapMarketCoinMap.get(marketCoin.getId()).getCatLeapList();
 	}
 	

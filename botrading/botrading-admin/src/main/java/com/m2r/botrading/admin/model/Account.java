@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import com.m2r.botrading.api.model.IAccount;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.MarketCoin;
 
 @Entity
 public class Account implements Serializable, IAccount {
@@ -33,7 +33,7 @@ public class Account implements Serializable, IAccount {
     private String secretKey;
     
     @Transient
-    private IMarketCoin selectedMarketCoin;
+    private MarketCoin selectedMarketCoin;
     
 	public Long getId() {
 		return id;
@@ -67,11 +67,11 @@ public class Account implements Serializable, IAccount {
 		this.secretKey = secretKey;
 	}
 
-	public void setSelectedMarketCoin(IMarketCoin selectedMarketCoin) {
+	public void setSelectedMarketCoin(MarketCoin selectedMarketCoin) {
 		this.selectedMarketCoin = selectedMarketCoin;
 	}
 	
-	public IMarketCoin getSelectedMarketCoin() {
+	public MarketCoin getSelectedMarketCoin() {
 		return selectedMarketCoin;
 	}
 	

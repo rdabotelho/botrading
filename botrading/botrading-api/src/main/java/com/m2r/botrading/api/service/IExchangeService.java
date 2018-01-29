@@ -3,8 +3,9 @@ package com.m2r.botrading.api.service;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.Currency;
+import com.m2r.botrading.api.model.CurrencyFactory;
+import com.m2r.botrading.api.model.MarketCoin;
 
 public interface IExchangeService extends IExchangeOrder {
 	
@@ -18,16 +19,16 @@ public interface IExchangeService extends IExchangeOrder {
 	 * Method which get the currency through market coin id and currency id.
 	 * @param marketCoinId: Market coin id
 	 * @param id: Currency id
-	 * @return ICurrency
+	 * @return Currency
 	 */
-	public ICurrency getCurrency(String marketCoinId, String id);
+	public Currency getCurrency(String marketCoinId, String id);
 	
 	/**
 	 * Method which get the market coin through market coin id.
 	 * @param id
 	 * @return IMarketCoin
 	 */
-	public IMarketCoin getMarketCoin(String id);
+	public MarketCoin getMarketCoin(String id);
 	
 	/**
 	 * Method which get the exchange session through market coin.
@@ -36,19 +37,19 @@ public interface IExchangeService extends IExchangeOrder {
 	 * @param resetPrivate: Flag if the private context must be reseted.
 	 * @return IExchangeSession
 	 */
-	public IExchangeSession getSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
+	public IExchangeSession getSession(MarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
 	
 	/**
 	 * Method Method which get the default market coin.
 	 * @return IMarketCoin
 	 */
-	public IMarketCoin getDefaultMarketCoin();
+	public MarketCoin getDefaultMarketCoin();
 
 	/**
 	 * Method which get all market coins.
 	 * @return Map<String, IMarketCoin>
 	 */
-	public Map<String, IMarketCoin> getMarketCoins();
+	public Map<String, MarketCoin> getMarketCoins();
 	
 	/**
 	 * Method which get the exchange fee to do trading.
@@ -61,5 +62,11 @@ public interface IExchangeService extends IExchangeOrder {
 	 * @return BigDecimal
 	 */
 	public BigDecimal getImmediateFee();
+	
+	/**
+	 * Method which get the currency factory
+	 * @return CurrencyFactory
+	 */
+	public CurrencyFactory getCurrencyFactory();
 
 }

@@ -17,7 +17,7 @@ public class TickerMB implements ITicker {
 
 	@Override
 	public String getId() {
-		return this.currencyPair;
+		return this.currencyPair.toString();
 	}
 	
 	public void setCurrencyPair(String currencyPair) {

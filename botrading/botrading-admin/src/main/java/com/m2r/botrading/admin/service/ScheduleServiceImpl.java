@@ -19,17 +19,16 @@ import com.m2r.botrading.admin.repositories.TraderRepository;
 import com.m2r.botrading.admin.util.OrderBuilder;
 import com.m2r.botrading.admin.util.TraderBuilder;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.ICurrency;
+import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IExchangeOrder;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.model.IOrderList;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.api.strategy.StrategyRepository;
 import com.m2r.botrading.api.util.CalcUtil;
-import com.m2r.botrading.poloniex.PoloniexExchange;
 import com.m2r.botrading.strategy.DefaultStrategyRepository;
 
 @Service("schudeleService")
@@ -53,16 +52,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     private StrategyRepository strategyRepository = new DefaultStrategyRepository();
     
     protected IExchangeService getExchangeService() {
-    		return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
+	    return exchangeManager.getExchangeService(); 
     }
     
     @Override
-    public IMarketCoin getMarketCoin(String id) {
+    public MarketCoin getMarketCoin(String id) {
     		return getExchangeService().getMarketCoin(id);
     }
     
     @Override
-    public IExchangeSession getExchangeSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
+    public IExchangeSession getExchangeSession(MarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
     		return getExchangeService().getSession(marketCoin, resetPublic, resetPrivate);
     }
     
@@ -176,7 +175,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 		
 		IOrderList orderList = session.getOrders(trader.getTraderJob().getAccount());
 		for (Order order : orders) {
-			String currencyPair = session.getCurrencyOfTrader(trader).getCurrencyPair();
+			Currency currency = session.getCurrencyOfTrader(trader);
+			String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
 			List<IExchangeOrder> jsonOrders = orderList.getOrders(currencyPair);
 			boolean notExistInTheExchangeOrders = true;
 			if (jsonOrders != null) {
@@ -290,7 +290,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     private void buy(Order order, IExchangeSession session) {
 		try {
-			String currencyPair = session.getCurrencyOfTrader(order.getTrader()).getCurrencyPair();
+			Currency currency = session.getCurrencyOfTrader(order.getTrader());
+			String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
 			String price = CalcUtil.formatUS(order.getPrice());
 			String amount = CalcUtil.formatUS(order.getAmount());
 			String orderNumber = session.buy(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
@@ -311,7 +312,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		try {
 			BigDecimal priceToSell = order.getPrice(); 
 			BigDecimal amountToSell = session.calculateAmountToImmediateSell(order.getTrader(), order.getAmount());
-			ICurrency currency = session.getCurrencyOfTrader(order.getTrader());
+			Currency currency = session.getCurrencyOfTrader(order.getTrader());
 			if (order.isImmediate()) {
 				if (order.isNoProfit()) {
 					Order buyOrder = orderRepository.findByTraderAndParcelAndKind(order.getTrader(), order.getParcel(), Order.KIND_BUY);
@@ -328,7 +329,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 			}
 			String price = CalcUtil.formatUS(priceToSell);
 			String amount = CalcUtil.formatUS(amountToSell);
-			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currency.getCurrencyPair(), price, amount);
+			String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
+			String orderNumber = session.sell(order.getTrader().getTraderJob().getAccount(), currencyPair, price, amount);
 			order.setOrderNumber(orderNumber);
 			order.setPending(true);
 			order.setPrice(priceToSell);
@@ -347,8 +349,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     private void cancel(Order order, IExchangeSession session) {
 		try {
 			if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
-				ICurrency currency = session.getCurrencyOfTrader(order.getTrader());
-				session.cancel(order.getTrader().getTraderJob().getAccount(), currency.getCurrencyPair(), order.getOrderNumber());
+				Currency currency = session.getCurrencyOfTrader(order.getTrader());
+				String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
+				session.cancel(order.getTrader().getTraderJob().getAccount(), currencyPair, order.getOrderNumber());
 				LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
 			}
 			order.setPending(true);

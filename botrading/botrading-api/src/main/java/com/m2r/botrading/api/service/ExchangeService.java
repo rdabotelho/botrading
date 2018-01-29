@@ -5,17 +5,17 @@ import java.util.Map;
 
 import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
+import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
+import com.m2r.botrading.api.model.MarketCoin;
 
 public abstract class ExchangeService implements IExchangeService {
 
-	private Map<String, IMarketCoin> marketCoinsMap;
+	private Map<String, MarketCoin> marketCoinsMap;
 	
 	@Override
 	public IExchangeService init() {
@@ -23,21 +23,21 @@ public abstract class ExchangeService implements IExchangeService {
 		return this;
 	}
 	
-	public ICurrency getCurrency(String marketCoinId, String id) {
+	public Currency getCurrency(String marketCoinId, String id) {
 		return getMarketCoin(marketCoinId).getCurrency(id);
 	}
 	
-	public IMarketCoin getMarketCoin(String id) {
+	public MarketCoin getMarketCoin(String id) {
 		return getMarketCoins().get(id);
 	}
 	
 	@Override
-	public Map<String, IMarketCoin> getMarketCoins() {
+	public Map<String, MarketCoin> getMarketCoins() {
 		return this.marketCoinsMap;
 	}
 	
 	@Override
-	public IExchangeSession getSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
+	public IExchangeSession getSession(MarketCoin marketCoin, boolean resetPublic, boolean resetPrivate) {
 		IExchangeSession session = ExchangeSession.createSession(this, marketCoin);
 		if (resetPublic) {
 			session.resetPublicCache();
@@ -52,7 +52,7 @@ public abstract class ExchangeService implements IExchangeService {
 	 * Method which load all market coins of the exchange.
 	 * @return Map<String, IMarketCoin>
 	 */
-	protected abstract Map<String, IMarketCoin> loadMarketCoins();
+	protected abstract Map<String, MarketCoin> loadMarketCoins();
 	
 	/**
 	 * Method which get all tickers of the instant.

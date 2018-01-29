@@ -5,13 +5,13 @@ import java.util.List;
 import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
-import com.m2r.botrading.api.model.IMarketCoin;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeSession;
 
 public interface ScheduleService {
 	
-	public IMarketCoin getMarketCoin(String id);
-	public IExchangeSession getExchangeSession(IMarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
+	public MarketCoin getMarketCoin(String id);
+	public IExchangeSession getExchangeSession(MarketCoin marketCoin, boolean resetPublic, boolean resetPrivate);
     public List<TraderJob> findAllTraderJobsByState(Integer state);
 	public List<Trader> findAllByTraderJobAndStateNotComplete(TraderJob traderJob);
 	public List<Order> findAllToScheduleTaskOrders();

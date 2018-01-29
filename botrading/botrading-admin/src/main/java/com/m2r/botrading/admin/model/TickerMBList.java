@@ -32,7 +32,7 @@ public class TickerMBList implements ITickerList {
 	
 	@Override
 	public List<ITicker> getTickers(String coin) {
-		return tikers.stream().filter(t -> t.getCurrencyPair().startsWith(coin+"_")).collect(Collectors.toList());
+		return tikers.stream().filter(t -> t.getCurrencyPair().equals(coin)).collect(Collectors.toList());
 	}
 	
 	@Override

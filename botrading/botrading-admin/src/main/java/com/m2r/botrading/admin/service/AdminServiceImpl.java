@@ -21,24 +21,23 @@ import com.m2r.botrading.admin.repositories.TraderJobRepository;
 import com.m2r.botrading.admin.repositories.TraderRepository;
 import com.m2r.botrading.admin.util.AccountExchangeInfo;
 import com.m2r.botrading.admin.util.OrderExchangeInfo;
+import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
-import com.m2r.botrading.api.model.ICurrency;
-import com.m2r.botrading.api.model.IMarketCoin;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
+import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.api.strategy.StrategyRepository;
 import com.m2r.botrading.api.util.CalcUtil;
-import com.m2r.botrading.poloniex.PoloniexExchange;
 import com.m2r.botrading.strategy.DefaultStrategyRepository;
 
 @Service("adminService")
 @Transactional
 public class AdminServiceImpl implements AdminService {
-    
+	
     @Autowired
     private TraderJobRepository traderJobRepository;
     
@@ -60,7 +59,7 @@ public class AdminServiceImpl implements AdminService {
     private StrategyRepository strategyRepository = new DefaultStrategyRepository();
     
     protected IExchangeService getExchangeService() {
-    		return exchangeManager.getExchangeService(PoloniexExchange.EXCHANGE_ID);
+    	return exchangeManager.getExchangeService();
     }
     
     @Override
@@ -164,7 +163,7 @@ public class AdminServiceImpl implements AdminService {
     			AccountExchangeInfo tei = new AccountExchangeInfo();
     			tei.setAmount(coinBalance == null ? BigDecimal.ZERO : coinBalance.getAvailable());
     			tei.setCoinBalance(balanceList.getAmount());
-    			if (account.getSelectedMarketCoin().getId().equals(ICurrency.BTC)) {
+    			if (account.getSelectedMarketCoin().getId().equals(Currency.BTC)) {
     				tei.setRealBalance(CalcUtil.multiply(getLastRealBTC(), tei.getCoinBalance()));
     			}
     			else {
@@ -181,7 +180,8 @@ public class AdminServiceImpl implements AdminService {
     public OrderExchangeInfo getOrderExchangeInfo(Trader trader) {
     		try {
     			IExchangeSession session = getExchangeService().getSession(trader.getTraderJob().getAccount().getSelectedMarketCoin(), false, true);
-    			ITicker ticker = session.getTikers().getTicker(session.getCurrencyOfTrader(trader).getCurrencyPair());
+    			Currency currency = session.getCurrencyOfTrader(trader);
+    			ITicker ticker = session.getTikers().getTicker(session.getCurrencyFactory().currencyToCurrencyPair(currency));
     			BigDecimal available = session.getAvailableBalance(trader.getCoin(), trader.getTraderJob().getAccount());
         		OrderExchangeInfo oei = new OrderExchangeInfo();
         		oei.setBaseVolume(ticker.getBaseVolume());
@@ -207,17 +207,17 @@ public class AdminServiceImpl implements AdminService {
     }
     
     @Override
-    public IMarketCoin getDefaultMarketCoin() {
+    public MarketCoin getDefaultMarketCoin() {
     		return getExchangeService().getDefaultMarketCoin();
     }
     
     @Override
-    public List<IMarketCoin> getMarketCoins() {
+    public List<MarketCoin> getMarketCoins() {
     		return getExchangeService().getMarketCoins().values().stream().map((t) -> t).collect(Collectors.toList());
     }
     
     @Override
-    public IMarketCoin getMarketCoin(String id) {
+    public MarketCoin getMarketCoin(String id) {
     		return getExchangeService().getMarketCoin(id);
     }
     
