@@ -219,6 +219,15 @@ public class TraderController {
      * AJAX CALL
      */
     
+    @GetMapping("/traderJob/changeStopLoss/{tjId}/{value}")
+    @ResponseBody
+    public String changeStopLoss(@PathVariable("tjId") Long tjId, Model model, @PathVariable("value") Boolean value, Principal principal) {
+		validateAccount(principal, tjId);
+		traderJob.setStopLoss(value);
+		adminService.saveTraderJob(traderJob);
+        return "{}";
+    }    
+    
     @GetMapping("/traderJob/changeExecuteSellWhenExpire/{tjId}/{value}")
     @ResponseBody
     public String changeExecuteSellWhenExpire(@PathVariable("tjId") Long tjId, Model model, @PathVariable("value") Boolean value, Principal principal) {

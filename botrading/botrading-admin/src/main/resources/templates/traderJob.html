@@ -121,7 +121,7 @@ table.listTable td {
 				<input id="parcel4" type="number" th:field="*{parcel4}" min="1" max="100" step="1"/>
 			</td>
 			<td>
-				<label for="limitToStop">Limit To Stop (%):</label><br/>
+				<label for="limitToStop">Limit To Stop loss (%):</label><br/>
 				<input id="limitToStop" type="number" th:field="*{limitToStop}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
 			</td>
 			<td>
@@ -148,7 +148,7 @@ table.listTable td {
 				<th>Parcel 2<br/>(%)</th>
 				<th>Parcel 3<br/>(%)</th>
 				<th>Parcel 4<br/>(%)</th>
-				<th>Limit To<br/>Stop (%)</th>
+				<th>Limit To<br/>Stop Loss (%)</th>
 				<th>Options</th>
 				<th>State</th>
 				<th>Profit</th>
@@ -180,6 +180,9 @@ table.listTable td {
 					<br/>
 					<input type="checkbox" class="executeSellWhenExpire" th:checked="${{tr.executeSellWhenExpire}}" th:onclick="@{changeExecuteSellWhenExpire({id},checked)(id=${tr.id})}"/>
 					Execute Sell When Expire
+					<br/>
+					<input type="checkbox" class="stopLoss" th:checked="${{tr.stopLoss}}" th:onclick="@{changeStopLoss({id},checked)(id=${tr.id})}"/>
+					Stop Loss
 				</td>
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.profit}}"></td>
@@ -221,6 +224,11 @@ table.listTable td {
 	    }	    
 	    function changeExecuteSellWhenExpire(tjId,value) {
    			$.getJSON("/traderJob/changeExecuteSellWhenExpire/"+tjId+"/"+value, function(data) {
+   				alert("Option changed");
+    			});	 
+	    }
+	    function changeStopLoss(tjId,value) {
+   			$.getJSON("/traderJob/changeStopLoss/"+tjId+"/"+value, function(data) {
    				alert("Option changed");
     			});	 
 	    }

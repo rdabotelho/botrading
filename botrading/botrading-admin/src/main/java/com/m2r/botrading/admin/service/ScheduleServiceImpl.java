@@ -216,7 +216,22 @@ public class ScheduleServiceImpl implements ScheduleService {
 						order.setLog("Immediate sell buy expiration");
 						orderRepository.save(order.preperToImmediateSel());
 					}
-				}				
+				}	
+				// Stop loss
+				if (order.isSell() && order.isOrdered() && order.getTrader().getTraderJob().getStopLoss()) {
+		    			Order buyOrder = orderRepository.findByTraderAndParcelAndKind(trader, order.getParcel(), Order.KIND_BUY);
+		    			if (buyOrder != null) {
+		    				BigDecimal lastValue = session.getLastPrice(trader.getCoin());
+		    				BigDecimal difference = CalcUtil.subtract(buyOrder.getPrice(), lastValue);
+		    				if (difference.signum() > 0) {
+		    					BigDecimal percent = CalcUtil.multiply(CalcUtil.divide(difference, buyOrder.getPrice()), CalcUtil.HUNDRED);
+		    					if (!CalcUtil.lessThen(percent, order.getTrader().getTraderJob().getLimitToStop())) {
+		    						order.setLog("Immediate sell buy stop loss");
+		    						orderRepository.save(order.preperToImmediateSel());		    						
+		    					}
+		    				}
+		    			}
+				}
 			}
 		};
 	}	
@@ -348,18 +363,18 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     private void cancel(Order order, IExchangeSession session) {
 		try {
-			if (existInTheExchangeOrders(order, session)) {			
+			//if (existInTheExchangeOrders(order, session)) {			
 				if (order.getOrderNumber() != null && !order.getOrderNumber().equals("")) {
 					Currency currency = session.getCurrencyOfTrader(order.getTrader());
 					String currencyPair = session.getCurrencyFactory().currencyToCurrencyPair(currency);
 					session.cancel(order.getTrader().getTraderJob().getAccount(), currencyPair, order.getOrderNumber());
 					LOG.info("Cancel order " + order.getOrderNumber() + " created in the exchange.");
 				}
-			}
+			//}
 			// already liquided in the exchange
-			else {
-				order.setState(Order.STATE_ORDERED);
-			}
+			//else {
+			//	order.setState(Order.STATE_ORDERED);
+			//}
 			order.setPending(true);
 		}
 		catch (ExchangeException e) {

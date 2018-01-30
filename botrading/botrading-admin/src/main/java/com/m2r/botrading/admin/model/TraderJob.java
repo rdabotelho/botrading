@@ -82,7 +82,7 @@ public class TraderJob implements Serializable, ITraderJob {
     @NotNull
     @Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
-    private BigDecimal limitToStop = new BigDecimal("50.0");
+    private BigDecimal limitToStop = new BigDecimal("10.0");
     
 	@NotNull
 	@Column(precision = 19, scale = 8)
@@ -103,6 +103,7 @@ public class TraderJob implements Serializable, ITraderJob {
     private Boolean continuoMode = true;
     private Boolean cancelBuyWhenExpire = false;
     private Boolean executeSellWhenExpire = false;
+    private Boolean stopLoss = false;
     
     private String marketCoin;
     
@@ -310,6 +311,14 @@ public class TraderJob implements Serializable, ITraderJob {
 
 	public void setExecuteSellWhenExpire(Boolean executeSellWhenExpire) {
 		this.executeSellWhenExpire = executeSellWhenExpire;
+	}
+	
+	public Boolean getStopLoss() {
+		return stopLoss == null ? false : stopLoss;
+	}
+	
+	public void setStopLoss(Boolean stopLoss) {
+		this.stopLoss = stopLoss;
 	}
 
 	public void finish() {
