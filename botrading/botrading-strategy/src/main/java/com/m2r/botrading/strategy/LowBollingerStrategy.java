@@ -114,5 +114,5 @@ public class LowBollingerStrategy implements IStrategy {
 	public boolean isReplacePrice() {
 		return true;
 	}
-
+	
 }

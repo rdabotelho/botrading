@@ -6,13 +6,11 @@ public class DefaultStrategyRepository extends StrategyRepository {
 
 	@Override
 	protected void init() {
-		this.registerStrategy(new HighVolumeCoinsStrategy());
-		this.registerStrategy(new HighCoinsStrategy());
-		this.registerStrategy(new MiddleCoinsStrategy());
-		this.registerStrategy(new LowCoinsStrategy());
-		this.registerStrategy(new RandomCoinsStrategy());
-		this.registerStrategy(new CatLeapStrategy());
+		DynamicStrategy.loadDynamicStrategies().forEach(s -> {
+			registerStrategy(s);
+		});
 		this.registerStrategy(new LowBollingerStrategy());
+		this.registerStrategy(new CatLeapStrategy());
 	}
 
 }
