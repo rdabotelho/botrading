@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
+import com.m2r.botrading.strategy.IIntention;
 
 import ws.wamp.jawampa.ApplicationError;
 import ws.wamp.jawampa.WampClient;

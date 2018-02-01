@@ -2,47 +2,27 @@ package com.m2r.botrading.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.IOrderIntent;
+import com.m2r.botrading.api.model.ITraderJob;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
 
 public class DynamicStrategy implements IStrategy {
 
-    private final static Logger LOG = Logger.getLogger(DynamicStrategy.class.getSimpleName());
-    
-	public static final String TARGET_URL = "http://bt3.yuhull.com:8180/strategies";
-
+	private static final String OFFERS_BUOK_ID = "offersBook";
+	
+	private IStrategyManager exchangeWSClient;
+	
 	private String uuid;
 	private String name;
-	private String strategy;
+	private String description;
+	private String type;
+	private List<String> marketsCoin; 
 	private List<Parameter> parameters;
 	
-	public static List<DynamicStrategy> loadDynamicStrategies() {
-		try {
-		    CloseableHttpClient httpClient = HttpClients.createDefault();
-		    HttpGet get = new HttpGet(TARGET_URL);
-		    CloseableHttpResponse response = httpClient.execute(get);
-		    HttpEntity responseEntity = response.getEntity();
-		    String data = EntityUtils.toString(responseEntity);
-		    return new Gson().fromJson(data, new TypeToken<List<DynamicStrategy>>(){}.getType());
-		}
-		catch (Exception e) {
-			LOG.log(Level.SEVERE, e.getMessage(), e);
-			return new ArrayList<>();
-		}
-	}
+	private List<IOrderIntent> emptyList = new ArrayList<>();
 
 	public DynamicStrategy() {
 		this.parameters = new ArrayList<>();
@@ -54,8 +34,19 @@ public class DynamicStrategy implements IStrategy {
 	}
 
 	@Override
-	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, int count, List<String> ignoredCoins) {
-		return null;
+	@SuppressWarnings({ "unused", "unchecked" })
+	public List<IOrderIntent> selectOrderIntent(IStrategyManager manager, IExchangeSession session, ITraderJob traderJob, int count, List<String> ignoredCoins) {
+		List<JobOffer> offers = manager.getEnviromentObject(List.class, OFFERS_BUOK_ID);
+		JobOffer offer = offers.stream().filter(o -> o.getTraderJobId().equals(obj))
+		return emptyList;
+	}
+	
+	public void setExchangeWSClient(IStrategyManager exchangeWSClient) {
+		this.exchangeWSClient = exchangeWSClient;
+	}
+	
+	public IStrategyManager getExchangeWSClient() {
+		return exchangeWSClient;
 	}
 
 	@Override
@@ -71,14 +62,6 @@ public class DynamicStrategy implements IStrategy {
 		this.uuid = uuid;
 	}
 
-	public String getStrategy() {
-		return strategy;
-	}
-
-	public void setStrategy(String strategy) {
-		this.strategy = strategy;
-	}
-
 	public List<Parameter> getParameters() {
 		return parameters;
 	}
@@ -89,6 +72,30 @@ public class DynamicStrategy implements IStrategy {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public List<String> getMarketsCoin() {
+		return marketsCoin;
+	}
+
+	public void setMarketsCoin(List<String> marketsCoin) {
+		this.marketsCoin = marketsCoin;
 	}
 
 	public static class Parameter {

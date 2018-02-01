@@ -6,8 +6,10 @@ import java.util.logging.Logger;
 
 import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IOrderIntent;
+import com.m2r.botrading.api.model.ITraderJob;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
 
 public class CatLeapStrategy implements IStrategy {
@@ -22,7 +24,7 @@ public class CatLeapStrategy implements IStrategy {
 	}
 
 	@Override
-	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, int count, List<String> ignoredCoins) {
+	public List<IOrderIntent> selectOrderIntent(IStrategyManager manager, IExchangeSession session, ITraderJob traderJob, int count, List<String> ignoredCoins) {
 		List<IOrderIntent> list = new ArrayList<>();
 		try {
 			List<CatLeap> sorted = CatLeap.getList(session.getMarketCoin());

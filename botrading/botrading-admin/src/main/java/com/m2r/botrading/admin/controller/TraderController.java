@@ -45,6 +45,7 @@ public class TraderController {
 	private TraderJob traderJob;
 	private MarketCoin selectedMarketCoin;
 	
+	
 	@GetMapping("/")
     public String home(Model model, Principal principal) {
         return initTraderJob(adminService.getDefaultMarketCoin().getId(), model, principal);
@@ -67,11 +68,30 @@ public class TraderController {
     @PostMapping("/traderJob/add")
     public String traderJobAdd(@ModelAttribute TraderJob traderJob, Model model, Principal principal) {
 		validateAccount(principal, null);
-    		traderJob.setDateTime(LocalDateTime.now());
-    		traderJob.setAccount(account);
-    		traderJob.setMarketCoin(selectedMarketCoin.getId());
-    		adminService.saveTraderJob(traderJob);
-    		model.addAttribute("selectedMarketCoin", selectedMarketCoin);
+		if (traderJob.getId() == null) {
+			traderJob.setDateTime(LocalDateTime.now());
+	    	traderJob.setMarketCoin(selectedMarketCoin.getId());
+	    	traderJob.setAccount(account);
+		}
+		else {
+			TraderJob persisted = this.adminService.findTraderJob(traderJob.getId(), account);
+			persisted.setStrategy(traderJob.getStrategy());
+			persisted.setCurrencyCount(traderJob.getCurrencyCount());
+			persisted.setTradingPercent(traderJob.getTradingPercent());
+			persisted.setTimeToCancel(traderJob.getTimeToCancel());
+			persisted.setLimitToStop(traderJob.getLimitToStop());
+			persisted.setParcel1(traderJob.getParcel1());
+			persisted.setParcel2(traderJob.getParcel2());
+			persisted.setParcel3(traderJob.getParcel3());
+			persisted.setParcel4(traderJob.getParcel4());
+			persisted.setContinuoMode(traderJob.getContinuoMode());
+			persisted.setCancelBuyWhenExpire(traderJob.getCancelBuyWhenExpire());
+			persisted.setExecuteSellWhenExpire(traderJob.getExecuteSellWhenExpire());
+			persisted.setStopLoss(traderJob.getStopLoss());
+			traderJob = persisted;
+		}
+    	adminService.saveTraderJob(traderJob);
+    	model.addAttribute("selectedMarketCoin", selectedMarketCoin);
 		model.addAttribute("traderJob", adminService.newTraderJob(account));
 		model.addAttribute("listTraderJobs", this.adminService.findAllTraderJobs(account));
         return "traderJob";
@@ -268,6 +288,41 @@ public class TraderController {
 		Trader trader = adminService.findTrader(tId);
 		validateAccount(principal, trader.getTraderJob().getId());
 		return adminService.getOrderExchangeInfo(trader);
+    }
+    
+    /*
+     * FRAGMENTS
+     */
+    
+    @GetMapping("/newTraderJobFrag")
+    public String newTraderJobFrag(Model model, Principal principal) {
+		validateAccount(principal, null);
+        model.addAttribute("traderJob", adminService.newTraderJob(account));
+        return "traderJob-form::traderJob";
+    }
+    
+    @GetMapping("/editTraderJobFrag/{tjId}")
+    public String editTraderJobFrag(@PathVariable("tjId") Long tjId, Model model, Principal principal) {
+		validateAccount(principal, null);
+		TraderJob tj = adminService.findTraderJob(tjId, account);
+        model.addAttribute("traderJob", tj);
+        return "traderJob-form::traderJob";
+    }
+    
+    @GetMapping("/detailTraderFrag/{tId}")
+    public String detailTraderFrag(@PathVariable("tId") Long tId, Model model, Principal principal) {
+		Trader trader = adminService.findTrader(tId);
+		validateAccount(principal, trader.getTraderJob().getId());
+        model.addAttribute("trader", trader);
+        return "trader-detail::trader";
+    }
+    
+    @GetMapping("/detailOrderFrag/{oId}")
+    public String detailOrderFrag(@PathVariable("oId") Long oId, Model model, Principal principal) {
+		Order order = adminService.findOrder(oId);
+		validateAccount(principal, order.getTrader().getTraderJob().getId());
+        model.addAttribute("order", order);
+        return "order-detail::order";
     }
     
 }

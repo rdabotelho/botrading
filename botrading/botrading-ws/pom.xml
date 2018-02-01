@@ -12,8 +12,17 @@
 	<packaging>jar</packaging>
 
 	<name>botrading-ws</name>
+	
+	<properties>
+		<botrading.strategy.version>1.0.0-SNAPSHOT</botrading.strategy.version>
+	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.m2r.botrading</groupId>
+			<artifactId>botrading-strategy</artifactId>
+			<version>${botrading.strategy.version}</version>		
+		</dependency>
 		<dependency>
 		    <groupId>ws.wamp.jawampa</groupId>
 		    <artifactId>jawampa-netty</artifactId>
@@ -31,6 +40,7 @@
         </dependency>
 	</dependencies>
 
+	<!-- 
 	<build>
 		<plugins>
 			<plugin>
@@ -45,7 +55,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<!--  use mvn assembly:assembly -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.2</version>
@@ -62,6 +71,7 @@
 				</configuration>
 			</plugin>			
 		</plugins>
-	</build>	
+	</build>
+	 -->	
 
 </project>

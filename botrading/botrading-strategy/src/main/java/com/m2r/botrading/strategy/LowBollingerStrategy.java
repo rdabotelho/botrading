@@ -17,8 +17,10 @@ import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IOrderIntent;
 import com.m2r.botrading.api.model.ITicker;
+import com.m2r.botrading.api.model.ITraderJob;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.api.util.CalcUtil;
 
@@ -36,7 +38,7 @@ public class LowBollingerStrategy implements IStrategy {
 	}
 
 	@Override
-	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, int count, List<String> ignoredCoins) {
+	public List<IOrderIntent> selectOrderIntent(IStrategyManager manager, IExchangeSession session, ITraderJob traderJob, int count, List<String> ignoredCoins) {
 		List<IOrderIntent> list = new ArrayList<>();
 		try {
 			List<Intention> intentions = getIntantions(session.getMarketCoin().getId());

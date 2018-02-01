@@ -1,0 +1,34 @@
+<th:block th:fragment="trader" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Fee</th>
+				<th>Parcel 1 (%)</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td th:text="${trader.id}"></td>
+				<td th:text="${{trader.fee}}"></td>
+				<td th:text="${{trader.parcel1}}"></td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Parcel 2 (%)</th>
+				<th>Parcel 3 (%)</th>
+				<th>Parcel 4 (%)</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td th:text="${{trader.parcel2}}"></td>
+				<td th:text="${{trader.parcel3}}"></td>
+				<td th:text="${{trader.parcel4}}"></td>
+			</tr>
+		</tbody>
+	</table>
+</th:block>

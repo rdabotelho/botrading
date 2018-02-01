@@ -3,6 +3,8 @@
 <head>
 <title>Trader</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
 <style>
 .trCompleted {
 	background-color: #DCDCDC;
@@ -10,45 +12,39 @@
 </style>
 </head>
 <body>
+	<div class="container">
 
 	<h1>Traders</h1>
 
-	<table border="1">
-		<thead>
+	<table class="table">
+		<thead class="thead-dark">
 			<tr>
-				<th>ID</th>
-				<th>Coin</th>
-				<th>Date Time</th>
-				<th>Investment</th>
-				<th>Fee (%)</th>
-				<th>Parcel 1 (%)</th>
-				<th>Parcel 2 (%)</th>
-				<th>Parcel 3 (%)</th>
-				<th>Parcel 4 (%)</th>
-				<th>State</th>
-				<th>Ordered Total</th>
-				<th>Liquided Total</th>
-				<th>Profit</th>
-				<th>Action</th>
+				<th scope="col">Coin</th>
+				<th scope="col">Date Time</th>
+				<th scope="col">Investment</th>
+				<th scope="col">State</th>
+				<th scope="col">Ordered Total</th>
+				<th scope="col">Liquided Total</th>
+				<th scope="col">Profit</th>
+				<th scope="col" style="text-align: center;">Action</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr th:each="tr : ${listTraders}" th:class="${tr.state} eq 2 ? 'trCompleted' : ''">
-				<td th:text="${{tr.id}}"></td>
 				<td th:text="${{tr.coin}}"></td>
 				<td th:text="${{tr.dateTime}}"></td>
 				<td th:text="${{tr.investment}}"></td>
-				<td th:text="${{tr.fee}}"></td>
-				<td th:text="${{tr.parcel1}}"></td>
-				<td th:text="${{tr.parcel2}}"></td>
-				<td th:text="${{tr.parcel3}}"></td>
-				<td th:text="${{tr.parcel4}}"></td>
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.orderedTotal}}"></td>
 				<td th:text="${{tr.liquidedTotal}}"></td>
 				<td th:text="${{tr.profit}}"></td>
-				<td>
-					<a th:href="@{/order/{tId}(tId=${tr.id})}">View</a>
+				<td style="text-align: center;">
+					<a class="btn btn-primary btn-sm" th:onclick="'showDetailDialog('+${{tr.id}}+')'" title="Detail of Trader">
+						<span class="glyphicon glyphicon-align-justify"></span>
+					</a>
+					<a class="btn btn-primary btn-sm" th:href="@{/order/{tId}(tId=${tr.id})}" title="View Trader">
+						<span class="glyphicon glyphicon-search"></span>
+					</a>
 				</td>
 			</tr>
 		</tbody>
@@ -57,26 +53,51 @@
 				<td></td>
 				<td></td>
 				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
 				<td style="text-align: center;">
-					<a th:if="${hasPrevious}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}-1,size=20)}">&laquo; Prior</a>
+					<a th:if="${hasPrevious}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}-1,size=10)}">&laquo; Prior</a>
 				</td>
 				<td style="text-align: center;">
 					<span th:text="${page.pageNumber}+1"></span>
 				</td>
 				<td style="text-align: center;">
-					<a th:if="${hasNext}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}+1,size=20)}">Next &raquo;</a>
+					<a th:if="${hasNext}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}+1,size=10)}">Next &raquo;</a>
 				</td>
-				<td></td>
-				<td></td>
-				<td></td>
 				<td></td>
 				<td><a href="JavaScript:history.back();">Back</a></td>
 			</tr>
 		</tfoot>
 	</table>
 
+	<div id="detailModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Detail</h4>
+	      </div>
+	      <div class="modal-body">
+			<div id="detailModalContent"></div>	
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>	
+
+	</div>
+	
+	<script src="/webjars/jquery/3.1.1/jquery.min.js"></script>    
+	<script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<script>
+	    /*<![CDATA[*/
+	    function showDetailDialog(id) {
+	    	$("#detailModalContent").load("/detailTraderFrag/"+id);	  
+	    	$("#detailModal").modal();
+	    }
+	    /*]]>*/
+	</script>	
+	
 </body>
 </html>

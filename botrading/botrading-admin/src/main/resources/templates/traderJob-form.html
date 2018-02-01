@@ -1,0 +1,91 @@
+<th:block th:fragment="traderJob" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<form id="myform" action="#" th:action="@{/traderJob/add}" th:object="${traderJob}" method="post">
+	
+      <input type="hidden" th:field="*{id}"/>
+	  <div class="form-row">
+	  	<div class="form-group col-md-6">
+		    <label for="strategy">Strategy:</label>
+			<select id="strategy" th:field="*{strategy}" class="form-control">
+  				<option th:each="strategy : ${allStrategies}" 
+          			th:value="${strategy.name}" 
+          			th:text="${strategy.name}">
+          		</option>
+			</select>
+		</div>
+	  	<div class="form-group col-md-6">
+		    <label for="currencyCount">Currency Count:</label>
+		    <input id="currencyCount" type="number" th:field="*{currencyCount}" min="1" max="100" class="form-control"/>
+	  	</div>
+	  </div>
+	  
+	  <div class="form-row">
+	  	<div class="form-group col-md-6">
+		    <label for="amount">Amount:</label>
+		    <input id="amount" type="number" th:field="*{amount}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
+	  	</div>
+	  	<div class="form-group col-md-6">
+		    <label for="tradingPercent">Trading Percent (%):</label>
+		    <input id="tradingPercent" type="number" th:field="*{tradingPercent}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01" class="form-control"/>
+	    </div>
+	  </div>
+	  
+	  <div class="form-row">
+	  	<div class="form-group col-md-6">
+		    <label for="timeToCancel">Time To Cancel (min):</label>
+		    <input id="timeToCancel" type="number" th:field="*{timeToCancel}" min="60" step="1" class="form-control"/>
+	  	</div>
+	  	<div class="form-group col-md-6">
+		    <label for="limitToStop">Limit To Stop (%):</label>
+		   	<input id="limitToStop" type="number" th:field="*{limitToStop}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01" class="form-control"/>
+		</div>
+	  </div>
+	  	
+	  <div class="form-row">
+	  	<div class="form-group col-md-3">
+		    <label for="parcel1">Parcel 1 (%):</label>
+		    <input id="parcel1" type="number" th:field="*{parcel1}" min="1" max="100" step="0.01" class="form-control"/>
+	  	</div>
+	  	<div class="form-group col-md-3">
+		    <label for="parcel2">Parcel 2 (%):</label>
+		    <input id="parcel2" type="number" th:field="*{parcel2}" min="0" max="100" step="0.01" class="form-control"/>
+		</div>
+	  	<div class="form-group col-md-3">
+		    <label for="parcel3">Parcel 3 (%):</label>
+		    <input id="parcel3" type="number" th:field="*{parcel3}" min="0" max="100" step="0.01" class="form-control"/>
+	  	</div>
+	  	<div class="form-group col-md-3">
+		    <label for="parcel4">Parcel 4 (%):</label>
+		    <input id="parcel4" type="number" th:field="*{parcel4}" min="0" max="100" step="0.01" class="form-control"/>
+	  	</div>
+	  </div>
+	  	
+	  <div class="form-row">
+	  	<div class="form-group col-md-3">
+		    <label for="parcel1">Continuo<br/> Mode:</label>
+	  		<div class="form-check">
+			    <input id="continuoMode" type="checkbox" th:field="*{continuoMode}" class="form-check-input"/>
+			</div>
+	  	</div>
+	  	<div class="form-group col-md-3">
+		    <label for="cancelBuyWhenExpire">Cancel Buy When Expire:</label>
+	  		<div class="form-check">
+			    <input id="cancelBuyWhenExpire" type="checkbox" th:field="*{cancelBuyWhenExpire}" class="form-check-input"/>
+			</div>
+		</div>
+	  	<div class="form-group col-md-3">
+		    <label for="executeSellWhenExpire">Execute Sell When Expire:</label>
+	  		<div class="form-check">
+			    <input id="executeSellWhenExpire" type="checkbox" th:field="*{executeSellWhenExpire}" class="form-check-input"/>
+			</div>
+	  	</div>
+	  	<div class="form-group col-md-3">
+		    <label for="stopLoss">Stop<br/>Less:</label>
+	  		<div class="form-check">
+		    	<input id="stopLoss" type="checkbox" th:field="*{stopLoss}" class="form-check-input"/>
+			</div>
+	  	</div>
+	  </div>
+	  
+	  <p>&nbsp;</p>
+    </form>
+</th:block>

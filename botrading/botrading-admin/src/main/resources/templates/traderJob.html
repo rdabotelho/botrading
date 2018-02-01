@@ -3,7 +3,8 @@
 <head>
 <title>Trader</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script src="/js/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css" />
 <style>
 .trFinished {
 	background-color: #DCDCDC;
@@ -14,148 +15,90 @@ table.listTable td {
 </style>
 </head>
 <body>
-
+	<div class="container">
+	    
 	<h1>Trader Job</h1>
 
 	<ul>
   		<li th:each="err : ${#fields.errors('*')}" th:text="${err}" />
 	</ul>
 
-	<form id="myform" action="#" th:action="@{/traderJob/add}" th:object="${traderJob}" method="post">
-	<table border="0">
-	<tbody>
-		<tr>
-			<td>
-				<strong>USER NAME:</strong>
-			</td>
-			<td>
-				<span th:text="${traderJob.account.name}"></span>
-			</td>
-			<td>
-			</td>
-			<td>
-				<strong>MARKET COIN:</strong>
-			</td>
-			<td>
-				<select id="selectedMarketCoin">
-	  				<option th:each="marketCoin : ${allMarketCoins}" 
-	          			th:value="${marketCoin.id}" 
-	          			th:text="${marketCoin.id}"
-	          			th:selected="${marketCoin.id == selectedMarketCoin.id}"></option>
-				</select>				
-			</td>
-			<td>
-			</td>
-			<td>
-				<strong>BALANCE:</strong>
-			</td>
-			<td>
-				<span id="coinBalance">...</span>
-			</td>
-			<td>
-			</td>
-			<td>
-				<strong>AVAILABLE:</strong>
-			</td>
-			<td>
-				<span id="coinAvailable">...</span>
-			</td>
-			<td>
-			</td>
-			<td>
-				<strong>BALANCE (R$):</strong>
-			</td>
-			<td>
-				<span id="realBalance">...</span>
-			</td>
-		</tr>
-	</tbody>
-	</table>
-	
-	<br/>
-	
-	<table border="0">
-	<tbody>
-		<tr>
-			<td>
-				<label for="strategy">Strategy:</label><br/>
-				<select id="strategy" th:field="*{strategy}">
-	  				<option th:each="strategy : ${allStrategies}" 
-	          			th:value="${strategy.name}" 
-	          			th:text="${strategy.name}"></option>
-				</select>
-			</td>
-			<td>
-				<label for="currencyCount">Currency Count:</label><br/>
-				<input id="currencyCount" type="number" th:field="*{currencyCount}" min="1" max="100"/>
-			</td>
-			<td>
-				<label for="amount">Amount:</label><br/>
-				<input id="amount" type="number" th:field="*{amount}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?"/>
-			</td>
-			<td>
-				<label for="tradingPercent">Trading Percent (%):</label><br/>
-				<input id="tradingPercent" type="number" th:field="*{tradingPercent}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
-			</td>
-			<td>
-				<label for="timeToCancel">Time To Cancel (min):</label><br/>
-				<input id="timeToCancel" type="number" th:field="*{timeToCancel}" min="60" step="1"/>
-			</td>
-			<td></td>
-		</tr>
-		<tr>
-			<td>
-				<label for="parcel1">Parcel 1 (%):</label><br/>
-				<input id="parcel1" type="number" th:field="*{parcel1}" min="1" max="100" step="1"/>
-			</td>
-			<td>
-				<label for="parcel2">Parcel 2 (%):</label><br/>
-				<input id="parcel2" type="number" th:field="*{parcel2}" min="1" max="100" step="1"/>
-			</td>
-			<td>
-				<label for="parcel3">Parcel 3 (%):</label><br/>
-				<input id="parcel3" type="number" th:field="*{parcel3}" min="1" max="100" step="1"/>
-			</td>
-			<td>
-				<label for="parcel4">Parcel 4 (%):</label><br/>
-				<input id="parcel4" type="number" th:field="*{parcel4}" min="1" max="100" step="1"/>
-			</td>
-			<td>
-				<label for="limitToStop">Limit To Stop loss (%):</label><br/>
-				<input id="limitToStop" type="number" th:field="*{limitToStop}" pattern="[0-9]+([\.,][0-9]+)?" min="0.01" max="100" step="0.01"/>
-			</td>
-			<td>
-				<a href="#" onclick="document.getElementById('myform').submit()">Create</a>
-			</td>
-		</tr>
-	</tbody>
-	</table>
-	</form>
-	
-	<br/>
-	
-	<table border="1" class="listTable">
-		<thead>
+	<table class="table table-striped">
+		<thead class="thead-dark">
 			<tr>
-				<th>Date Time</th>
-				<th>Strategy</th>
-				<th>Currency<br/>Count</th>
-				<th>Amount</th>
-				<th>Trading<br/>Percent (%)</th>
-				<th>Trading<br/>Amount</th>
-				<th>Time To<br/>Cancel (min)</th>
-				<th>Parcel 1<br/>(%)</th>
-				<th>Parcel 2<br/>(%)</th>
-				<th>Parcel 3<br/>(%)</th>
-				<th>Parcel 4<br/>(%)</th>
-				<th>Limit To<br/>Stop Loss (%)</th>
-				<th>Options</th>
-				<th>State</th>
-				<th>Profit</th>
-				<th>Profit<br/>(%)</th>
-				<th>Today<br/>Profit (%)</th>
-				<th>Balance</th>
-				<th>Action</th>
+				<th scope="col">USER NAME:</th>
+				<th scope="col">MARKET COIN:</th>
+				<th scope="col">BALANCE:</th>
+				<th scope="col">AVAILABLE:</th>
+				<th scope="col">BALANCE (R$):</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>	
+		<tbody>
+			<tr>
+				<td>
+					<span th:text="${traderJob.account.name}"></span>
+				</td>
+				<td>
+					<select id="selectedMarketCoin" class="form-control">
+		  				<option th:each="marketCoin : ${allMarketCoins}" 
+		          			th:value="${marketCoin.id}" 
+		          			th:text="${marketCoin.id}"
+		          			th:selected="${marketCoin.id == selectedMarketCoin.id}"></option>
+					</select>				
+				</td>
+				<td>
+					<span id="coinBalance">...</span>
+				</td>
+				<td>
+					<span id="coinAvailable">...</span>
+				</td>
+				<td>
+					<span id="realBalance">...</span>
+				</td>
+				<td>
+					<input id="hidenAmount" type="hidden" value=""/>
+					<button type="button" id="btNewTraderJob" class="btn btn-primary btn-sm" data-toggle="modal" onclick="showNewDialog()" title="New Job">
+						<span class="glyphicon glyphicon-new-window"></span> New
+					</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<div id="formModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Trader Job</h4>
+	      </div>
+	      <div class="modal-body">
+			<div id="formModalContent"></div>	
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">
+	        	<span class="glyphicon glyphicon-remove"></span> Cancel
+	        </button>
+	        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="document.getElementById('myform').submit();">
+	        	<span class="glyphicon glyphicon-ok"></span> OK
+	        </button>
+	      </div>
+	    </div>
+	  </div>
+	</div>	
+	
+	<table class="table table-striped">
+		<thead class="thead-dark">
+			<tr>
+				<th scope="col">Date Time</th>
+				<th scope="col">Strategy</th>
+				<th scope="col">Currency<br/>Count</th>
+				<th scope="col">State</th>
+				<th scope="col">Profit<br/>(%)</th>
+				<th scope="col">Today<br/>Profit (%)</th>
+				<th scope="col">Balance</th>
+				<th scope="col" style="text-align: center;">Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -163,50 +106,45 @@ table.listTable td {
 				<td th:text="${{tr.dateTime}}"></td>
 				<td th:text="${{tr.strategy}}"></td>
 				<td th:text="${{tr.currencyCount}}"></td>
-				<td th:text="${{tr.amount}}"></td>
-				<td th:text="${{tr.tradingPercent}}"></td>
-				<td th:text="${{tr.tradingAmount}}"></td>
-				<td th:text="${{tr.timeToCancel}}"></td>
-				<td th:text="${{tr.parcel1}}"></td>
-				<td th:text="${{tr.parcel2}}"></td>
-				<td th:text="${{tr.parcel3}}"></td>
-				<td th:text="${{tr.parcel4}}"></td>
-				<td th:text="${{tr.limitToStop}}"></td>
-				<td style="text-align: center;">
-					<input type="checkbox" class="continuoModeCheck" th:checked="${{tr.continuoMode}}" th:onclick="@{changeContinuoMode({id},checked)(id=${tr.id})}"/>
-					Continuo Mode<br/>
-					<input type="checkbox" class="cancelBuyWhenExpire" th:checked="${{tr.cancelBuyWhenExpire}}" th:onclick="@{changeCancelBuyWhenExpire({id},checked)(id=${tr.id})}"/>
-					Cancel Buy When Expire
-					<br/>
-					<input type="checkbox" class="executeSellWhenExpire" th:checked="${{tr.executeSellWhenExpire}}" th:onclick="@{changeExecuteSellWhenExpire({id},checked)(id=${tr.id})}"/>
-					Execute Sell When Expire
-					<br/>
-					<input type="checkbox" class="stopLoss" th:checked="${{tr.stopLoss}}" th:onclick="@{changeStopLoss({id},checked)(id=${tr.id})}"/>
-					Stop Loss
-				</td>
 				<td th:text="${{tr.stateName}}"></td>
-				<td th:text="${{tr.profit}}"></td>
 				<td th:text="${{tr.profitPercent}}"></td>
 				<td th:text="${{tr.todayProfitPercent}}"></td>
 				<td th:text="${{tr.balance}}"></td>
-				<td>
-					<a th:if="${tr.state} eq 1" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Finish</a>
-					<a th:if="${tr.state} eq 2" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Delete</a>
-					<a th:if="${tr.state} eq 0" th:href="@{/traderJob/start/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')">Start</a>
-					<a th:if="${tr.state} neq 0" th:href="@{/trader/{id}(id=${tr.id},page=0,size=20)}">View</a>
+				<td style="text-align: center;">
+					<a class="btn btn-primary btn-sm" th:onclick="'showEditDialog('+${{tr.id}}+')'" title="Edit Job">
+						<span class="glyphicon glyphicon-edit"></span>
+					</a>
+					<a th:if="${tr.state} eq 0" class="btn btn-primary btn-sm" th:href="@{/traderJob/start/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Start Job">
+						<span class="glyphicon glyphicon-play"></span>
+					</a>
+					<a th:if="${tr.state} neq 0" class="btn btn-primary btn-sm" th:href="@{/trader/{id}(id=${tr.id},page=0,size=10)}" title="View Job">
+						<span class="glyphicon glyphicon-search"></span>
+					</a>
+					<a th:if="${tr.state} eq 1" class="btn btn-primary btn-sm" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Finish Job">
+						<span class="glyphicon glyphicon-stop"></span>
+					</a>
+					<a th:if="${tr.state} eq 2" class="btn btn-primary btn-sm" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Remove Job">
+						<span class="glyphicon glyphicon-remove"></span>
+					</a>
 				</td>
 			</tr>
 		</tbody>
 	</table>
+	</div>
+		
+	<script src="/webjars/jquery/3.1.1/jquery.min.js"></script>    
+	<script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	
 	<script>
 	    /*<![CDATA[*/
 	    $(document).ready(function() {
+	    		$("#btNewTraderJob").prop('disabled', true);	    	
 	    		$.getJSON("/traderJob/traderJobExchangeInfo", function(data) {
 	    	        $("#coinBalance").text(data.formatedCoinBalance);
 	    	        $("#realBalance").text(data.formatedRealBalance);
 	    	        $("#coinAvailable").text(data.formatedAmount);
-	    	        $("#amount").val(data.amount);
+	    	        $("#hidenAmount").val(data.amount);
+		    		$("#btNewTraderJob").prop('disabled', false);	    	
 	    		});	 
 	    		$("#selectedMarketCoin").change(function (event){
 	    			window.location.href = "/traderJob/"+event.target.value;
@@ -232,8 +170,19 @@ table.listTable td {
    				alert("Option changed");
     			});	 
 	    }
+	    function showNewDialog() {
+	    	$("#formModalContent").load("/newTraderJobFrag");
+	    	$("#formModal").on('shown.bs.modal', function () {
+		    	$("#amount").val($("#hidenAmount").val());
+	    	});
+	    	$("#formModal").modal();
+	    }
+	    function showEditDialog(id) {
+	    	$("#formModalContent").load("/editTraderJobFrag/"+id);	  
+	    	$("#formModal").modal();
+	    }
 	    /*]]>*/
 	</script>	
-			
+
 </body>
 </html>

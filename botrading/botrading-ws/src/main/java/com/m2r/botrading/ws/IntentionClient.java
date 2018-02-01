@@ -3,6 +3,7 @@ package com.m2r.botrading.ws;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
+import com.m2r.botrading.strategy.IIntention;
 
 import rx.Subscription;
 import rx.functions.Action1;

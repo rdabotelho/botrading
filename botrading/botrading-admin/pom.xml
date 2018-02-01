@@ -23,6 +23,7 @@
 		<java.version>1.8</java.version>
 		<botrading.api.version>1.0.0-SNAPSHOT</botrading.api.version>
 		<botrading.strategy.version>1.0.0-SNAPSHOT</botrading.strategy.version>
+		<botrading.ws.version>1.0.0-SNAPSHOT</botrading.ws.version>
 		<botrading.poloniex.version>1.0.0-SNAPSHOT</botrading.poloniex.version>
 		<botrading.binance.version>1.0.0-SNAPSHOT</botrading.binance.version>
 	</properties>
@@ -37,6 +38,11 @@
 			<groupId>com.m2r.botrading</groupId>
 			<artifactId>botrading-strategy</artifactId>
 			<version>${botrading.strategy.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.m2r.botrading</groupId>
+			<artifactId>botrading-ws</artifactId>
+			<version>${botrading.ws.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -111,9 +117,9 @@
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-	        	<groupId>com.google.guava</groupId>
-	        	<artifactId>guava</artifactId>
-	        	<version>16.0.1</version>
+        	<groupId>com.google.guava</groupId>
+        	<artifactId>guava</artifactId>
+        	<version>16.0.1</version>
         </dependency>
 		
 		<!-- EXCHANGES -->
@@ -133,6 +139,19 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		
+		<!-- BOOTSTRAP -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

@@ -29,10 +29,9 @@ import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
-import com.m2r.botrading.api.strategy.StrategyRepository;
 import com.m2r.botrading.api.util.CalcUtil;
-import com.m2r.botrading.strategy.DefaultStrategyRepository;
 
 @Service("adminService")
 @Transactional
@@ -56,7 +55,8 @@ public class AdminServiceImpl implements AdminService {
     @Autowired
     private IRealExchangeService realExchangeService;
     
-    private StrategyRepository strategyRepository = new DefaultStrategyRepository();
+    @Autowired
+    private IStrategyManager strategyManager;
     
     protected IExchangeService getExchangeService() {
     	return exchangeManager.getExchangeService();
@@ -151,7 +151,7 @@ public class AdminServiceImpl implements AdminService {
         
     @Override
     public List<IStrategy> getStrategies() {
-    		return strategyRepository.getStrategies();
+    		return strategyManager.getStrategies();
     }
     
     @Override

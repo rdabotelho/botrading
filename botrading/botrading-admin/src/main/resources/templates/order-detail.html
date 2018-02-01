@@ -1,0 +1,44 @@
+<th:block th:fragment="order" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Parcel</th>
+				<th>Fee</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td th:text="${{order.id}}"></td>
+				<td th:text="${{order.parcel}}"></td>
+				<td th:text="${{order.feeValue}}"></td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>State Date Time</th>
+				<th>Expired</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td th:text="${{order.stateDateTime}}"></td>
+				<td th:text="${{order.expired}}"></td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Log</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="active">
+				<td th:text="${{order.log}}"></td>
+			</tr>
+		</tbody>
+	</table>
+</th:block>
