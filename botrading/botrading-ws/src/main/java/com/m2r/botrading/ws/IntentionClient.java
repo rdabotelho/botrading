@@ -3,7 +3,7 @@ package com.m2r.botrading.ws;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
-import com.m2r.botrading.strategy.IIntention;
+import com.m2r.botrading.api.model.IIntention;
 
 import rx.Subscription;
 import rx.functions.Action1;
@@ -16,17 +16,15 @@ public class IntentionClient {
 
 	private WampClient client;
 	private String url;
-	private Class<? extends IIntention> classI;
 	private Action1<IIntention> action;
     private Subscription eventSubscription;
     
-	public static IntentionClient build(String url, Class<? extends IIntention> classI, Action1<IIntention> action) {
-		return new IntentionClient(url, classI, action);
+	public static IntentionClient build(String url, Action1<IIntention> action) {
+		return new IntentionClient(url, action);
 	}
 	
-	private IntentionClient(String url, Class<? extends IIntention> classI, Action1<IIntention> action) {
+	private IntentionClient(String url, Action1<IIntention> action) {
 		this.url = url;
-		this.classI = classI;
 		this.action = action;
 	}
 	
@@ -51,7 +49,7 @@ public class IntentionClient {
                 System.out.println("State: " + t1);
                 if (t1 instanceof WampClient.ConnectedState) {
                     eventSubscription = client.makeSubscription("test.event", String.class).subscribe((json)->{
-                    	IIntention intention = new Gson().fromJson(json, classI); 
+                    	Intention intention = new Gson().fromJson(json, Intention.class);
                     	action.call(intention);
                     });
                 }

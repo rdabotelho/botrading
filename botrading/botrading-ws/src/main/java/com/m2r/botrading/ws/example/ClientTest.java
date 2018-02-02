@@ -12,7 +12,7 @@ public class ClientTest {
 	private static IntentionClient client;
 
 	public static void main(String[] args) {
-		client = IntentionClient.build(URL, ServerTest.Intention.class,  intention -> {
+		client = IntentionClient.build(URL, intention -> {
 			System.out.println(String.format("Received an order intention: [Coin: %s, buyPrice: %s, salePrice: %s]", intention.getCurrencyPair(), intention.getBuyPrice().toString(), intention.getSalePrice().toString()));
 		})
 		.start();

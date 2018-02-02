@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 
-import com.m2r.botrading.strategy.IIntention;
+import com.m2r.botrading.api.model.IIntention;
+import com.m2r.botrading.ws.Intention;
 import com.m2r.botrading.ws.IntentionServer;
 
 public class ServerTest {
@@ -41,30 +42,5 @@ public class ServerTest {
 			return null;
 		}
 	}  
-	
-	public static class Intention implements IIntention {
-		private String uuidStrategy;
-		private String currencyPair;
-		private BigDecimal buyPrice;
-		private BigDecimal selePrice;
-		public Intention(String uuidStrategy, String currencyPair, String buyPrice, String selePrice) {
-			this.uuidStrategy = uuidStrategy;
-			this.currencyPair = currencyPair;
-			this.buyPrice = new BigDecimal(buyPrice);
-			this.selePrice = new BigDecimal(selePrice);
-		}
-		@Override
-		public String getUuidStrategy() {
-			return this.uuidStrategy;
-		}
-		public String getCurrencyPair() {
-			return this.currencyPair;
-		}
-		public BigDecimal getBuyPrice() {
-			return this.buyPrice;
-		}
-		public BigDecimal getSalePrice() {
-			return this.selePrice;
-		}
-	}
+
 }

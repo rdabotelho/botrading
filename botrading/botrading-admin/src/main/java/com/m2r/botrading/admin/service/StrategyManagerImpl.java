@@ -20,14 +20,13 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.m2r.botrading.api.model.IIntention;
+import com.m2r.botrading.api.model.IIntentionRequest;
 import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.strategy.CatLeapStrategy;
 import com.m2r.botrading.strategy.DynamicStrategy;
-import com.m2r.botrading.strategy.IIntention;
-import com.m2r.botrading.strategy.JobOffer;
 import com.m2r.botrading.ws.IntentionClient;
-import com.m2r.botrading.ws.example.ServerTest;
 
 import rx.functions.Action1;
 
@@ -37,11 +36,11 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 
 	private final static Logger LOG = Logger.getLogger(StrategyManagerImpl.class.getSimpleName());
 	
-	private static final String WS_URL = "ws://localhost:8280/ws1";
-	public static final String STRATEGIES_URL = "http://localhost:8180/strategies";
+	private static final String WS_URL = "ws://yuhull.com:8280/ws1";
+	public static final String STRATEGIES_URL = "http://yuhull.com:8180/strategies";
 	
 	private IntentionClient client;
-	private List<JobOffer> offersBook = new ArrayList<>();
+	private List<IIntentionRequest> intentionRequestsBook = new ArrayList<>();
 	private List<IStrategy> strategies = new ArrayList<>();
 	
 	@PostConstruct	
@@ -49,7 +48,7 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 		strategies.addAll(loadDynamicStrategies());
 		strategies.add(new CatLeapStrategy());
 		//strategies.add(new LowBollingerStrategy());
-		client = IntentionClient.build(WS_URL, ServerTest.Intention.class, this).start();
+		client = IntentionClient.build(WS_URL, this).start();
 	}
 	
 	@PostRemove
@@ -76,14 +75,15 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 	public void call(IIntention intention) {
 		
 		// Verify if have some job offer for this strategy
-		List<JobOffer> offers = offersBook.stream().filter(o -> o.getUuidStrategy().equals(intention.getUuidStrategy())).collect(Collectors.toList());
+		List<IIntentionRequest> intentionRequests = intentionRequestsBook.stream().filter(ir -> {
+			String[] array = intention.getCurrencyPair().split("_"); 
+			return ir.getStrategy().getUuid().equals(intention.getUuidStrategy()) && ir.getMarketCoin().equals(array[0]);
+		})
+		.collect(Collectors.toList());
 		
 		// If exist offer then save the intent 
-		for (JobOffer offer : offers) {
-			if (!offer.getIgnoredCoins().contains(intention.getCurrencyPair())) {
-				offer.getIntentions().add(intention);
-				offer.getIgnoredCoins().add(intention.getCurrencyPair());
-			}
+		for (IIntentionRequest intentionRequest : intentionRequests) {
+			intentionRequest.getIntentions().put(intention.getId(), intention);
 		}
 	}
 	
@@ -95,14 +95,20 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 	public IStrategy getStrategyByName(String name) {
 		return strategies.stream().filter(s -> s.getName().equals(name)).findFirst().orElse(null);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Override
-	public <T> T getEnviromentObject(Class<T> classOfT, String id) {
-		if (id.equals("offersBook")) {
-			return (T) offersBook;
-		}
-		return null;
+	public void registerIntentionRequest(IIntentionRequest intentionRequest) {
+		intentionRequestsBook.add(intentionRequest);
+	}
+
+	@Override
+	public void removeIntentionRequest(IIntentionRequest intentionRequest) {
+		intentionRequestsBook.remove(intentionRequest);
+	}
+	
+	@Override
+	public IIntentionRequest findIntentionRequest(Long traderJobId) {
+		return intentionRequestsBook.stream().filter(ir -> ir.getTraderJobId().equals(traderJobId)).findFirst().orElse(null);
 	}
 
 }
