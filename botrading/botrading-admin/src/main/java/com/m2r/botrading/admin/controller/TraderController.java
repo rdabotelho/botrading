@@ -325,4 +325,12 @@ public class TraderController {
         return "order-detail::order";
     }
     
+    @GetMapping("/strategyInfo/{name}")
+    @ResponseBody
+    public String strategyInfo(@PathVariable("name") String name, Principal principal) {
+		validateAccount(principal, null);
+		IStrategy strategy = adminService.getStrategies().stream().filter(s -> s.getName().equals(name)).findFirst().orElse(null);
+		return strategy != null ? strategy.getInfo() : "";
+    }
+    
 }

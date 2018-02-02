@@ -117,4 +117,19 @@ public class LowBollingerStrategy implements IStrategy {
 		return true;
 	}
 	
+	@Override
+	public String getUuid() {
+		return "";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+	
+	@Override
+	public String getInfo() {
+		return "";
+	}
+	
 }

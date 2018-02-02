@@ -37,7 +37,10 @@ public class DynamicStrategy implements IStrategy {
 	@SuppressWarnings({ "unused", "unchecked" })
 	public List<IOrderIntent> selectOrderIntent(IStrategyManager manager, IExchangeSession session, ITraderJob traderJob, int count, List<String> ignoredCoins) {
 		List<JobOffer> offers = manager.getEnviromentObject(List.class, OFFERS_BUOK_ID);
-		JobOffer offer = offers.stream().filter(o -> o.getTraderJobId().equals(obj))
+		JobOffer offer = offers.stream().filter(o -> o.getTraderJobId().equals(traderJob.getId())).findFirst().orElse(null);
+		if (offer != null) {
+			
+		}
 		return emptyList;
 	}
 	
@@ -96,6 +99,21 @@ public class DynamicStrategy implements IStrategy {
 
 	public void setMarketsCoin(List<String> marketsCoin) {
 		this.marketsCoin = marketsCoin;
+	}
+
+	@Override
+	public String getInfo() {
+		StringBuilder str = new StringBuilder();
+		str.append("<div style='width:400px;font-size:10px;'>");
+		str.append("<strong>Description: </strong><br/>");
+		str.append(this.getDescription()).append("<br/><br/>");
+		str.append("<strong>Parameters: </strong><br/>");
+		for (Parameter param : getParameters()) {
+			str.append("<strong>- Type: </strong>\n").append(param.getType()).append("<br/>");
+			str.append("<strong>- Value: </strong>\n").append(param.getValue()).append("<br/><br/>");
+		}
+		str.append("</div>");
+		return str.toString();
 	}
 
 	public static class Parameter {

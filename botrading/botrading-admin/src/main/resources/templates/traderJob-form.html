@@ -5,12 +5,19 @@
 	  <div class="form-row">
 	  	<div class="form-group col-md-6">
 		    <label for="strategy">Strategy:</label>
-			<select id="strategy" th:field="*{strategy}" class="form-control">
-  				<option th:each="strategy : ${allStrategies}" 
-          			th:value="${strategy.name}" 
-          			th:text="${strategy.name}">
-          		</option>
-			</select>
+		    <div class="input-group">
+				<select id="strategy" th:field="*{strategy}" class="form-control">
+	  				<option th:each="strategy : ${allStrategies}" 
+	          			th:value="${strategy.name}" 
+	          			th:text="${strategy.name}">
+          			</option>
+				</select>
+				<span class="input-group-btn">
+					<button id="popoverStrategy" type="button" class="btn btn-primary btn-sm" data-toggle="popover" title="Information" >
+						<span class="glyphicon glyphicon-align-justify"></span>
+					</button>
+				</span>
+			</div>
 		</div>
 	  	<div class="form-group col-md-6">
 		    <label for="currencyCount">Currency Count:</label>
@@ -84,8 +91,25 @@
 		    	<input id="stopLoss" type="checkbox" th:field="*{stopLoss}" class="form-check-input"/>
 			</div>
 	  	</div>
-	  </div>
-	  
+	  </div>	  
 	  <p>&nbsp;</p>
     </form>
+	<script>
+	    /*<![CDATA[*/
+	    $(document).ready(function(){
+	        $('[data-toggle="popover"]').popover({
+	            html : true
+	        }); 
+	        $("#strategy").change(function (item){
+		        	actualizePopoverStrategy();
+	        });
+	    });    
+	    function actualizePopoverStrategy() {
+   			$.get("/strategyInfo/"+$( "#strategy option:selected" ).text(), function(data) {
+		    		$("#popoverStrategy").attr("data-content", data);	
+    			});	 
+	    }
+	    	actualizePopoverStrategy();
+	    /*]]>*/
+	</script>	
 </th:block>

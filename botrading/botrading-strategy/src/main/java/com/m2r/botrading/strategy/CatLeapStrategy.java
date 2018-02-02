@@ -54,4 +54,19 @@ public class CatLeapStrategy implements IStrategy {
 		return false;
 	}
 	
+	@Override
+	public String getUuid() {
+		return "";
+	}
+
+	@Override
+	public String getDescription() {
+		return "";
+	}
+	
+	@Override
+	public String getInfo() {
+		return "";
+	}
+	
 }
