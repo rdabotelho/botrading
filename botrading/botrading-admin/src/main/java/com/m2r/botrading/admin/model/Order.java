@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -22,7 +23,17 @@ import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.util.CalcUtil;
 
 @Entity
-@Table(name="Ordder")
+@Table(
+	name="Ordder",
+	indexes = {
+	    @Index(columnList = "state", name = "ordder_state"),
+	    @Index(columnList = "trader_id,state", name = "ordder_state2"),
+	    @Index(columnList = "state,pending", name = "ordder_state_pending"),
+	    @Index(columnList = "trader_id,state,pending", name = "ordder_state_pending2"),
+	    @Index(columnList = "trader_id,state,kind", name = "ordder_state_kind"),
+	    @Index(columnList = "trader_id,parcel,kind", name = "ordder_parcel_kind")
+	}
+)
 public class Order implements Serializable, IOrder {
  
 	private static final long serialVersionUID = 1L;

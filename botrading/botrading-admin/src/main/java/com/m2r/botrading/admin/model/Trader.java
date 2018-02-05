@@ -12,8 +12,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
@@ -25,6 +27,12 @@ import com.m2r.botrading.api.model.ITrader;
 import com.m2r.botrading.api.util.CalcUtil;
 
 @Entity
+@Table(
+	indexes = {
+	    @Index(columnList = "state", name = "trader_state"),
+	    @Index(columnList = "trader_job_id,state", name = "trader_state2")
+	}
+)
 public class Trader implements Serializable, ITrader {
  
 	private static final long serialVersionUID = 1L;

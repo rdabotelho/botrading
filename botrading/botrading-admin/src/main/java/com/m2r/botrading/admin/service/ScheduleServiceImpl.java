@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import com.m2r.botrading.admin.repositories.OrderRepository;
 import com.m2r.botrading.admin.repositories.TraderJobRepository;
 import com.m2r.botrading.admin.repositories.TraderRepository;
 import com.m2r.botrading.admin.util.OrderBuilder;
+import com.m2r.botrading.admin.util.SMSSender;
 import com.m2r.botrading.admin.util.TraderBuilder;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
@@ -265,13 +267,31 @@ public class ScheduleServiceImpl implements ScheduleService {
     
     private void calculateProfit(Order sellOrder) {
 		Order buyOrder = orderRepository.findByTraderAndParcelAndKind(sellOrder.getTrader(), sellOrder.getParcel(), Order.KIND_BUY);
-    	if (buyOrder != null) {
-    		BigDecimal profit = CalcUtil.subtract(sellOrder.getBalance(), buyOrder.getBalance());
-    		sellOrder.getTrader().addProfit(profit);
-    		sellOrder.getTrader().getTraderJob().addProfit(profit);
-    		traderRepository.save(sellOrder.getTrader());
-    		traderJobRepository.save(sellOrder.getTrader().getTraderJob());
-    	}
+	    	if (buyOrder != null) {
+	    		BigDecimal profit = CalcUtil.subtract(sellOrder.getBalance(), buyOrder.getBalance());
+	    		sellOrder.getTrader().addProfit(profit);
+	    		sellOrder.getTrader().getTraderJob().addProfit(profit);
+	    		traderRepository.save(sellOrder.getTrader());
+	    		traderJobRepository.save(sellOrder.getTrader().getTraderJob());
+	    		
+	    		// send sell liquided SMS
+	    		try {
+	    			sendLiquidationSMS(sellOrder);
+	    		}
+	    		catch (Exception e) {
+	    			LOG.log(Level.SEVERE, e.getMessage(), e);
+	    		}
+	    	}
+    }
+    
+    private void sendLiquidationSMS(Order sellOrder) {
+		Trader trader = sellOrder.getTrader();
+    		TraderJob traderJob = trader.getTraderJob();
+    		String phone = traderJob.getAccount().getPhone();
+    		if (phone != null) {
+    			BigDecimal percent = trader.getProfit().multiply(CalcUtil.HUNDRED, CalcUtil.DECIMAL_COIN).divide(trader.getInvestment(), CalcUtil.DECIMAL_PERCENT);
+    			SMSSender.sendLiquidedSellSMS(phone, traderJob.getStrategy(), trader.getCoin(), trader.getProfit(), percent);
+    		}
     }
     
     private boolean hasNotOpenedOrders(Trader trader) {

@@ -172,6 +172,7 @@ public class AdminServiceImpl implements AdminService {
     			return tei;
     		}
     		catch (Exception e) {
+    			e.printStackTrace();
     			return null;
     		}
     }

@@ -1,6 +1,7 @@
 package com.m2r.botrading.admin.service;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -48,7 +49,12 @@ public class MercadoBitcoinExchangeServiceImpl implements IRealExchangeService {
 
 	public Map<String, TickerMB> commandTicker() throws Exception {
 		String data = this.execPublicAPI(COMMAND_TICKER);
-	    return parseReturn(data, new TypeToken<Map<String, TickerMB>>(){}.getType());
+		try {
+			return parseReturn(data, new TypeToken<Map<String, TickerMB>>(){}.getType());
+		}
+		catch (Exception e) {
+			return new HashMap<>();
+		}
 	}
 
 	@Override

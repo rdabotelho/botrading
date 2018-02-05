@@ -88,7 +88,7 @@ table.listTable td {
 	  </div>
 	</div>	
 	
-	<table class="table table-striped">
+	<table class="table table-striped tbTarderJob">
 		<thead class="thead-dark">
 			<tr>
 				<th scope="col">Date Time</th>
@@ -107,9 +107,9 @@ table.listTable td {
 				<td th:text="${{tr.strategy}}"></td>
 				<td th:text="${{tr.currencyCount}}"></td>
 				<td th:text="${{tr.stateName}}"></td>
-				<td th:text="${{tr.profitPercent}}"></td>
-				<td th:text="${{tr.todayProfitPercent}}"></td>
-				<td th:text="${{tr.balance}}"></td>
+				<td th:text="${{tr.profitPercent}}" class="tdProfitPercent"></td>
+				<td th:text="${{tr.todayProfitPercent}}" class="tdTodayProfitPercent"></td>
+				<td th:text="${{tr.balance}}" class="tdBalance"></td>
 				<td style="text-align: center;">
 					<a class="btn btn-primary btn-sm" th:onclick="'showEditDialog('+${{tr.id}}+')'" title="Edit Job">
 						<span class="glyphicon glyphicon-edit"></span>
@@ -129,6 +129,18 @@ table.listTable td {
 				</td>
 			</tr>
 		</tbody>
+		<tfoot>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td><strong class="tdTotalProfitPercent"></strong></td>
+				<td><strong class="tdTotalTodayProfitPercent"></strong></td>
+				<td><strong class="tdTotalBalancce"></strong></td>
+				<td></td>
+			</tr>
+		</tfoot>
 	</table>
 	</div>
 		
@@ -149,6 +161,25 @@ table.listTable td {
 	    		$("#selectedMarketCoin").change(function (event){
 	    			window.location.href = "/traderJob/"+event.target.value;
 	    		});
+	    		
+	    		var totalProfitPercent = 0.0;
+	    		$(".tdProfitPercent").each(function (i,v){
+	    			totalProfitPercent += parseFloat($(v).text().replace(',','.'));
+	    		});
+	    		$(".tdTotalProfitPercent").text(totalProfitPercent.toFixed(2).replace('.',','));
+	    		
+	    		var totalTodayProfitPercent = 0.0;
+	    		$(".tdTodayProfitPercent").each(function (i,v){
+	    			totalTodayProfitPercent += parseFloat($(v).text().replace(',','.'));
+	    		});
+	    		$(".tdTotalTodayProfitPercent").text(totalTodayProfitPercent.toFixed(2).replace('.',','));
+	    		
+	    		var totalBalancce = 0.0;
+	    		$(".tdBalance").each(function (i,v){
+	    			totalBalancce += parseFloat($(v).text().replace(',','.'));
+	    		});
+	    		$(".tdTotalBalancce").text(totalBalancce.toFixed(8).replace('.',','));
+	    		
 	    });
 	    function changeContinuoMode(tjId,value) {
    			$.getJSON("/traderJob/changeContinuoMode/"+tjId+"/"+value, function(data) {

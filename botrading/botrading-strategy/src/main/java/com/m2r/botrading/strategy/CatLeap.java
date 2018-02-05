@@ -29,6 +29,11 @@ public class CatLeap implements Comparable<CatLeap> {
 		List<ITicker> sorted = tl.getTickers(marketCoin.getId()).stream().sorted((c1,c2) -> c2.getBaseVolume().compareTo(c1.getBaseVolume())).collect(Collectors.toList());
 		int limit = count;
 		for (int i=0; i<sorted.size(); i++) {
+			
+			if (!sorted.get(i).getCurrencyPair().equals("BNBBTC")) {
+				continue;
+			}
+			
 			addTicker(catLeapMarketCoin, sorted.get(i));
 			limit--;
 			if (limit == 0) {

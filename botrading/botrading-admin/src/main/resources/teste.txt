@@ -1,0 +1,14 @@
+# bt1 - botelho
+update account set phone='+5591991534801';
+
+# bt2 - fabinho
+update account set phone='+5591984983939';
+
+# bt3 - nelmison
+update account set phone='+5591981847697';
+
+# bt4 - kleiton
+update account set phone='+5591981594616';
+
+# bt5 - wagner
+update account set phone='+5591981718288';

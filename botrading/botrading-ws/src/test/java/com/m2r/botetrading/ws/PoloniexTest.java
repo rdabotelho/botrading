@@ -1,11 +1,13 @@
 package com.m2r.botetrading.ws;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import ws.wamp.jawampa.PubSubData;
 import ws.wamp.jawampa.WampClient;
 import ws.wamp.jawampa.WampClientBuilder;
 import ws.wamp.jawampa.connection.IWampConnectorProvider;
@@ -35,10 +37,13 @@ public class PoloniexTest {
 			public void call(WampClient.State t1) {
 				System.out.println("Sessionstatus changed to " + t1);
 				if (t1 instanceof WampClient.ConnectedState) {
-                    eventSubscription = client.makeSubscription("ticker", String.class).subscribe((data)->{
+                    eventSubscription = client.makeSubscription("ticker", String.class).subscribe((pubSubdata)->{
+                    		System.out.println(pubSubdata);
+                    }, 
+                    	(data)->{
                     		System.out.println(data);
                     });
-                    eventSubscription = client.makeSubscription("BTC_ETC", String.class).subscribe((data)->{
+                    eventSubscription = client.makeSubscription("USDT_BTC", String.class).subscribe((data)->{
                 			System.out.println(data);
                     });
 				}

@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
@@ -15,6 +17,11 @@ import com.m2r.botrading.api.model.IAccount;
 import com.m2r.botrading.api.model.MarketCoin;
 
 @Entity
+@Table(
+	indexes = {
+	    @Index(columnList = "apiKey", name = "account_apikey")
+	}
+)
 public class Account implements Serializable, IAccount {
  
 	private static final long serialVersionUID = 1L;
@@ -31,6 +38,8 @@ public class Account implements Serializable, IAccount {
     
     @NotNull
     private String secretKey;
+    
+    private String phone;
     
     @Transient
     private MarketCoin selectedMarketCoin;
@@ -73,6 +82,14 @@ public class Account implements Serializable, IAccount {
 	
 	public MarketCoin getSelectedMarketCoin() {
 		return selectedMarketCoin;
+	}
+	
+	public String getPhone() {
+		return phone;
+	}
+	
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 	
 	@Override
