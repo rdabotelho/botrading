@@ -87,6 +87,11 @@ public class PoloniexExchange extends ExchangeService {
 	private static final BigDecimal FEE = new BigDecimal("0.15");
 	private static final BigDecimal IMMEDIATE_FEE = new BigDecimal("0.25");
 	
+	@Override
+	public String getId() {
+		return EXCHANGE_ID;
+	}
+	
 	private String generateNonce() {
 		try {
 			Thread.sleep(1);

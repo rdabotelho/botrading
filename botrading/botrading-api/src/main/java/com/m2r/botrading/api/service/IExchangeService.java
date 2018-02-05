@@ -9,6 +9,13 @@ import com.m2r.botrading.api.model.MarketCoin;
 
 public interface IExchangeService extends IExchangeOrder {
 	
+	
+	/**
+	 * Method which get the exchange id
+	 * @return String
+	 */
+	public String getId();
+	
 	/**
 	 * Method to initialize the exchange context.
 	 * @return IExchangeService

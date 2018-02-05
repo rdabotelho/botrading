@@ -34,6 +34,7 @@ public interface AdminService {
 	public MarketCoin getDefaultMarketCoin();
 	public List<MarketCoin> getMarketCoins();
 	public MarketCoin getMarketCoin(String id);
+	public String getExchangeId();
 	
 	/*
 	 * ORDERS

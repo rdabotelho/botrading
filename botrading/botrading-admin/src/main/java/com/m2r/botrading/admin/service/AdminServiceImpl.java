@@ -63,6 +63,11 @@ public class AdminServiceImpl implements AdminService {
     }
     
     @Override
+    public String getExchangeId() {
+    	return getExchangeService().getId();
+    }
+    
+    @Override
     public Account findAccount(String apiKey) {
     		return accountRepository.findByApiKey(apiKey);
     }

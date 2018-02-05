@@ -44,9 +44,18 @@
 
 	<h1>Orders - <span th:text="${{coin}}"></span></h1>
 
-	<span id="spanInformation"><a id="linkInformation" href="#">[More Information]</a><br/></span>
 	<input id="tId" type="hidden" value="tId" th:value="${tId}"/>
 	<input id="investment" type="hidden" value="investment" th:value="${investment}"/>
+	
+	<table id="tableLinkInformation" class="table table-striped">
+	<tbody>
+		<tr>
+			<td>
+				<span id="spanInformation"><a id="linkInformation" href="#">[+] View Coin Information</a></span>
+			</td>
+		</tr>
+	</tbody>
+	</table>
 	
 	<table id="tableInformation" class="table table-striped"  style="display: none;">
 	<thead class="thead-dark">
@@ -154,6 +163,18 @@
 	  </div>
 	</div>	
 	
+	<div id="trview">
+		<table class="table">
+		<tbody>
+			<tr>
+				<td>
+					<span><a th:href="'javascript: showGraph(\''+${coinIdToGraph}+'\')'">[+] View Coin Graph</a><br/></span>
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+	
 	</div>
 	
 	<script src="/webjars/jquery/3.1.1/jquery.min.js"></script>    
@@ -163,7 +184,7 @@
 	    /*<![CDATA[*/
 	    $(document).ready(function() {
 	    		$("#linkInformation").click(function() {
-	    	        $("#spanInformation").html("Waiting...<br/>");
+	    	        $("#spanInformation").html("Waiting...");
 		    		$.getJSON("/order/information/"+$("#tId").val(), function(data) {
 		    	        $("#volume").text(data.formatedBaseVolume);
 		    	        $("#last").text(data.formatedLast);
@@ -171,7 +192,7 @@
 		    	        $("#percentChange").text(data.formatedPercentChange);	    	  
 		    	        $("#percentChange").toggleClass("spanChange"+data.formatedPercentChange.startsWith("-"));
 		    	        $("#available").text(data.formatedAvailable);
-		    	        $("#spanInformation").hide();
+		    	        $("#tableLinkInformation").hide();
 		    	        $("#tableInformation").show();
 		    		});	    		
 	    		});
@@ -199,6 +220,33 @@
 	    }
 	    /*]]>*/
 	</script>	
+	
+	<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+	<script type="text/javascript">
+	function showGraph(coinIdToGraph) {
+		new TradingView.widget({
+     	  "container_id": "trview",
+		  "width": 980,
+		  "height": 610,
+		  "symbol": coinIdToGraph,
+		  "interval": "D",
+		  "timezone": "Etc/UTC",
+		  "theme": "Light",
+		  "style": "1",
+		  "locale": "en",
+		  "toolbar_bg": "#f1f3f6",
+		  "enable_publishing": false,
+		  "allow_symbol_change": true,
+		  "hideideas": true,
+		  "studies": [
+			"BB@tv-basicstudies",
+			"DoubleEMA@tv-basicstudies",
+			"MACD@tv-basicstudies",
+			"TripleEMA@tv-basicstudies"
+		  ]
+		});
+	}
+	</script>
 			
 </body>
 </html>

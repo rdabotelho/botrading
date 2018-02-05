@@ -213,6 +213,7 @@ public class TraderController {
 	    model.addAttribute("tId", tId);
 	    model.addAttribute("orders", adminService.findAllOrders(trader));
 	    model.addAttribute("coin", trader.getCoin());
+	    model.addAttribute("coinIdToGraph", getCoinIdToGraph(trader.getCoin()));
 	    model.addAttribute("investment", trader.getInvestment());
 	    return "order";
     }
@@ -233,6 +234,12 @@ public class TraderController {
     			}
     		}
 		throw new RuntimeException("User denied");
+    }
+    
+    private String getCoinIdToGraph(String coin) {
+    	String exchange = adminService.getExchangeId();
+    	String marketCoin = account.getSelectedMarketCoin().getId();
+    	return String.format("%s:%s%s", exchange, coin, marketCoin);
     }
     
     /*
