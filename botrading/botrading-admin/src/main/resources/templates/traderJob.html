@@ -93,6 +93,7 @@ table.listTable td {
 			<tr>
 				<th scope="col">Date Time</th>
 				<th scope="col">Strategy</th>
+				<th scope="col">Amount</th>
 				<th scope="col">Currency<br/>Count</th>
 				<th scope="col">State</th>
 				<th scope="col">Profit<br/>(%)</th>
@@ -105,10 +106,11 @@ table.listTable td {
 			<tr th:each="tr : ${listTraderJobs}" th:class="${tr.state} eq 2 ? 'trFinished' : ''">
 				<td th:text="${{tr.dateTime}}"></td>
 				<td th:text="${{tr.strategy}}"></td>
+				<td th:text="${{tr.tradingAmount}}" class="tdAmount"></td>
 				<td th:text="${{tr.currencyCount}}"></td>
 				<td th:text="${{tr.stateName}}"></td>
-				<td th:text="${{tr.profitPercent}}" class="tdProfitPercent"></td>
-				<td th:text="${{tr.todayProfitPercent}}" class="tdTodayProfitPercent"></td>
+				<td th:text="${{tr.profitPercent}}"></td>
+				<td th:text="${{tr.todayProfitPercent}}"></td>
 				<td th:text="${{tr.balance}}" class="tdBalance"></td>
 				<td style="text-align: center;">
 					<a class="btn btn-primary btn-sm" th:onclick="'showEditDialog('+${{tr.id}}+')'" title="Edit Job">
@@ -133,10 +135,11 @@ table.listTable td {
 			<tr>
 				<td></td>
 				<td></td>
+				<td><strong class="tdTotalAmount"></strong></td>
 				<td></td>
 				<td></td>
-				<td><strong class="tdTotalProfitPercent"></strong></td>
-				<td><strong class="tdTotalTodayProfitPercent"></strong></td>
+				<td></td>
+				<td></td>
 				<td><strong class="tdTotalBalancce"></strong></td>
 				<td></td>
 			</tr>
@@ -162,24 +165,18 @@ table.listTable td {
 	    			window.location.href = "/traderJob/"+event.target.value;
 	    		});
 	    		
-	    		var totalProfitPercent = 0.0;
-	    		$(".tdProfitPercent").each(function (i,v){
-	    			totalProfitPercent += parseFloat($(v).text().replace(',','.'));
+	    		var totalAmount = 0.0;
+	    		$(".tdAmount").each(function (i,v){
+	    			totalAmount += parseFloat($(v).text().replace(',','.'));
 	    		});
-	    		$(".tdTotalProfitPercent").text(totalProfitPercent.toFixed(2).replace('.',','));
-	    		
-	    		var totalTodayProfitPercent = 0.0;
-	    		$(".tdTodayProfitPercent").each(function (i,v){
-	    			totalTodayProfitPercent += parseFloat($(v).text().replace(',','.'));
-	    		});
-	    		$(".tdTotalTodayProfitPercent").text(totalTodayProfitPercent.toFixed(2).replace('.',','));
-	    		
-	    		var totalBalancce = 0.0;
+	    		$(".tdTotalAmount").text(totalAmount.toFixed(8).replace('.',','));
+	    			    		
+	    		var totalBalance = 0.0;
 	    		$(".tdBalance").each(function (i,v){
-	    			totalBalancce += parseFloat($(v).text().replace(',','.'));
+	    			totalBalance += parseFloat($(v).text().replace(',','.'));
 	    		});
-	    		$(".tdTotalBalancce").text(totalBalancce.toFixed(8).replace('.',','));
-	    		
+	    		var percent = ((totalBalance - totalAmount) / totalAmount) * 100; 
+	    		$(".tdTotalBalancce").text(totalBalance.toFixed(8).replace('.',',') + " (" + percent.toFixed(2).replace('.',',') + "%)");
 	    });
 	    function changeContinuoMode(tjId,value) {
    			$.getJSON("/traderJob/changeContinuoMode/"+tjId+"/"+value, function(data) {

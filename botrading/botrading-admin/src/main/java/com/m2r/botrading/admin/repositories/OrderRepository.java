@@ -1,5 +1,6 @@
 package com.m2r.botrading.admin.repositories;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,17 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	Order findByTraderAndParcelAndKind(Trader trader, Integer parcel, Integer kind);
 	long countByTraderAndState(Trader trader, Integer state);
 	long countByTraderAndStateNotIn(Trader trader, Integer ... states);
+	
+	default Order saveOrder(Order order) {
+    	boolean stateChanged = true;
+    	if (order.getId() !=  null) {
+        	Order other = this.findOne(order.getId());
+        	stateChanged = other.getState() != order.getState();
+    	}
+    	if (stateChanged) {
+    		order.setStateDateTime(LocalDateTime.now());
+    	}
+    	return  this.save(order);
+	}
 		
 }

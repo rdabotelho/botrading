@@ -233,29 +233,29 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public void orderBuy(Order order) {
-		orderRepository.save(order.preperToBuy());	
+		orderRepository.saveOrder(order.preperToBuy());	
     }
     
     @Override
     public void orderSell(Order order) {
-		orderRepository.save(order.preperToSell());	    	
+		orderRepository.saveOrder(order.preperToSell());	    	
     }
     
     @Override
     public void orderImmediateSel(Order order) {
-		orderRepository.save(order.preperToImmediateSel());    		    	    	
+		orderRepository.saveOrder(order.preperToImmediateSel());    		    	    	
     }
     
     @Override
     public void orderCancel(Order order) {
-		orderRepository.save(order.preperToCancel());   		    	    	    	
+		orderRepository.saveOrder(order.preperToCancel());   		    	    	    	
     }
     
     @Override
     public void retryOrder(Order order) {
 		order.setState(Order.STATE_ORDERED);
 		order.setLog("");
-		orderRepository.save(order);    	
+		orderRepository.saveOrder(order);    	
     }
 
     @Override
