@@ -63,7 +63,7 @@
 					<a th:if="${hasNext}" th:href="@{/trader/{tjId}(tjId=${tjId},page=${page.pageNumber}+1,size=10)}">Next &raquo;</a>
 				</td>
 				<td></td>
-				<td><a href="JavaScript:history.back();">Back</a></td>
+				<td><a th:href="@{/}">Back</a></td>
 			</tr>
 		</tfoot>
 	</table>
