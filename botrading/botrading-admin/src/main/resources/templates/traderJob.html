@@ -88,6 +88,28 @@ table.listTable td {
 	  </div>
 	</div>	
 	
+	<div id="optionModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Options</h4>
+	      </div>
+	      <div class="modal-body">
+			<div id="optionsModalContent"></div>	
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">
+	        	<span class="glyphicon glyphicon-remove"></span> Cancel
+	        </button>
+	        <button id="btOptionsOK" type="button" class="btn btn-primary" data-dismiss="modal" onclick="beforePost(); document.getElementById('myformOption').submit();">
+	        	<span class="glyphicon glyphicon-ok"></span> OK
+	        </button>
+	      </div>
+	    </div>
+	  </div>
+	</div>	
+	
 	<table class="table table-striped tbTarderJob">
 		<thead class="thead-dark">
 			<tr>
@@ -113,6 +135,9 @@ table.listTable td {
 				<td th:text="${{tr.todayProfitPercent}}"></td>
 				<td th:text="${{tr.balance}}" class="tdBalance"></td>
 				<td style="text-align: center;">
+					<a class="btn btn-primary btn-sm" th:onclick="'showTraderJobOptions('+${{tr.id}}+')'" title="Options">
+						<span class="glyphicon glyphicon-align-justify"></span>
+					</a>
 					<a class="btn btn-primary btn-sm" th:onclick="'showEditDialog('+${{tr.id}}+')'" title="Edit Job">
 						<span class="glyphicon glyphicon-edit"></span>
 					</a>
@@ -208,6 +233,11 @@ table.listTable td {
 	    function showEditDialog(id) {
 	    	$("#formModalContent").load("/editTraderJobFrag/"+id);	  
 	    	$("#formModal").modal();
+	    }
+	    function showTraderJobOptions(id) {
+	    	$("#optionsModalContent").load("/traderJobOptionsFrag/"+id, function() {
+	  	    	$("#optionModal").modal();
+	    	});
 	    }
 	    /*]]>*/
 	</script>	

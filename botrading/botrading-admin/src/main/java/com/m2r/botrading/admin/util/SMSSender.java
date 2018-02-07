@@ -25,7 +25,8 @@ public class SMSSender {
 	}
 	
 	public static void main(String[] args) {
-		sendLiquidedSellSMS("+5591991534801", "EXPONENTIAL MOVING AVERAGE", "DOGE", new BigDecimal("0.00234509"), new BigDecimal("0.35"));
+//		sendLiquidedSellSMS("+5591991534801", "EXPONENTIAL MOVING AVERAGE", "DOGE", new BigDecimal("0.00234509"), new BigDecimal("0.35"));
+		sendLiquidedSellSMS("+5591984983939", "EXPONENTIAL MOVING AVERAGE", "DOGE", new BigDecimal("0.00234509"), new BigDecimal("0.35"));
 	}
 
 }

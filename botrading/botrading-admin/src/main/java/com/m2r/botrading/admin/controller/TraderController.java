@@ -2,6 +2,7 @@ package com.m2r.botrading.admin.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -23,11 +24,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.m2r.botrading.admin.model.Account;
 import com.m2r.botrading.admin.model.AccountUser;
 import com.m2r.botrading.admin.model.Order;
+import com.m2r.botrading.admin.model.SelCoin;
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.service.AdminService;
 import com.m2r.botrading.admin.util.AccountExchangeInfo;
 import com.m2r.botrading.admin.util.OrderExchangeInfo;
+import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.strategy.IStrategy;
 
@@ -90,6 +93,22 @@ public class TraderController {
 			persisted.setStopLoss(traderJob.getStopLoss());
 			traderJob = persisted;
 		}
+    	adminService.saveTraderJob(traderJob);
+    	model.addAttribute("selectedMarketCoin", selectedMarketCoin);
+		model.addAttribute("traderJob", adminService.newTraderJob(account));
+		model.addAttribute("listTraderJobs", this.adminService.findAllTraderJobs(account));
+        return "traderJob";
+    }
+    
+    
+    @PostMapping("/traderJob/options")
+    public String traderJobOptions(@ModelAttribute TraderJob traderJob, Model model, Principal principal) throws Exception {
+		validateAccount(principal, null);
+		TraderJob persisted = this.adminService.findTraderJob(traderJob.getId(), account);
+		persisted.getOptions().setMinimimPrice(traderJob.getOptions().getMinimimPrice());
+		persisted.getOptions().setMinimumVolume(traderJob.getOptions().getMinimumVolume());
+		persisted.getOptions().setCoins(traderJob.getOptions().getCoins());
+		traderJob = persisted;
     	adminService.saveTraderJob(traderJob);
     	model.addAttribute("selectedMarketCoin", selectedMarketCoin);
 		model.addAttribute("traderJob", adminService.newTraderJob(account));
@@ -300,6 +319,21 @@ public class TraderController {
     /*
      * FRAGMENTS
      */
+    
+    @GetMapping("/traderJobOptionsFrag/{tjId}")
+    public String traderJobOptionsFrag(@PathVariable("tjId") Long tjId, Model model, Principal principal) {
+		validateAccount(principal, null);
+		TraderJob traderJob = adminService.findTraderJob(tjId, account);
+		MarketCoin marketCoin = adminService.getMarketCoin(traderJob.getMarketCoin());
+		traderJob.getOptions().getSelCoins().clear();
+		List<String> coins = Arrays.asList(traderJob.getOptions().getArrayCoins());
+		boolean selectAll = coins.isEmpty(); 
+		for (Currency c : marketCoin.getCurrencies().values()) {
+			traderJob.getOptions().getSelCoins().add(new SelCoin(c.getId(), selectAll || coins.contains(c.getId())));
+		}
+        model.addAttribute("traderJob", traderJob);
+        return "traderJob-options::traderJob";
+    }
     
     @GetMapping("/newTraderJobFrag")
     public String newTraderJobFrag(Model model, Principal principal) {

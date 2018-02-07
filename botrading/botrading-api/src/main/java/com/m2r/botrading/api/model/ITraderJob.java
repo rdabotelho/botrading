@@ -22,5 +22,7 @@ public interface ITraderJob {
 	public IAccount getAccount();
 	
 	public String getMarketCoin();
+	
+	public ITraderJobOptions getOptions();
 
 }

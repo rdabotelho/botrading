@@ -10,9 +10,8 @@ import com.m2r.botrading.api.model.ITraderJob;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.service.IStrategyManager;
-import com.m2r.botrading.api.strategy.IStrategy;
 
-public class CatLeapStrategy implements IStrategy {
+public class CatLeapStrategy extends StrategyBase {
 
     private final static Logger LOG = Logger.getLogger(CatLeapStrategy.class.getSimpleName());
     
@@ -34,7 +33,7 @@ public class CatLeapStrategy implements IStrategy {
 			int limit = count;
 			for (int i=0; i<sorted.size(); i++) {
 				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(sorted.get(i).getCurrencyPair());
-				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId())) {
+				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && filter(session, traderJob, sorted.get(i).getCurrencyPair())) {
 					list.add(OrderIntent.of(session.getCurrencyFactory().currencyPairToCurrency(currencyPairIds, session.getService())));					
 	    			limit--;
 	    			if (limit == 0) {

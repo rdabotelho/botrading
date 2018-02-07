@@ -9,6 +9,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -119,6 +120,9 @@ public class TraderJob implements Serializable, ITraderJob {
     @Transient
 	@NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal todayProfitPercent = BigDecimal.ZERO;
+    
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private TraderJobOptions options = new TraderJobOptions();
     
 	public TraderJob() {
 		this.traders = new ArrayList<>();
@@ -350,6 +354,14 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.profit = CalcUtil.add(this.profit, profit);
 	}
 	
+	public TraderJobOptions getOptions() {
+		return options;
+	}
+
+	public void setOptions(TraderJobOptions options) {
+		this.options = options;
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).

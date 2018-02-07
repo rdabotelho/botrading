@@ -1,6 +1,5 @@
 package com.m2r.botrading.strategy;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -10,15 +9,13 @@ import com.m2r.botrading.api.model.CurrencyPairIds;
 import com.m2r.botrading.api.model.IIntention;
 import com.m2r.botrading.api.model.IIntentionRequest;
 import com.m2r.botrading.api.model.IOrderIntent;
-import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITraderJob;
 import com.m2r.botrading.api.model.OrderIntent;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
-import com.m2r.botrading.api.util.CalcUtil;
 
-public class DynamicStrategy implements IStrategy {
+public class DynamicStrategy extends StrategyBase {
 
     private final static Logger LOG = Logger.getLogger(DynamicStrategy.class.getSimpleName());
     
@@ -54,7 +51,7 @@ public class DynamicStrategy implements IStrategy {
 			}
 		}
 		else if (intentionRequest.haveReserve()) {
-			List<IOrderIntent> orderIntents = this.selectOrderIntent(session, intentionRequest, count, ignoredCoins);
+			List<IOrderIntent> orderIntents = this.selectOrderIntent(session, traderJob, intentionRequest, count, ignoredCoins);
 			if (orderIntents.size() == count) {
 				manager.removeIntentionRequest(intentionRequest);
 			}
@@ -63,7 +60,7 @@ public class DynamicStrategy implements IStrategy {
 		return emptyList;
 	}
 	
-	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, IIntentionRequest intentionRequest, int count, List<String> ignoredCoins) {
+	public List<IOrderIntent> selectOrderIntent(IExchangeSession session, ITraderJob traderJob, IIntentionRequest intentionRequest, int count, List<String> ignoredCoins) {
 		List<IOrderIntent> list = new ArrayList<>();
 		try {
 			List<IIntention> intentions = intentionRequest.getIntentions().values().stream().map(it -> it).collect(Collectors.toList());
@@ -71,7 +68,7 @@ public class DynamicStrategy implements IStrategy {
 			for (int i=0; i<intentions.size(); i++) {
 				IIntention intention = intentions.get(i);
 				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(intention.getCurrencyPair());
-				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && isNotLowVolume(session, intention.getCurrencyPair())) {
+				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && filter(session, traderJob, intention.getCurrencyPair())) {
 					list.add(OrderIntent.of(session.getCurrencyFactory().currencyPairToCurrency(currencyPairIds, session.getService()), intention.getBuyPrice(), intention.getSalePrice(), true));
 					intentionRequest.getIntentions().remove(intention.getId());
 	    			limit--;
@@ -86,13 +83,6 @@ public class DynamicStrategy implements IStrategy {
 		}		
 		return list;
 	}
-	
-	private static final BigDecimal MIN_VOLUME = new BigDecimal("150.00");
-	
-	private boolean isNotLowVolume(IExchangeSession session, String currencyPair) throws Exception {
-		ITicker ticker = session.getTikers().getTicker(currencyPair);
-		return !CalcUtil.lessThen(ticker.getBaseVolume(), MIN_VOLUME);
-	}	
 	
 	public void setExchangeWSClient(IStrategyManager exchangeWSClient) {
 		this.exchangeWSClient = exchangeWSClient;

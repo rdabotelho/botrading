@@ -1,0 +1,48 @@
+<th:block th:fragment="traderJob" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<form id="myformOption" action="#" th:action="@{/traderJob/options}" th:object="${traderJob}" method="post">
+      <input type="hidden" th:field="*{id}"/>
+      <input type="hidden" id="jsonSelCoins" th:field="*{options.coins}"/>
+	  <div class="form-row">
+	  	<div class="form-group col-md-6">
+		    <label for="minimimPrice">Minimim Price:</label><br/>
+		    <input id="minimimPrice" type="number" th:value="*{{options.minimimPrice}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
+	  	</div>
+	  	<div class="form-group col-md-6">
+		    <label for="minimumVolume">Minimum Volume:</label><br/>
+		    <input id="minimumVolume" type="number" th:value="*{{options.minimumVolume}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
+	    </div>
+	  </div>
+		  
+	  <div class="form-row">
+	  	<div class="form-group col-md-12">
+		    <label for="coins">Coins: <input type="checkbox" id="checkAll" title="Select all" checked="checked"/></label><br/>
+		    <div class="form-group"  style="height: 300px; overflow: scroll;">
+			  	<div th:each="selCoin : ${traderJob.options.selCoins}" class="form-group col-md-3">
+					<label th:for="${selCoin.coin}" style="font-weight: normal;">
+						<input th:id="${selCoin.coin}" type="checkbox" th:checked="${selCoin.checked}" class="form-check-input" name="coinOption"/> 
+						<span th:text="${selCoin.coin}"></span>
+					</label>
+			  	</div>
+		  	</div>
+		</div>
+	  </div>	  
+	  <p style="height:1px;">&nbsp;</p>
+  </form>
+	<script>
+	    /*<![CDATA[*/
+		 $(document).ready(function() {
+		    $("#checkAll").change(function () {
+		   		$("input[name=coinOption]").prop('checked', $(this).prop("checked"));
+			});	
+		 });
+	    
+	    function beforePost() {
+	    	var coins = [];
+    		$("input[name=coinOption]:checked").each(function (i,v){
+   				coins.push($(v).attr("id"));
+    		});
+    		$("#jsonSelCoins").val(JSON.stringify(coins));	
+    	}
+	    /*]]>*/
+	</script>	
+</th:block>
