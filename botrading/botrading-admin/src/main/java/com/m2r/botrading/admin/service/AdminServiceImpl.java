@@ -64,7 +64,7 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public String getExchangeId() {
-    	return getExchangeService().getId();
+    		return getExchangeService().getId();
     }
     
     @Override

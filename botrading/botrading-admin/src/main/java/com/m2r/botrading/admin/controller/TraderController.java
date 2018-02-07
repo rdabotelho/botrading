@@ -75,6 +75,7 @@ public class TraderController {
 		}
 		else {
 			TraderJob persisted = this.adminService.findTraderJob(traderJob.getId(), account);
+			persisted.setAmount(traderJob.getAmount());
 			persisted.setStrategy(traderJob.getStrategy());
 			persisted.setCurrencyCount(traderJob.getCurrencyCount());
 			persisted.setTradingPercent(traderJob.getTradingPercent());
