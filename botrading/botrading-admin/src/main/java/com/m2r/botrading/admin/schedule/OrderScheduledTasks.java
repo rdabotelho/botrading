@@ -44,7 +44,7 @@ public class OrderScheduledTasks {
 		if (!propertiesService.getEnableScheduling()) {
 			return;
 		}
-		//orderTaskTimeCounter.ifTimeoutExecute();
+		orderTaskTimeCounter.ifTimeoutExecute();
 		synchTaskTimeCounter.ifTimeoutExecute();
 		catLeapTaskTimeCounter.ifTimeoutExecute();
 	}
