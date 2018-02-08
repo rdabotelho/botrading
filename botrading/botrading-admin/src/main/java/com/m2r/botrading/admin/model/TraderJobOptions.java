@@ -19,31 +19,37 @@ import com.m2r.botrading.api.model.ITraderJobOptions;
 public class TraderJobOptions implements Serializable, ITraderJobOptions {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(length = 2048) 
+	@Column(length = 2048)
 	private String coins = "[]";
-	
-	private BigDecimal minimimPrice;
-	
-	private BigDecimal minimumVolume;
-	
+
+	private BigDecimal minimimPrice = new BigDecimal("0.00000001");
+
+	private BigDecimal minimumVolume = new BigDecimal("150.0");
+
 	@Transient
 	private List<SelCoin> selCoins;
-	
+
 	public TraderJobOptions() {
 		this.selCoins = new ArrayList<>();
-		this.minimimPrice = new BigDecimal("0.00000001");
-		this.minimumVolume = new BigDecimal("150.0");
 	}
 
 	public String getCoins() {
 		return coins;
 	}
-	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public void setCoins(String coins) {
 		this.coins = coins;
 	}
@@ -51,7 +57,7 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	public BigDecimal getMinimimPrice() {
 		return minimimPrice;
 	}
-	
+
 	public void setMinimimPrice(BigDecimal minimimPrice) {
 		this.minimimPrice = minimimPrice;
 	}
@@ -71,15 +77,14 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	public void setSelCoins(List<SelCoin> selCoins) {
 		this.selCoins = selCoins;
 	}
-	
+
 	public String[] getArrayCoins() {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.readValue(getCoins(), String[].class);
-		} 
-		catch (Exception e) {
-			return new String[]{};
+		} catch (Exception e) {
+			return new String[] {};
 		}
 	}
-	
+
 }

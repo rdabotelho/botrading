@@ -136,7 +136,7 @@ table.listTable td {
 				<td th:text="${{tr.balance}}" class="tdBalance"></td>
 				<td style="text-align: center;">
 					<a class="btn btn-primary btn-sm" th:onclick="'showTraderJobOptions('+${{tr.id}}+')'" title="Options">
-						<span class="glyphicon glyphicon-align-justify"></span>
+						<span class="glyphicon glyphicon-option-horizontal"></span>
 					</a>
 					<a class="btn btn-primary btn-sm" th:onclick="'showEditDialog('+${{tr.id}}+')'" title="Edit Job">
 						<span class="glyphicon glyphicon-edit"></span>
@@ -231,8 +231,9 @@ table.listTable td {
 	    	$("#formModal").modal();
 	    }
 	    function showEditDialog(id) {
-	    	$("#formModalContent").load("/editTraderJobFrag/"+id);	  
-	    	$("#formModal").modal();
+	    	$("#formModalContent").load("/editTraderJobFrag/"+id, function() {
+		    	$("#formModal").modal();
+	    	});	  
 	    }
 	    function showTraderJobOptions(id) {
 	    	$("#optionsModalContent").load("/traderJobOptionsFrag/"+id, function() {

@@ -5,11 +5,11 @@
 	  <div class="form-row">
 	  	<div class="form-group col-md-6">
 		    <label for="minimimPrice">Minimim Price:</label><br/>
-		    <input id="minimimPrice" type="number" th:value="*{{options.minimimPrice}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
+		    <input id="minimimPrice" type="number" th:field="*{{options.minimimPrice}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
 	  	</div>
 	  	<div class="form-group col-md-6">
 		    <label for="minimumVolume">Minimum Volume:</label><br/>
-		    <input id="minimumVolume" type="number" th:value="*{{options.minimumVolume}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
+		    <input id="minimumVolume" type="number" th:field="*{{options.minimumVolume}}" step="0.00000001" pattern="[0-9]+([\.,][0-9]+)?" class="form-control"/>
 	    </div>
 	  </div>
 		  
@@ -35,7 +35,6 @@
 		   		$("input[name=coinOption]").prop('checked', $(this).prop("checked"));
 			});	
 		 });
-	    
 	    function beforePost() {
 	    	var coins = [];
     		$("input[name=coinOption]:checked").each(function (i,v){
