@@ -2,6 +2,7 @@ package com.m2r.botrading.admin.controller;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -325,7 +326,10 @@ public class TraderController {
     public String traderJobOptionsFrag(@PathVariable("tjId") Long tjId, Model model, Principal principal) {
 		validateAccount(principal, null);
 		TraderJob tj = adminService.findTraderJob(tjId, account);
-		List<String> coins = Arrays.asList(tj.getOptions().getArrayCoins());
+		List<String> coins = new ArrayList<>();
+		if (tj.getOptions() != null) {
+			coins = Arrays.asList(tj.getOptions().getArrayCoins());
+		}
 		Collection<Currency> currencies = adminService.getMarketCoin(tj.getMarketCoin()).getCurrencies().values();
 		boolean selectedAll = coins.isEmpty();
 		tj.getOptions().getSelCoins().clear();

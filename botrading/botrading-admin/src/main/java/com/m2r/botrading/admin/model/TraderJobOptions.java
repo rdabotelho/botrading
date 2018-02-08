@@ -27,8 +27,10 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	@Column(length = 2048)
 	private String coins = "[]";
 
+	@Column(precision = 19, scale = 8)
 	private BigDecimal minimimPrice;
 
+	@Column(precision = 19, scale = 8)
 	private BigDecimal minimumVolume;
 
 	@Transient
