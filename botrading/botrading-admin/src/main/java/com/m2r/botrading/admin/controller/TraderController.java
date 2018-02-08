@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.m2r.botrading.admin.model.Account;
 import com.m2r.botrading.admin.model.AccountUser;
 import com.m2r.botrading.admin.model.Order;
-import com.m2r.botrading.admin.model.SelCoin;
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.service.AdminService;
@@ -78,6 +77,7 @@ public class TraderController {
 		}
 		else {
 			TraderJob persisted = this.adminService.findTraderJob(traderJob.getId(), account);
+			persisted.setAmount(traderJob.getAmount());
 			persisted.setStrategy(traderJob.getStrategy());
 			persisted.setCurrencyCount(traderJob.getCurrencyCount());
 			persisted.setTradingPercent(traderJob.getTradingPercent());
