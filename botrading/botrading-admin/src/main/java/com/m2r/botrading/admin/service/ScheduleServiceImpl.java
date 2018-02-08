@@ -162,6 +162,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		t.start();
 		traderRepository.save(t);
 		OrderBuilder.createAll(t, lastPrice, intent).forEach(o -> {
+			getExchangeService().onBeforeSaveOrder(o);
 			orderRepository.saveOrder(o);
 		});
 		return t;

@@ -15,6 +15,10 @@ public abstract class StrategyBase implements IStrategy {
 
 	protected boolean filter(IExchangeSession session, ITraderJob traderJob, String currencyPair) throws Exception {
 		ITraderJobOptions options = traderJob.getOptions();
+		if (options == null) {
+			return true;
+		}
+		
 		Currency currency = session.getCurrencyFactory().currencyPairToCurrency(currencyPair, session.getService());
 				
 		List<String> coins = Arrays.asList(options.getArrayCoins());

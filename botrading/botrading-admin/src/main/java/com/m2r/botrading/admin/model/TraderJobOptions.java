@@ -27,15 +27,17 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	@Column(length = 2048)
 	private String coins = "[]";
 
-	private BigDecimal minimimPrice = new BigDecimal("0.00000001");
+	private BigDecimal minimimPrice;
 
-	private BigDecimal minimumVolume = new BigDecimal("150.0");
+	private BigDecimal minimumVolume;
 
 	@Transient
 	private List<SelCoin> selCoins;
 
 	public TraderJobOptions() {
 		this.selCoins = new ArrayList<>();
+		this.minimimPrice = new BigDecimal("0.00000001");
+		this.minimumVolume = new BigDecimal("150.0");
 	}
 
 	public String getCoins() {

@@ -3,12 +3,12 @@ package com.m2r.botrading.api.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.ITrader;
@@ -70,7 +70,7 @@ public interface IExchangeSession extends IExchangeOrder {
      * @return {@link IChartDataList}
      * @throws Exception
      */
-    public IChartDataList getChartDatas(String currencyPair, DataChartPeriod period, LocalDateTime start, LocalDateTime end) throws Exception;
+    public IChartDataList getChartDatas(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws Exception;
     
     /**
      * Method which get all the balances of particular exchange account.

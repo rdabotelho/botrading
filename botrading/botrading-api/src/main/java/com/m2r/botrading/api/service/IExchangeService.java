@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
+import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.model.MarketCoin;
 
 public interface IExchangeService extends IExchangeOrder {
@@ -75,5 +76,10 @@ public interface IExchangeService extends IExchangeOrder {
 	 * @return CurrencyFactory
 	 */
 	public CurrencyFactory getCurrencyFactory();
+	
+	/**
+	 * Event before save order
+	 */
+	public void onBeforeSaveOrder(IOrder order);
 
 }

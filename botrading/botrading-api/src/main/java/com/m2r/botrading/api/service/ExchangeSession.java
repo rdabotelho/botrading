@@ -3,7 +3,6 @@ package com.m2r.botrading.api.service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
@@ -11,6 +10,7 @@ import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
@@ -87,7 +87,7 @@ public class ExchangeSession implements IExchangeSession {
 	}
 	
 	@Override
-	public IChartDataList getChartDatas(String currencyPair, DataChartPeriod period, LocalDateTime start, LocalDateTime end) throws Exception {
+	public IChartDataList getChartDatas(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws Exception {
 		if (chartDataList == null) {
 			chartDataList = service.getChartDatas(currencyPair, period, start, end, this);
 		}

@@ -3,12 +3,13 @@ package com.m2r.botrading.api.service;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
+import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoin;
@@ -48,6 +49,10 @@ public abstract class ExchangeService implements IExchangeService {
 		return session;
 	}
 
+	@Override
+	public void onBeforeSaveOrder(IOrder order) {
+	}
+
 	/**
 	 * Method which load all market coins of the exchange.
 	 * @return Map<String, IMarketCoin>
@@ -72,7 +77,7 @@ public abstract class ExchangeService implements IExchangeService {
 	 * @return IChartDataList
 	 * @throws ExchangeException
 	 */
-	protected abstract IChartDataList getChartDatas(String currencyPair, DataChartPeriod period, LocalDateTime start, LocalDateTime end, IExchangeSession session) throws ExchangeException;
+	protected abstract IChartDataList getChartDatas(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end, IExchangeSession session) throws ExchangeException;
 	
 	/**
 	 * Method which get all balances of an account through the API access.

@@ -29,7 +29,6 @@ import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.m2r.botrading.api.enums.DataChartPeriod;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
@@ -39,6 +38,7 @@ import com.m2r.botrading.api.model.IBalance;
 import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartData;
 import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
@@ -177,10 +177,10 @@ public class PoloniexExchange extends ExchangeService {
 	 * Period (seconds) = [300, 900, 1800, 7200, 14400, 86400]
 	 * Start and End = Timestamp Unix
 	 */
-	public List<IChartData> commandChartDatas(String currencyPair, DataChartPeriod period, Long dateStart, Long dateEnd) throws Exception {
+	public List<IChartData> commandChartDatas(String currencyPair, IDataChartPeriod period, Long dateStart, Long dateEnd) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("currencyPair", currencyPair);
-		params.put("period", period.getSeconds().toString());
+		params.put("period", period.getSeconds());
 		params.put("start", dateStart.toString());
 		params.put("end", dateEnd.toString());
 		String data = this.execPublicAPI(COMMAND_CHART_DATA, params);
@@ -253,7 +253,7 @@ public class PoloniexExchange extends ExchangeService {
 	}
 
 	@Override
-	protected IChartDataList getChartDatas(String currencyPair, DataChartPeriod period, LocalDateTime start,
+	protected IChartDataList getChartDatas(String currencyPair, IDataChartPeriod period, LocalDateTime start,
 			LocalDateTime end, IExchangeSession session) throws ExchangeException {
 		try {
 	    		ZonedDateTime endDate = ZonedDateTime.of(end, EXCHANGE_ZONE_ID);

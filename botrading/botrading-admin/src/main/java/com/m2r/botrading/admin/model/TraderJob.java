@@ -128,6 +128,7 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.traders = new ArrayList<>();
 		this.profit = BigDecimal.ZERO;
 		this.todayProfitPercent = BigDecimal.ZERO;
+		this.options = new TraderJobOptions();
 	}
 	
 	public Long getId() {

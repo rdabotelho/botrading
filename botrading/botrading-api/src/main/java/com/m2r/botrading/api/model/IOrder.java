@@ -35,4 +35,8 @@ public interface IOrder {
 	
 	public ITrader getTrader();
 	
+	public boolean isBuy();
+	
+	public boolean isSell();
+	
 }
