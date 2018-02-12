@@ -121,6 +121,10 @@ public class TraderJob implements Serializable, ITraderJob {
 	@NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal todayProfitPercent = BigDecimal.ZERO;
     
+    @Transient
+	@NumberFormat(style=Style.NUMBER, pattern="0.00")
+    private BigDecimal dailyAverage = BigDecimal.ZERO;
+    
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="options_id")    
     private TraderJobOptions options;
@@ -129,7 +133,8 @@ public class TraderJob implements Serializable, ITraderJob {
 		this.traders = new ArrayList<>();
 		this.profit = BigDecimal.ZERO;
 		this.todayProfitPercent = BigDecimal.ZERO;
-		//this.options = new TraderJobOptions();
+		this.dailyAverage = BigDecimal.ZERO;
+		this.options = new TraderJobOptions();
 	}
 	
 	public Long getId() {
@@ -258,6 +263,14 @@ public class TraderJob implements Serializable, ITraderJob {
 
 	public void setTodayProfitPercent(BigDecimal todayProfitPercent) {
 		this.todayProfitPercent = todayProfitPercent;
+	}
+
+	public BigDecimal getDailyAverage() {
+		return dailyAverage;
+	}
+
+	public void setDailyAverage(BigDecimal dailyAverage) {
+		this.dailyAverage = dailyAverage;
 	}
 
 	public void start() {

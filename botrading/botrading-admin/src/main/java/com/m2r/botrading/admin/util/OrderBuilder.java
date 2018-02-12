@@ -38,8 +38,10 @@ public class OrderBuilder {
 			priceToBuy = intent.getBuyPrice();
 		}
 		else {
-	    	priceToBuy = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
-			priceToBuy = lastPrice.add(priceToBuy.negate());
+//			priceToBuy = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
+//			priceToBuy = lastPrice.add(priceToBuy.negate());
+			BigDecimal backParcent =  CalcUtil.percent(CalcUtil.add(CalcUtil.add(percent, fee), fee), t.getBackToBuy());
+			priceToBuy = CalcUtil.multiply(lastPrice, CalcUtil.divide(CalcUtil.subtract(CalcUtil.HUNDRED, backParcent), CalcUtil.HUNDRED));
 		}		
 		Order o = new Order();
 		o.setTrader(t);
@@ -61,8 +63,10 @@ public class OrderBuilder {
 			priceToSell = intent.getSellPrice();
 		}
 		else {
-			priceToSell = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
-			priceToSell = lastPrice.add(priceToSell);
+//			priceToSell = lastPrice.multiply(percent.subtract(fee).divide(CalcUtil.HUNDRED));
+//			priceToSell = lastPrice.add(priceToSell);
+			BigDecimal percentWithFee = CalcUtil.add(CalcUtil.add(percent, fee), fee);
+			priceToSell = CalcUtil.multiply(buyOrder.getPrice(), CalcUtil.add(BigDecimal.ONE, CalcUtil.divide(percentWithFee, CalcUtil.HUNDRED)));
 		}
 		Order o = new Order();
 		o.setTrader(buyOrder.getTrader());

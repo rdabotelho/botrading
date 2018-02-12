@@ -15,6 +15,8 @@ public class CalcUtil {
 	
 	public static final MathContext DECIMAL_PERCENT = new MathContext(SCALE_PERCENT, RoundingMode.HALF_UP);
 	
+	public static final BigDecimal FIFITY = new BigDecimal("50.0");
+	
 	public static final BigDecimal HUNDRED = new BigDecimal("100.0");
 
 	private static final DecimalFormat DECIMAL_FORMAT_PERCENT = new DecimalFormat("0.00");

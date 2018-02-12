@@ -103,8 +103,11 @@ public class Trader implements Serializable, ITrader {
     
     private LocalDateTime stateDateTime;
     
+    @Transient	
+    private BigDecimal backToBuy = CalcUtil.FIFITY;
+    
     public Trader() {
-    	this.profit = BigDecimal.ZERO;
+    		this.profit = BigDecimal.ZERO;
     }
     
 	public Long getId() {
@@ -307,6 +310,14 @@ public class Trader implements Serializable, ITrader {
 
 	public void setStateDateTime(LocalDateTime stateDateTime) {
 		this.stateDateTime = stateDateTime;
+	}
+
+	public BigDecimal getBackToBuy() {
+		return backToBuy;
+	}
+
+	public void setBackToBuy(BigDecimal backToBuy) {
+		this.backToBuy = backToBuy;
 	}
 	
 }

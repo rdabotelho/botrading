@@ -33,5 +33,6 @@ public interface TraderRepository extends JpaRepository<Trader, Long> {
 	
 	@Query("select sum(t.profit) from Trader t where t.traderJob = :traderJob and t.stateDateTime >= :stateDateTime")
 	BigDecimal sumProfitByTraderJobAndStateDateTimeGreaterThanEqual(@Param("traderJob") TraderJob traderJob, @Param("stateDateTime") LocalDateTime stateDateTime);
-	
+
+	long countByTraderJobAndProfitGreaterThan(TraderJob traderJob, BigDecimal profit);
 }

@@ -116,16 +116,16 @@
 					<a class="btn btn-primary btn-sm" th:onclick="'showDetailDialog('+${{ord.id}}+')'" title="Detail of Order">
 						<span class="glyphicon glyphicon-align-justify"></span>
 					</a>
-					<a class="btn btn-primary btn-sm" th:if="${ord.state} eq 1 or ${ord.state} eq 5 or ${ord.state} eq 8" th:href="@{/order/cancel/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="Cancel">
+					<a class="btn btn-danger btn-sm" th:if="${ord.state} eq 1 or ${ord.state} eq 5 or ${ord.state} eq 8" th:href="@{/order/cancel/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="Cancel">
 						<span class="glyphicon glyphicon-remove"></span>
 					</a>
 					<a class="btn btn-primary btn-sm" th:if="${ord.state} eq 5" th:href="@{/order/retry/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="Retry">
 						<span class="glyphicon glyphicon-refresh"></span>
 					</a>
-					<a class="btn btn-primary btn-sm" th:if="${ord.canSell}" th:href="@{/order/noProfit/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="No Profit">
+					<a class="btn btn-danger btn-sm" th:if="${ord.canSell}" th:href="@{/order/noProfit/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="No Profit">
 						<span class="glyphicon glyphicon-thumbs-down"></span>
 					</a>
-					<a class="btn btn-primary btn-sm" th:if="${ord.canSell}" th:href="@{/order/immediateSell/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="Immediate Sell">
+					<a class="btn btn-danger btn-sm" th:if="${ord.canSell}" th:href="@{/order/immediateSell/{oId}(oId=${ord.id})}" onclick="return confirm('Continue the action?')" title="Immediate Sell">
 						<span class="glyphicon glyphicon-screenshot"></span>
 					</a>
 				</td>
@@ -225,26 +225,28 @@
 	<script type="text/javascript">
 	function showGraph(coinIdToGraph) {
 		new TradingView.widget({
-     	  "container_id": "trview",
+	   	  "container_id": "trview",
 		  "width": 980,
 		  "height": 610,
 		  "symbol": coinIdToGraph,
-		  "interval": "D",
-		  "timezone": "Etc/UTC",
+		  "interval": "5",
+		  "timezone": "America/Argentina/Buenos_Aires",
 		  "theme": "Light",
 		  "style": "1",
-		  "locale": "en",
+		  "locale": "br",
 		  "toolbar_bg": "#f1f3f6",
 		  "enable_publishing": false,
+		  "withdateranges": true,
 		  "allow_symbol_change": true,
 		  "hideideas": true,
 		  "studies": [
-			"BB@tv-basicstudies",
-			"DoubleEMA@tv-basicstudies",
-			"MACD@tv-basicstudies",
-			"TripleEMA@tv-basicstudies"
+		    "MAExp@tv-basicstudies",
+			"MAExp@tv-basicstudies",
+		    "BB@tv-basicstudies",
+		    "MACD@tv-basicstudies",
+		    "StochasticRSI@tv-basicstudies"
 		  ]
-		});
+		});	
 	}
 	</script>
 			

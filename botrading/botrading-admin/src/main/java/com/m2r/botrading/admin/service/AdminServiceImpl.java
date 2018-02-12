@@ -2,6 +2,7 @@ package com.m2r.botrading.admin.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class AdminServiceImpl implements AdminService {
     private IStrategyManager strategyManager;
     
     protected IExchangeService getExchangeService() {
-    	return exchangeManager.getExchangeService();
+    		return exchangeManager.getExchangeService();
     }
     
     @Override
@@ -82,6 +83,9 @@ public class AdminServiceImpl implements AdminService {
         		todayProfit = BigDecimal.ZERO;
     		}
     		tj.setTodayProfitPercent(todayProfit.divide(tj.getTradingAmount(), CalcUtil.DECIMAL_COIN).multiply(CalcUtil.HUNDRED, CalcUtil.DECIMAL_PERCENT));
+    		long countProfit = traderRepository.countByTraderJobAndProfitGreaterThan(tj, BigDecimal.ZERO);
+    		int days = Period.between(tj.getDateTime().toLocalDate(), now.plusDays(1).toLocalDate()).getDays();
+    		tj.setDailyAverage(new BigDecimal(countProfit).divide(new BigDecimal(days), CalcUtil.DECIMAL_PERCENT));
     	});
     	return list;
     }
@@ -168,12 +172,7 @@ public class AdminServiceImpl implements AdminService {
     			AccountExchangeInfo tei = new AccountExchangeInfo();
     			tei.setAmount(coinBalance == null ? BigDecimal.ZERO : coinBalance.getAvailable());
     			tei.setCoinBalance(balanceList.getAmount());
-    			if (account.getSelectedMarketCoin().getId().equals(Currency.BTC)) {
-    				tei.setRealBalance(CalcUtil.multiply(getLastRealBTC(), tei.getCoinBalance()));
-    			}
-    			else {
-    				tei.setRealBalance(BigDecimal.ZERO);
-    			}
+    			tei.setRealBalance(CalcUtil.multiply(getLastRealBTC(), tei.getCoinBalance()));
     			return tei;
     		}
     		catch (Exception e) {

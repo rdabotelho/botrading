@@ -27,7 +27,7 @@ public class MercadoBitcoinExchangeServiceImpl implements IRealExchangeService {
 	private static final String URL_PUBLIC_API = "https://www.mercadobitcoin.net/api/BTC";
 	private static final String COMMAND_TICKER = "ticker";
 
-	synchronized private String execPublicAPI(String command) throws Exception {
+	private String execPublicAPI(String command) throws Exception {
 		
 	    String queryArgs = URL_PUBLIC_API + "/" + command;
 	    CloseableHttpClient httpClient = HttpClients.createDefault();

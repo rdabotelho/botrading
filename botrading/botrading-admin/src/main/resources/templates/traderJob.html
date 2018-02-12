@@ -120,6 +120,7 @@ table.listTable td {
 				<th scope="col">State</th>
 				<th scope="col">Profit<br/>(%)</th>
 				<th scope="col">Today<br/>Profit (%)</th>
+				<th scope="col">Daily<br/>Average</th>
 				<th scope="col">Balance</th>
 				<th scope="col" style="text-align: center;">Action</th>
 			</tr>
@@ -133,6 +134,7 @@ table.listTable td {
 				<td th:text="${{tr.stateName}}"></td>
 				<td th:text="${{tr.profitPercent}}"></td>
 				<td th:text="${{tr.todayProfitPercent}}"></td>
+				<td th:text="${{tr.dailyAverage}}"></td>
 				<td th:text="${{tr.balance}}" class="tdBalance"></td>
 				<td style="text-align: center;">
 					<a class="btn btn-primary btn-sm" th:onclick="'showTraderJobOptions('+${{tr.id}}+')'" title="Options">
@@ -147,10 +149,10 @@ table.listTable td {
 					<a th:if="${tr.state} neq 0" class="btn btn-primary btn-sm" th:href="@{/trader/{id}(id=${tr.id},page=0,size=10)}" title="View Job">
 						<span class="glyphicon glyphicon-search"></span>
 					</a>
-					<a th:if="${tr.state} eq 1" class="btn btn-primary btn-sm" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Finish Job">
+					<a th:if="${tr.state} eq 1" class="btn btn-danger btn-sm" th:href="@{/traderJob/finish/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Finish Job">
 						<span class="glyphicon glyphicon-stop"></span>
 					</a>
-					<a th:if="${tr.state} eq 2" class="btn btn-primary btn-sm" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Remove Job">
+					<a th:if="${tr.state} eq 2" class="btn btn-danger btn-sm" th:href="@{/traderJob/delete/{tjId}(tjId=${tr.id})}" onclick="return confirm('Continue the action?')" title="Remove Job">
 						<span class="glyphicon glyphicon-remove"></span>
 					</a>
 				</td>
@@ -165,8 +167,9 @@ table.listTable td {
 				<td></td>
 				<td></td>
 				<td></td>
-				<td><strong class="tdTotalBalancce"></strong></td>
 				<td></td>
+				<td><strong class="tdTotalBalancce"></strong></td>
+				<td><strong class="tdTotalBalanccePercent"></strong></td>
 			</tr>
 		</tfoot>
 	</table>
@@ -201,7 +204,8 @@ table.listTable td {
 	    			totalBalance += parseFloat($(v).text().replace(',','.'));
 	    		});
 	    		var percent = ((totalBalance - totalAmount) / totalAmount) * 100; 
-	    		$(".tdTotalBalancce").text(totalBalance.toFixed(8).replace('.',',') + " (" + percent.toFixed(2).replace('.',',') + "%)");
+	    		$(".tdTotalBalancce").text(totalBalance.toFixed(8).replace('.',','));
+	    		$(".tdTotalBalanccePercent").text(percent.toFixed(2).replace('.',',') + "%");
 	    });
 	    function changeContinuoMode(tjId,value) {
    			$.getJSON("/traderJob/changeContinuoMode/"+tjId+"/"+value, function(data) {

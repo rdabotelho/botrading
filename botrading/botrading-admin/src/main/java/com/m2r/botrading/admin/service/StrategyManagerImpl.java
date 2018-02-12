@@ -26,6 +26,7 @@ import com.m2r.botrading.api.service.IStrategyManager;
 import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.strategy.CatLeapStrategy;
 import com.m2r.botrading.strategy.DynamicStrategy;
+import com.m2r.botrading.strategy.RandomCoinsStrategy;
 import com.m2r.botrading.ws.IntentionClient;
 
 import rx.functions.Action1;
@@ -47,7 +48,7 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 	private void init() {
 		strategies.addAll(loadDynamicStrategies());
 		strategies.add(new CatLeapStrategy());
-		//strategies.add(new LowBollingerStrategy());
+		strategies.add(new RandomCoinsStrategy());
 		client = IntentionClient.build(WS_URL, this).start();
 	}
 	
