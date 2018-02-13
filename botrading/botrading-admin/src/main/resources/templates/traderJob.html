@@ -12,6 +12,10 @@
 table.listTable td {
 	text-align: center;
 }
+td.td-icon {
+	padding-right: 0 !important;
+	padding-left: 10px !important;
+}
 </style>
 </head>
 <body>
@@ -113,6 +117,7 @@ table.listTable td {
 	<table class="table table-striped tbTarderJob">
 		<thead class="thead-dark">
 			<tr>
+				<th scope="col"></th>
 				<th scope="col">Date Time</th>
 				<th scope="col">Strategy</th>
 				<th scope="col">Amount</th>
@@ -127,6 +132,7 @@ table.listTable td {
 		</thead>
 		<tbody>
 			<tr th:each="tr : ${listTraderJobs}" th:class="${tr.state} eq 2 ? 'trFinished' : ''">
+				<td class="td-icon"><span th:if="${tr.continuoMode}" class="glyphicon glyphicon-refresh text-primary" title="Continuo Mode"></span></td>
 				<td th:text="${{tr.dateTime}}"></td>
 				<td th:text="${{tr.strategy}}"></td>
 				<td th:text="${{tr.tradingAmount}}" class="tdAmount"></td>
@@ -160,6 +166,7 @@ table.listTable td {
 		</tbody>
 		<tfoot>
 			<tr>
+				<td></td>
 				<td></td>
 				<td></td>
 				<td><strong class="tdTotalAmount"></strong></td>
