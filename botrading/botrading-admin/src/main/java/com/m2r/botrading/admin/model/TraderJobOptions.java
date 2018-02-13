@@ -12,8 +12,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import org.springframework.format.annotation.NumberFormat;
+import org.springframework.format.annotation.NumberFormat.Style;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.m2r.botrading.api.model.ITraderJobOptions;
+import com.m2r.botrading.api.util.CalcUtil;
 
 @Entity
 public class TraderJobOptions implements Serializable, ITraderJobOptions {
@@ -28,10 +32,16 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	private String coins = "[]";
 
 	@Column(precision = 19, scale = 8)
-	private BigDecimal minimimPrice;
+    @NumberFormat(style=Style.NUMBER, pattern="0.00000000")
+ 	private BigDecimal minimimPrice;
 
 	@Column(precision = 19, scale = 8)
+    @NumberFormat(style=Style.NUMBER, pattern="0.00000000")
 	private BigDecimal minimumVolume;
+	
+	@Column(precision = 19, scale = 8)
+    @NumberFormat(style=Style.NUMBER, pattern="0.00")
+    private BigDecimal backToBuy = CalcUtil.FIFITY;
 
 	@Transient
 	private List<SelCoin> selCoins;
@@ -80,6 +90,14 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 
 	public void setSelCoins(List<SelCoin> selCoins) {
 		this.selCoins = selCoins;
+	}
+
+	public BigDecimal getBackToBuy() {
+		return backToBuy;
+	}
+
+	public void setBackToBuy(BigDecimal backToBuy) {
+		this.backToBuy = backToBuy;
 	}
 
 	public String[] getArrayCoins() {

@@ -102,10 +102,7 @@ public class Trader implements Serializable, ITrader {
     private List<BigDecimal> parcels;
     
     private LocalDateTime stateDateTime;
-    
-    @Transient	
-    private BigDecimal backToBuy = CalcUtil.FIFITY;
-    
+        
     public Trader() {
     		this.profit = BigDecimal.ZERO;
     }
@@ -310,14 +307,6 @@ public class Trader implements Serializable, ITrader {
 
 	public void setStateDateTime(LocalDateTime stateDateTime) {
 		this.stateDateTime = stateDateTime;
-	}
-
-	public BigDecimal getBackToBuy() {
-		return backToBuy;
-	}
-
-	public void setBackToBuy(BigDecimal backToBuy) {
-		this.backToBuy = backToBuy;
 	}
 	
 }

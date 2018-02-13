@@ -109,6 +109,7 @@ public class TraderController {
 		TraderJob persisted = this.adminService.findTraderJob(traderJob.getId(), account);
 		persisted.getOptions().setMinimimPrice(traderJob.getOptions().getMinimimPrice());
 		persisted.getOptions().setMinimumVolume(traderJob.getOptions().getMinimumVolume());
+		persisted.getOptions().setBackToBuy(traderJob.getOptions().getBackToBuy());
 		persisted.getOptions().setCoins(traderJob.getOptions().getCoins());
 		traderJob = persisted;
     	adminService.saveTraderJob(traderJob);
