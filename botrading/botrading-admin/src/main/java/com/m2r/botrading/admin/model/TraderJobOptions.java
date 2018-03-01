@@ -41,6 +41,10 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 	
 	@Column(precision = 19, scale = 8)
     @NumberFormat(style=Style.NUMBER, pattern="0.00")
+	private BigDecimal maximumChange = CalcUtil.FIVE;
+	
+	@Column(precision = 19, scale = 8)
+    @NumberFormat(style=Style.NUMBER, pattern="0.00")
     private BigDecimal backToBuy = CalcUtil.FIFITY;
 
 	@Transient
@@ -50,6 +54,8 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 		this.selCoins = new ArrayList<>();
 		this.minimimPrice = new BigDecimal("0.00000001");
 		this.minimumVolume = new BigDecimal("150.0");
+		this.maximumChange = CalcUtil.FIVE;
+		this.backToBuy = CalcUtil.FIFITY;
 	}
 
 	public String getCoins() {
@@ -98,6 +104,14 @@ public class TraderJobOptions implements Serializable, ITraderJobOptions {
 
 	public void setBackToBuy(BigDecimal backToBuy) {
 		this.backToBuy = backToBuy;
+	}
+
+	public BigDecimal getMaximumChange() {
+		return maximumChange;
+	}
+
+	public void setMaximumChange(BigDecimal maximumChange) {
+		this.maximumChange = maximumChange;
 	}
 
 	public String[] getArrayCoins() {

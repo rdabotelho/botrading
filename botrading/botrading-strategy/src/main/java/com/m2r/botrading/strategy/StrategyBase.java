@@ -27,6 +27,10 @@ public abstract class StrategyBase implements IStrategy {
 		}
 		
 		ITicker ticker = session.getTikers().getTicker(currencyPair);
+		if (CalcUtil.greaterThen(CalcUtil.multiply(ticker.getPercentChange(), CalcUtil.HUNDRED), options.getMaximumChange())) {
+			return false;
+		}
+		
 		if (CalcUtil.lessThen(ticker.getBaseVolume(), options.getMinimumVolume())) {
 			return false;
 		}

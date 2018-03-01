@@ -1,11 +1,13 @@
 package com.m2r.botetrading.ws;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import rx.Subscription;
 import rx.functions.Action0;
 import rx.functions.Action1;
+import ws.wamp.jawampa.PubSubData;
 import ws.wamp.jawampa.WampClient;
 import ws.wamp.jawampa.WampClientBuilder;
 import ws.wamp.jawampa.connection.IWampConnectorProvider;

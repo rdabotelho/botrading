@@ -8,6 +8,8 @@ public interface ITraderJobOptions {
 	
 	public BigDecimal getMinimumVolume();
 	
+	public BigDecimal getMaximumChange();
+	
 	public String[] getArrayCoins();
 	
 }

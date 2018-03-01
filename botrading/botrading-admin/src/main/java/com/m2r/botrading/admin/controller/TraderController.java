@@ -110,6 +110,7 @@ public class TraderController {
 		persisted.getOptions().setMinimimPrice(traderJob.getOptions().getMinimimPrice());
 		persisted.getOptions().setMinimumVolume(traderJob.getOptions().getMinimumVolume());
 		persisted.getOptions().setBackToBuy(traderJob.getOptions().getBackToBuy());
+		persisted.getOptions().setMaximumChange(traderJob.getOptions().getMaximumChange());
 		persisted.getOptions().setCoins(traderJob.getOptions().getCoins());
 		traderJob = persisted;
     	adminService.saveTraderJob(traderJob);

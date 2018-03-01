@@ -2,7 +2,6 @@ package com.m2r.botrading.admin.util;
 
 import java.math.BigDecimal;
 
-import com.m2r.botrading.api.util.CalcUtil;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
@@ -19,9 +18,9 @@ public class SMSSender {
 	}
 	
 	public static void sendLiquidedSellSMS(String toNumber, String strategyName, String coinId, BigDecimal profit, BigDecimal percent) {
-		String profitStr = CalcUtil.formatBR(profit);
-		String percentStr = CalcUtil.formatPercent(percent);
-		sendSMS(toNumber, "SELL ORDER LIQUIDED IN THE BOTRADING.\nSTRATEGY: "+strategyName+"\nCOIN: "+coinId+"\nPROFIT: "+profitStr+" ("+percentStr+"%)");
+//		String profitStr = CalcUtil.formatBR(profit);
+//		String percentStr = CalcUtil.formatPercent(percent);
+//		sendSMS(toNumber, "SELL ORDER LIQUIDED IN THE BOTRADING.\nSTRATEGY: "+strategyName+"\nCOIN: "+coinId+"\nPROFIT: "+profitStr+" ("+percentStr+"%)");
 	}
 	
 	public static void main(String[] args) {

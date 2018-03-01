@@ -21,6 +21,7 @@
 		<module>botrading-strategy</module>
 		<module>botrading-poloniex</module>
 		<module>botrading-ws</module>
+		<module>botrading-tests</module>
 	</modules>
 
 	<dependencyManagement>

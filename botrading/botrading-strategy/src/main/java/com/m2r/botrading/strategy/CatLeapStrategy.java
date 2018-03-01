@@ -32,8 +32,9 @@ public class CatLeapStrategy extends StrategyBase {
 			}
 			int limit = count;
 			for (int i=0; i<sorted.size(); i++) {
-				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(sorted.get(i).getCurrencyPair());
-				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && filter(session, traderJob, sorted.get(i).getCurrencyPair())) {
+				CatLeap catLeap = sorted.get(i);
+				CurrencyPairIds currencyPairIds = session.getCurrencyFactory().getCurrencyPairConverter().stringToCurrencyPair(catLeap.getCurrencyPair());
+				if (!ignoredCoins.contains(currencyPairIds.getCurrencyId()) && filter(session, traderJob, catLeap.getCurrencyPair())) {
 					list.add(OrderIntent.of(session.getCurrencyFactory().currencyPairToCurrency(currencyPairIds, session.getService())));					
 	    			limit--;
 	    			if (limit == 0) {
