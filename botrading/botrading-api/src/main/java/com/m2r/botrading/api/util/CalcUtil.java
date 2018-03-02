@@ -71,7 +71,11 @@ public class CalcUtil {
 	}
 	
 	public static BigDecimal percent(BigDecimal value, BigDecimal fee) {
-		return value.multiply(fee.divide(CalcUtil.HUNDRED, DECIMAL_COIN), DECIMAL_COIN);
+		return value.multiply(fee.divide(HUNDRED, DECIMAL_COIN), DECIMAL_COIN);
+	}
+	
+	public static boolean isBetween(BigDecimal a, BigDecimal b, BigDecimal c) {
+		return !lessThen(a, b) && !greaterThen(a, c);
 	}
 	
 	public static boolean lessThen(BigDecimal a, BigDecimal b) {
@@ -92,6 +96,23 @@ public class CalcUtil {
 	
 	public static BigDecimal toCoinScale(BigDecimal value) {
 		return value.setScale(SCALE_COIN, RoundingMode.HALF_UP);
+	}
+	
+	public static BigDecimal calculateBuyPrice(BigDecimal lastPrice, BigDecimal shiftPercent) {
+		return divide(multiply(subtract(HUNDRED, shiftPercent), lastPrice), HUNDRED);
+	}
+	
+	public static BigDecimal calculateSellPrice(BigDecimal buyPrice, BigDecimal shiftPercent) {
+		return divide(multiply(add(HUNDRED, shiftPercent), buyPrice), HUNDRED);
+	}
+	
+	public static BigDecimal calculateProfitPercent(BigDecimal buyPrice, BigDecimal sellPrice) {
+		return multiply(divide(subtract(sellPrice, buyPrice), buyPrice), HUNDRED);	
+	}
+	
+	public static BigDecimal calculateBalance(BigDecimal total, BigDecimal profit, BigDecimal allFee) {
+		BigDecimal percent =  subtract(profit, allFee);
+		return add(total, percent(total, percent));
 	}
 	
 }

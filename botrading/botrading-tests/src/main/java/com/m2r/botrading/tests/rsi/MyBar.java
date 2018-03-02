@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.tests.rsi;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;

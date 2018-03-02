@@ -22,7 +22,7 @@ import com.m2r.botrading.poloniex.enums.PoloniexDataChartPeriod;
 
 public class CatLeapPlusAnalyze {
 
-	private static int DAYS = 360;
+	private static int DAYS = 90;
 	private static PoloniexDataChartPeriod PERIOD = PoloniexDataChartPeriod.FIVE_MINUTES; 
 	private static BigDecimal MAX_VOLUME = new BigDecimal("100.0");
 	

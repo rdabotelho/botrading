@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.tests.rsi;
 
 import org.ta4j.core.BaseStrategy;
 import org.ta4j.core.Decimal;

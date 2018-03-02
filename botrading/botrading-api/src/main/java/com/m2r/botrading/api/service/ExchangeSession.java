@@ -31,7 +31,7 @@ public class ExchangeSession implements IExchangeSession {
 		return new ExchangeSession(service, marketCoin);
 	}
 	
-	private ExchangeSession(ExchangeService service, MarketCoin marketCoin) {
+	public ExchangeSession(ExchangeService service, MarketCoin marketCoin) {
 		this.service = service;
 		this.marketCoin = marketCoin;
 	}
