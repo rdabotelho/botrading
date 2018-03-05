@@ -10,7 +10,7 @@ import com.m2r.botrading.api.util.CalcUtil;
 
 public class Candle {
 	
-	private static final BigDecimal MULT_LENGTH = new BigDecimal("6");
+	private BigDecimal candleSizeFactor;
 	private String coin;
 	private BigDecimal sum;
 	private int total;
@@ -21,8 +21,9 @@ public class Candle {
 	private LocalDateTime date;
 	private BigDecimal firstClose;
 
-	public Candle(String coin) {
+	public Candle(String coin, BigDecimal candleSizeFactor) {
 		this.coin = coin;
+		this.candleSizeFactor = candleSizeFactor;
 		this.sum = BigDecimal.ZERO;
 		this.total = 0;
 		this.firstClose = null;
@@ -58,7 +59,7 @@ public class Candle {
 	}
 
 	public BigDecimal getLengthToFilter() {
-		return CalcUtil.multiply(getAverage(), MULT_LENGTH);
+		return CalcUtil.multiply(getAverage(), this.candleSizeFactor);
 	}
 
 	public BigDecimal getLength() {

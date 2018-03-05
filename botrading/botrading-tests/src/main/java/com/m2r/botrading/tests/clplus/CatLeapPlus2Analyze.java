@@ -1,5 +1,6 @@
 package com.m2r.botrading.tests.clplus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,13 +16,13 @@ public class CatLeapPlus2Analyze {
 
 	private static PoloniexDataChartPeriod PERIOD = PoloniexDataChartPeriod.FIVE_MINUTES; 
 	
-	public static Candle catLeapPlusAnalyze(IExchangeService service, String marketCoinId, String currencyId, LocalDateTime start, LocalDateTime end, int count) throws Exception {
+	public static Candle catLeapPlusAnalyze(IExchangeService service, String marketCoinId, String currencyId, LocalDateTime start, LocalDateTime end, int count, BigDecimal candleSizeFactor) throws Exception {
 		MarketCoin marketCoin = service.getMarketCoin(marketCoinId);
 		IExchangeSession session = service.getSession(marketCoin, true, false);
 		Currency currency = marketCoin.getCurrency(currencyId);
 		IChartDataList chartDataList = session.getChartDatas(currency.getCurrencyPair(), PERIOD, start, end);
 		List<IChartData> list = chartDataList.getChartDatas();
-		Candle candle = new Candle(currency.getId());
+		Candle candle = new Candle(currency.getId(), candleSizeFactor);
 		for (int i=0; i<count; i++) {
 			candle.update(list.get(i));
 		}

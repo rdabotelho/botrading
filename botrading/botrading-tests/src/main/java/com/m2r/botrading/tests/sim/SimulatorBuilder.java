@@ -10,10 +10,13 @@ public class SimulatorBuilder {
 	public SimulatorBuilder() {
 	}
 	
-	public ISimulatorCoin withService(IExchangeService service) {
+	public ISimulatorMarketCoin withService(IExchangeService service) {
 		return new SimulatorFlow().withService(service);
 	}
 	
+	public static interface ISimulatorMarketCoin {
+		public ISimulatorCoin withMarketCoin(String marketCoin);
+	}
 	public static interface ISimulatorCoin {
 		public ISimulatorWithPeriod withCoin(String coin);
 	}
@@ -24,15 +27,36 @@ public class SimulatorBuilder {
 		public ISimulatorStopLoss withAmount(BigDecimal amount);
 	}
 	public static interface ISimulatorStopLoss {
-		public ISimulatorBuild withoutStopLoss();
-		public ISimulatorBuild withStopLoss(BigDecimal stopLoss);
-		public ISimulatorBuild withStopLossOfCandleLength();
+		public ISimulatorCandleSizeFactor withoutStopLoss();
+		public ISimulatorCandleSizeFactor withStopLoss(BigDecimal stopLoss);
+		public ISimulatorCandleSizeFactor withStopLossOfCandleLength();
 	}
+	public static interface ISimulatorCandleSizeFactor {
+		public ISimulatorSellFactor withCandleSizeFactor(BigDecimal candleSizeFactor);
+	}	
+	public static interface ISimulatorSellFactor {
+		public ISimulatorTSSL withSellFactor(BigDecimal sellFactor);
+	}	
+	public static interface ISimulatorTSSL {
+		public ISimulatorDelayToBuy withoutTSSL();
+		public ISimulatorDelayToBuy withTSSL(BigDecimal tsslPercent);
+	}	
+	public static interface ISimulatorDelayToBuy {
+		public ISimulatorBuild withoutDelayToBuy();
+		public ISimulatorBuild withDelayToBuy(BigDecimal delayToBuyPercent);
+	}	
 	public static interface ISimulatorBuild {
 		public Simulator build();
 	}
 	public static interface Simulator {
 		public void run();
+		public String getCoin();
+		public BigDecimal getAmount();
+		public Integer getTotal();
+		public BigDecimal getTotalProfit();
+		public BigDecimal getTotalFee();
+		public BigDecimal getTotalBalance();
+		public boolean isStucked();
 	}
 	
 }

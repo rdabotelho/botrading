@@ -11,32 +11,49 @@ import com.m2r.botrading.tests.clplus.Candle;
 import com.m2r.botrading.tests.clplus.CatLeapPlus2Analyze;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorAmount;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorBuild;
+import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorCandleSizeFactor;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorCoin;
+import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorDelayToBuy;
+import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorMarketCoin;
+import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorSellFactor;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorStopLoss;
+import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorTSSL;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorWithPeriod;
 import com.m2r.botrading.tests.sim.SimulatorBuilder.Simulator;
 
-public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISimulatorAmount, ISimulatorStopLoss, ISimulatorBuild, Simulator {
+public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISimulatorWithPeriod, ISimulatorAmount, ISimulatorStopLoss, ISimulatorCandleSizeFactor, ISimulatorSellFactor, ISimulatorTSSL, ISimulatorDelayToBuy, ISimulatorBuild, Simulator {
 
 	private static final int TIME_DIFERENCE = 3;
 	private static int COUNT_PERIODS = 30;
 	
 	private IExchangeService service;
+	private String marketCoin;
 	private String coin; 
 	private LocalDateTime to; 
 	private LocalDateTime from;
 
 	private OrderIntent order;
 	private BigDecimal amount;
+	private BigDecimal candleSizeFactor;
 	private BigDecimal totalFee;
 	private boolean stopLossOfCandleLength;
 	private BigDecimal stopLoss;
-	private BigDecimal stopLossValue;
 	private BigDecimal balance;
 	private int total;
+	private BigDecimal sellFactor = new BigDecimal("1.0");
+	private BigDecimal tsslPercent;
+	private BigDecimal delayToBuyPercent;
 	
-	public ISimulatorCoin withService(IExchangeService service) {
+	private BigDecimal priceToBuy;
+	private boolean waitToOut = false;
+	
+	public ISimulatorMarketCoin withService(IExchangeService service) {
 		this.service = service;
+		return this;
+	}
+
+	public ISimulatorCoin withMarketCoin(String marketCoin) {
+		this.marketCoin = marketCoin;
 		return this;
 	}
 	
@@ -57,22 +74,54 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		return this;
 	}
 	
-	public ISimulatorBuild withoutStopLoss() {
+	public ISimulatorCandleSizeFactor withoutStopLoss() {
 		this.stopLossOfCandleLength = false;
 		return this;
 	}
 	
-	public ISimulatorBuild withStopLoss(BigDecimal stopLoss) {
+	public ISimulatorCandleSizeFactor withStopLoss(BigDecimal stopLoss) {
 		this.stopLossOfCandleLength = false;
 		this.stopLoss = stopLoss;
 		return this;
 	}
 	
-	public ISimulatorBuild withStopLossOfCandleLength() {
+	public ISimulatorCandleSizeFactor withStopLossOfCandleLength() {
 		this.stopLossOfCandleLength = true;
+		return this;
+		
+	}
+	
+	public ISimulatorSellFactor withCandleSizeFactor(BigDecimal candleSizeFactor) {
+		this.candleSizeFactor = candleSizeFactor;
 		return this;
 	}
 	
+	public ISimulatorTSSL withSellFactor(BigDecimal sellFactor) {
+		this.sellFactor = sellFactor;
+		return this;
+	}
+	
+	public ISimulatorDelayToBuy withoutTSSL() {
+		this.tsslPercent = null;
+		return this;
+	}
+	
+	public ISimulatorDelayToBuy withTSSL(BigDecimal tsslPercent) {
+		this.tsslPercent = tsslPercent;
+		return this;
+	}
+	
+	public ISimulatorBuild withoutDelayToBuy() {
+		this.delayToBuyPercent = null;
+		return this;
+	}
+	
+	@Override
+	public ISimulatorBuild withDelayToBuy(BigDecimal delayToBuyPercent) {
+		this.delayToBuyPercent = delayToBuyPercent;
+		return this;
+	}
+		
 	public Simulator build() {
 		return this;
 	}
@@ -84,14 +133,14 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		try {
 			init();
 			while (start.isBefore(stop)) {
-				Candle candle = CatLeapPlus2Analyze.catLeapPlusAnalyze(service, "BTC", coin, start.minusMinutes(COUNT_PERIODS * 5), start, COUNT_PERIODS);
+				Candle candle = CatLeapPlus2Analyze.catLeapPlusAnalyze(service, marketCoin, coin, start.minusMinutes(COUNT_PERIODS * 5), start, COUNT_PERIODS, candleSizeFactor);
 				synch(candle);
 				if (candle.isOpportunity()) {
 					tryOrder(candle);
 				}
 				start = start.plusMinutes(5);
 			}
-			if (isBought()) {
+			if (wasBought()) {
 				logNoSuccess(order);
 			}
 			finish();
@@ -106,7 +155,6 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		balance = amount;
 		total = 0;
 		totalFee = BigDecimal.ZERO;
-		stopLossValue = BigDecimal.ZERO;
 		logHeader();
 	}
 	
@@ -114,55 +162,127 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		logTrailler();
 	}
 	
-	private boolean isBought() {
+	private boolean wasNotOrdered() {
+		return priceToBuy == null && order == null;
+	}
+	
+	private boolean wasOrdered() {
+		return priceToBuy != null && order == null;
+	}
+	
+	private boolean wasBought() {
 		return order != null;
 	}
 	
 	private void tryOrder(Candle candle) {
-		if (!isBought()) {
-			BigDecimal buyPrice = candle.getClose(); 		// immediate
-			BigDecimal buyFee = service.getImmediateFee(); 	// immediate;
-			BigDecimal sellPrice = CalcUtil.add(buyPrice, candle.getLength());
-			BigDecimal sellFee = service.getFee();
-			order = OrderIntent.buildBuy(candle.getCoin(), candle.getDate(), balance, buyPrice, buyFee, sellPrice, sellFee, candle.getAngle());
-			if (isStopLoss()) {
-				if (stopLossOfCandleLength) {
-					stopLossValue = CalcUtil.subtract(buyPrice, candle.getLength()); 
-				}
-				else {
-					stopLossValue = CalcUtil.subtract(buyPrice, CalcUtil.percent(buyPrice, stopLoss)); 
-				}
-			}
+		if (wasNotOrdered()) {
+			makeOrderToBuy(candle);
 		}
 	}
 	
 	private void synch(Candle candle) {
-		if (isBought()) {
-			if (CalcUtil.isBetween(order.getSellPrice(), candle.getLow(), candle.getHigh())) {
-				success(candle);
+		if (wasOrdered()) {
+			if (testBuy(candle)) {
+				executeBuy(candle, waitToOut);
 			}
-			else if (isStopLoss() && !CalcUtil.greaterThen(candle.getLow(), stopLossValue)) {
-				stopLoss(candle);
+		}
+		else if (wasBought()) {
+			if (testSell(candle)) {
+				executeSell(candle, false);
+			}
+			else if (testStopLess(candle)) {
+				executeStopLoss(candle);
+			}
+			else if (testTSSL(candle)) {
+				executeTSSL(candle);
 			}
 		}
 	}
-	
-	private void success(Candle candle) {
-		order = OrderIntent.buildSell(order, candle.getDate(), OrderIntentState.SUCCESS);
-		balance = order.getBalance();
-		logSuccess(order);
-		total++;
-		order = null;
+		
+	private boolean testSell(Candle candle) {
+		return CalcUtil.isBetween(order.getSellPrice(), candle.getLow(), candle.getHigh());
 	}
 	
-	private void stopLoss(Candle candle) {
-		order.setSellPrice(candle.getLow());
-		order.setSellFee(service.getImmediateFee());
-		order = OrderIntent.buildSell(order, candle.getDate(), OrderIntentState.STOPLOSS);
+	private void executeSell(Candle candle, boolean immadiate) {
+		if (immadiate) {
+			order.setSellPrice(candle.getLow());
+			order.setSellFee(service.getImmediateFee());
+			order = OrderIntent.buildSell(order, candle.getDate(), OrderIntentState.STOPLOSS);
+		}
+		else {
+			order = OrderIntent.buildSell(order, candle.getDate(), OrderIntentState.SUCCESS);
+		}
 		balance = order.getBalance();
 		logSuccess(order);
 		total++;
-		order = null;
+		order = null;			
+	}
+	
+	private boolean testStopLess(Candle candle) {
+		return order.hasStoploss() && !CalcUtil.greaterThen(candle.getLow(), order.getStoplossPrice());
+	}
+	
+	private void executeStopLoss(Candle candle) {
+		executeSell(candle, true);
+	}
+	
+	private boolean testTSSL(Candle candle) {
+		if (isTSSL()) {
+			BigDecimal almost = CalcUtil.percent(order.getSellPrice(), CalcUtil.subtract(CalcUtil.HUNDRED, tsslPercent));
+			return CalcUtil.greaterThen(candle.getHigh(), almost);
+		}
+		return false;
+	}
+	
+	private void executeTSSL(Candle candle) {
+		cancel(candle);
+		BigDecimal newPrice = CalcUtil.percent(order.getSellPrice(), CalcUtil.add(CalcUtil.HUNDRED, tsslPercent));
+		BigDecimal stoploss = CalcUtil.percent(order.getSellPrice(), CalcUtil.subtract(CalcUtil.HUNDRED, tsslPercent));
+		order.setSellPrice(newPrice);
+		order.setStoplossPrice(stoploss);
+	}
+	
+	private void makeOrderToBuy(Candle candle) {
+		this.waitToOut = false;
+		if (isDelayToBuy()) {
+			this.priceToBuy = CalcUtil.add(candle.getClose(), CalcUtil.percent(candle.getClose(), this.delayToBuyPercent));
+			if (this.delayToBuyPercent.signum() == 1) {
+				this.waitToOut = true;
+			}
+		}
+		else {
+			this.priceToBuy = candle.getClose();
+			executeBuy(candle, true);
+		}
+	}
+	
+	private boolean testBuy(Candle candle) {
+		if (waitToOut) { // cat leap
+			return !CalcUtil.greaterThen(priceToBuy, candle.getLow());			
+		}
+		else {
+			return CalcUtil.isBetween(priceToBuy, candle.getLow(), candle.getHigh());
+		}
+	}
+	
+	private void executeBuy(Candle candle, boolean immediate) {
+		BigDecimal buyFee = immediate ? service.getImmediateFee() : service.getFee();
+		BigDecimal sellPrice = CalcUtil.add(priceToBuy, CalcUtil.multiply(candle.getLength(), sellFactor));
+		order = OrderIntent.buildBuy(candle.getCoin(), candle.getDate(), balance, priceToBuy, buyFee, sellPrice, service.getFee(), candle.getAngle());		
+
+		if (isStopLoss()) {
+			if (stopLossOfCandleLength) {
+				order.setStoplossPrice(CalcUtil.subtract(order.getBuyPrice(), candle.getLength())); 
+			}
+			else {
+				order.setStoplossPrice(CalcUtil.subtract(order.getBuyPrice(), CalcUtil.percent(order.getBuyPrice(), stopLoss))); 
+			}
+		}
+		
+		priceToBuy = null;
+	}
+	
+	private void cancel(Candle candle) {
 	}
 	
 	private void logHeader() {
@@ -193,20 +313,20 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		logLine();
 		log("%-8s %-16s %-16s %11s %11s %11s %11s %11s %11s", 
 				"TOTAL:", 
-				String.valueOf(total), 
+				String.valueOf(getTotal()), 
 				"", 
 				"", 
-				CalcUtil.formatPercent(CalcUtil.multiply(CalcUtil.divide(CalcUtil.subtract(balance, amount), amount), CalcUtil.HUNDRED)), 
+				CalcUtil.formatPercent(getTotalProfit()), 
 				"",
 				"", 
-				CalcUtil.formatReal(totalFee),
-				CalcUtil.formatReal(balance)
+				CalcUtil.formatReal(getTotalFee()),
+				CalcUtil.formatReal(getTotalBalance())
 		);
 	}
 	
 	private void logNoSuccess(OrderIntent order) {
 		String sBuyDate = order.getBuyDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-		log("%-8s %-16s %-16s %11s %11s %11s %11s %11s %11s %11s", 
+		log("%-8s %-16s %-16s %11s %11s %11s %11s %11s %11s", 
 				order.getState().name(), 
 				sBuyDate, 
 				"", 
@@ -215,15 +335,14 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 				"",
 				"", 
 				"",
-				CalcUtil.formatReal(order.getTotal()),
-				CalcUtil.formatPercent(order.getAngle())
+				CalcUtil.formatReal(order.getTotal())
 		);
 	}
 	
 	private void logSuccess(OrderIntent order) {
 		String sBuyDate = order.getBuyDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
 		String sSellDate = order.getSellDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-		log("%-8s %-16s %-16s %11s %11s %11s %11s %11s %11s %11s", 
+		log("%-8s %-16s %-16s %11s %11s %11s %11s %11s %11s", 
 				order.getState().name(),
 				sBuyDate, 
 				sSellDate, 
@@ -232,8 +351,7 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 				CalcUtil.formatReal(order.getProfit()),
 				CalcUtil.formatPercent(order.getAllFeePercent()), 
 				CalcUtil.formatReal(order.getAllFee()),
-				CalcUtil.formatReal(order.getBalance()),
-				CalcUtil.formatPercent(order.getAngle())
+				CalcUtil.formatReal(order.getBalance())
 		);
 		totalFee = CalcUtil.add(totalFee, order.getAllFee());
 	}
@@ -250,6 +368,42 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		return stopLossOfCandleLength || stopLoss != null;
 	}
 	
+	private boolean isTSSL() {
+		return tsslPercent != null;
+	}
+	
+	private boolean isDelayToBuy() {
+		return this.delayToBuyPercent != null;
+	}
+	
+	public String getCoin() {
+		return coin;
+	}
+	
+	public BigDecimal getAmount() {
+		return amount;
+	}
+	
+	public Integer getTotal() {
+		return total;
+	}
+	
+	public BigDecimal getTotalProfit() {
+		return CalcUtil.multiply(CalcUtil.divide(CalcUtil.subtract(balance, amount), amount), CalcUtil.HUNDRED); 
+	}
+	
+	public BigDecimal getTotalFee() {
+		return totalFee;
+	}
+	
+	public BigDecimal getTotalBalance() {
+		return balance;
+	}
+	
+	public boolean isStucked() {
+		return order != null && OrderIntentState.STUCK.equals(order.getState());
+	}
+	
 	static class OrderIntent {
 		private OrderIntentState state;
 		private LocalDateTime buyDate;
@@ -261,6 +415,7 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 		private BigDecimal sellPrice;
 		private BigDecimal sellFee;
 		private BigDecimal angle;
+		private BigDecimal stoplossPrice;
 		public static OrderIntent buildBuy(String coin, LocalDateTime buyDate, BigDecimal total, BigDecimal buyPrice, BigDecimal buyFee, BigDecimal sellPrice, BigDecimal sellFee, BigDecimal angle) {
 			return new OrderIntent(coin, buyDate, total, buyPrice, buyFee, sellPrice, sellFee, angle);
 		}
@@ -280,6 +435,15 @@ public class SimulatorFlow implements ISimulatorCoin, ISimulatorWithPeriod, ISim
 			this.sellFee = sellFee;
 			this.angle = angle;
 		}
+		public void setStoplossPrice(BigDecimal stoploss) {
+			this.stoplossPrice = stoploss;
+		}
+		public BigDecimal getStoplossPrice() {
+			return stoplossPrice;
+		}
+		public boolean hasStoploss() {
+			return stoplossPrice != null;
+		}		
 		public OrderIntentState getState() {
 			return state;
 		}
