@@ -77,6 +77,7 @@ public class PoloniexExchange extends ExchangeService {
 	private static final String COMMAND_CURRENCIES = "returnCurrencies";
 	private static final String COMMAND_TICKER = "returnTicker";
 	private static final String COMMAND_OPEN_ORDERS = "returnOpenOrders";
+private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
 	private static final String COMMAND_CANCEL_ORDER = "cancelOrder";
 	private static final String COMMAND_ACCOUNT_BALANCES = "returnAvailableAccountBalances";
 	private static final String COMMAND_BUY = "buy";
@@ -206,6 +207,13 @@ public class PoloniexExchange extends ExchangeService {
 		return parseReturn(data, new TypeToken<Map<String, List<ExchangeOrder>>>(){}.getType());
 	}
 	
+	public List<Map<String, Object>> commandOrderTrades(IApiAccess apiAccess, String orderNumber) throws Exception {
+		Map<String, String> params = new HashMap<>();
+		params.put("orderNumber", orderNumber);
+		String data = this.execTradingAPI(apiAccess, COMMAND_ORDER_TRADES, params);
+		return parseReturn(data, new TypeToken<List<Map<String, Object>>>(){}.getType());
+	}
+	
 	public JsonSuccess commandCancelOrder(IApiAccess apiAccess, String orderNumber) throws Exception {
 		Map<String, String> params = new HashMap<>();
 		params.put("orderNumber", orderNumber);
@@ -305,6 +313,20 @@ public class PoloniexExchange extends ExchangeService {
 			LOG.log(Level.SEVERE, "Cannot load market coins", e);
 		} 
 		return map;
+	}
+	
+	@Override
+	public boolean isOrderExecuted(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
+		try {
+			commandOrderTrades(apiAccess, orderNumber);
+			return true;
+		}
+		catch (Exception e) {
+			if (e instanceof JsonException && ((JsonException) e).getMessage().startsWith("Order not found")) {
+				return false;
+			}
+			throw new ExchangeException(e);
+		}
 	}
 	
 	@Override
@@ -434,5 +456,22 @@ public class PoloniexExchange extends ExchangeService {
 //		cancelAllOrdersInTheExchange(apiAccess);
 //		sellAllInTheExchange(apiAccess);
 //	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		IApiAccess apiAccess = new IApiAccess() {
+			public String getSecretKey() {
+				return "c034c84ba459f281e3c5ad43694f3f24d024316bb30bdb8a0071f38879b56424b976a5613da101ecf256ae8a43e100ad835d37040b46d607c4738402cfd828e0";
+			}
+			@Override
+			public String getApiKey() {
+				return "A6MSDX56-KPVBAZED-YJ53MWN6-GN8JWZ0X";
+			}
+		};
+		PoloniexExchange service = new PoloniexExchange();
+		service.init();
+		boolean b = service.isOrderExecuted(apiAccess, "59701267161");
+		System.out.println(b);
+	}
 	
 }

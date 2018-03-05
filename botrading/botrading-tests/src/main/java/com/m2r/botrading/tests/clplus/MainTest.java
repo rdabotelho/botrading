@@ -33,7 +33,7 @@ public class MainTest {
 		
 		MarketCoin marketCoin = service.getMarketCoin("BTC");
 		
-		for (ITicker ticker : getTheBestCoins(service, marketCoin)) {
+		for (ITicker ticker : getTheBestCoinsFixed(service, marketCoin)) {
 			
 			Currency currency = service.getCurrencyFactory().currencyPairToCurrency(ticker.getCurrencyPair(), service);
 			
@@ -46,7 +46,7 @@ public class MainTest {
 					.withoutStopLoss()
 					.withCandleSizeFactor(new BigDecimal("6"))
 					.withSellFactor(new BigDecimal("1.0"))
-					.withoutTSSL()// withTSSL(new BigDecimal("0.1"))
+					.withoutTSSL() // withTSSL(new BigDecimal("0.25"))
 					.withoutDelayToBuy() // withDelayToBuy(new BigDecimal("-0.1"))
 					.build();
 				
@@ -67,7 +67,8 @@ public class MainTest {
 	
 	private static List<ITicker> getTheBestCoinsFixed(IExchangeService service, MarketCoin marketCoin) throws Exception {
 		IExchangeSession session = service.getSession(marketCoin, true, true);
-		final String[] COINS = new String[]{"BTC_XEM","BTC_BTS","BTC_XRP","BTC_ETC","BTC_STR"};
+		final String[] COINS = new String[]{"BTC_XEM"};
+		//final String[] COINS = new String[]{"BTC_XEM","BTC_BTS","BTC_XRP","BTC_ETC","BTC_STR"};
 		List<ITicker> list = session.getTikers().getTickers()
 			.stream()
 			.filter(it -> {
