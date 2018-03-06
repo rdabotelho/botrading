@@ -77,7 +77,7 @@ public class PoloniexExchange extends ExchangeService {
 	private static final String COMMAND_CURRENCIES = "returnCurrencies";
 	private static final String COMMAND_TICKER = "returnTicker";
 	private static final String COMMAND_OPEN_ORDERS = "returnOpenOrders";
-private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
+	private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
 	private static final String COMMAND_CANCEL_ORDER = "cancelOrder";
 	private static final String COMMAND_ACCOUNT_BALANCES = "returnAvailableAccountBalances";
 	private static final String COMMAND_BUY = "buy";
@@ -94,11 +94,6 @@ private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
 	}
 	
 	private String generateNonce() {
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) {
-			
-		}
 		return Long.toString(System.currentTimeMillis()+H24)+"000"; 
 	}
 	
@@ -118,7 +113,7 @@ private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
 	    return EntityUtils.toString(responseEntity);
 	}
 	
-	private String execTradingAPI(IApiAccess apiAccess, String command, Map<String, String> parameters) throws Exception {
+	synchronized private String execTradingAPI(IApiAccess apiAccess, String command, Map<String, String> parameters) throws Exception {
 		
 		parameters.put("nonce", generateNonce());
 		
@@ -391,6 +386,16 @@ private static final String COMMAND_ORDER_TRADES = "returnOrderTrades";
 	@Override
 	public CurrencyFactory getCurrencyFactory() {
 		return PoloniexCurrencyFactory.getInstance();
+	}
+	
+	@Override
+	public ITickerList getAllTikers()  throws ExchangeException {
+		return this.getTikers(null);
+	}
+	
+	@Override
+	public IOrderList getAllOrders(IApiAccess apiAccess) throws ExchangeException {
+		return this.getOrders(apiAccess, null);
 	}
 	
 	public static void cancelAllOrdersInTheExchange(IApiAccess apiAccess) throws Exception {

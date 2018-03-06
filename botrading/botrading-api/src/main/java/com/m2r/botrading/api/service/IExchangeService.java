@@ -8,6 +8,8 @@ import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IOrder;
+import com.m2r.botrading.api.model.IOrderList;
+import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoin;
 
 public interface IExchangeService extends IExchangeOrder {
@@ -92,5 +94,15 @@ public interface IExchangeService extends IExchangeOrder {
 	 * @throws ExchangeException
 	 */
 	public boolean isOrderExecuted(IApiAccess apiAccess, String orderNumber) throws ExchangeException;
+	
+	/**
+	 * Method which get all tikers in the exchange
+	 * @return Tickers
+	 * @throws Exception
+	 */
+	public ITickerList getAllTikers() throws ExchangeException;
+	
+	public IOrderList getAllOrders(IApiAccess apiAccess) throws ExchangeException;
+	
 	
 }

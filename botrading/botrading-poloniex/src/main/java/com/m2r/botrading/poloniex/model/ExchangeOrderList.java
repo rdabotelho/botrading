@@ -26,5 +26,15 @@ public class ExchangeOrderList<T extends IExchangeOrder> implements IOrderList {
 		List<IExchangeOrder> list = ordersMap.get(currencyPair);
 		return list != null ? new ArrayList<>(list) : null;
 	}
+	
+	public List<IExchangeOrder> getOrders() {
+		List<IExchangeOrder> list = new ArrayList<>();
+		for (List<IExchangeOrder> l : ordersMap.values()) {
+			for (IExchangeOrder o : l) {
+				list.add(o);
+			}
+		}
+		return list;
+	}
 
 }
