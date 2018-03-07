@@ -1,11 +1,15 @@
 package com.m2r.botrading.ws.example;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.m2r.botrading.api.model.IApiAccess;
-import com.m2r.botrading.ws.server.ExchangeWSClient;
+import com.m2r.botrading.api.model.IChartData;
+import com.m2r.botrading.poloniex.enums.PoloniexDataChartPeriod;
+import com.m2r.botrading.ws.exchange.ExchangeWSClient;
 
 public class ExchangeClientTest {
 
@@ -26,7 +30,7 @@ public class ExchangeClientTest {
 		
 		client = ExchangeWSClient.build(URL, 
 				it -> {
-					//System.out.println(it);
+					System.out.println(it);
 				}, 
 				it -> {
 					System.out.println("NOTIFICATION OF LIQUIDATION: " + it);
@@ -52,12 +56,19 @@ public class ExchangeClientTest {
 		on.add("64532048444");
 		on.add("59701378050");
 		on.add("190962194823");
-		//client.init(on);
-		String id = client.sell("BTC_LTC", "0.01834100", "0.00818522");
 		
-		Thread.sleep(5*60000);
+		client.init(on);
 		
-		client.cancel("BTC_LTC", id);
+		//String id = client.sell("BTC_LTC", "0.01834100", "0.00818522");
+		
+		//Thread.sleep(5*60000);
+		
+		//client.cancel("BTC_LTC", id);
+		
+		LocalDateTime end = LocalDateTime.of(2018, 3, 3, 0, 0);
+		LocalDateTime start = end.minusDays(30);		
+		List<IChartData> list = client.getChartData("BTC_LTC", PoloniexDataChartPeriod.FIVE_MINUTES, start, end);
+		System.out.println(list);
 		
 		System.out.println("fim");
 	}

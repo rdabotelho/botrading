@@ -1,4 +1,4 @@
-package com.m2r.botrading.ws.server;
+package com.m2r.botrading.ws.exchange;
 
 import rx.functions.Action0;
 

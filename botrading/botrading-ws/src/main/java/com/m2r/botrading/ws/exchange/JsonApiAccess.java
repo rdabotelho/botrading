@@ -1,4 +1,4 @@
-package com.m2r.botrading.ws.server;
+package com.m2r.botrading.ws.exchange;
 
 import com.m2r.botrading.api.model.IApiAccess;
 

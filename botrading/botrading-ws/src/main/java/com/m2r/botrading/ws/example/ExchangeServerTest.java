@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.poloniex.PoloniexExchange;
-import com.m2r.botrading.ws.server.ExchangeWSServer;
+import com.m2r.botrading.ws.exchange.ExchangeWSServer;
 
 public class ExchangeServerTest {
 	

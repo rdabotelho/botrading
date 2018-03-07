@@ -1,17 +1,28 @@
-package com.m2r.botrading.ws.server;
+package com.m2r.botrading.ws.exchange;
 
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.w3c.dom.CharacterData;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.exception.ExchangeException;
+import com.m2r.botrading.api.model.IChartData;
+import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
+import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.api.util.JsonException;
 import com.m2r.botrading.api.util.JsonSuccess;
+import com.m2r.botrading.poloniex.model.ChartData;
 
 import rx.Observable;
 import rx.Subscription;
@@ -133,6 +144,13 @@ public class ExchangeWSClient {
 	public void cancel(String currencyPair, String orderNumber) throws ExchangeException {
 		SyncCall.of(client).call(ExchangeTopicEnum.CANCEL, JsonSuccess.class, currencyPair, orderNumber);
 		LOG.log(Level.INFO, "Cancel order ("+orderNumber+") in the exchange");
+	}
+	
+	public List<IChartData> getChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
+		ZonedDateTime startDate = ZonedDateTime.of(start, ZoneId.systemDefault());
+		ZonedDateTime endDate = ZonedDateTime.of(end, ZoneId.systemDefault());
+		List<IChartData> result = SyncCall.of(client).call(ExchangeTopicEnum.CHARTDATA,  List.class, currencyPair, period.getSeconds(), startDate.toInstant().getEpochSecond()+"", endDate.toInstant().getEpochSecond()+"");
+		return result;
 	}
 	
 	static class SyncCall {

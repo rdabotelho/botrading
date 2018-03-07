@@ -9,6 +9,8 @@ import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IOrder;
+import com.m2r.botrading.api.model.IOrderList;
+import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoin;
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
@@ -99,6 +101,31 @@ public class CachedExchangeService implements IExchangeService {
 	@Override
 	public void onBeforeSaveOrder(IOrder order) {
 		service.onBeforeSaveOrder(order);
+	}
+
+	@Override
+	public boolean isOrderExecuted(IApiAccess apiAccess, String orderNumber) throws ExchangeException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public ITickerList getAllTikers() throws ExchangeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IOrderList getAllOrders(IApiAccess apiAccess) throws ExchangeException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getAllChartData(String currencyPair, String period, String start, String end)
+			throws ExchangeException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

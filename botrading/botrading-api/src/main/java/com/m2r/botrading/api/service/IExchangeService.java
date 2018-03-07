@@ -3,16 +3,12 @@ package com.m2r.botrading.api.service;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
-import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IOrder;
-import com.m2r.botrading.api.model.IOrderList;
-import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.model.MarketCoin;
 
-public interface IExchangeService extends IExchangeOrder {
+public interface IExchangeService extends IExchangeBasic {
 	
 	
 	/**
@@ -85,24 +81,5 @@ public interface IExchangeService extends IExchangeOrder {
 	 * Event before save order
 	 */
 	public void onBeforeSaveOrder(IOrder order);
-
-	/**
-	 * Method which alert if the order was executed
-	 * @param apiAccess: API of access
-	 * @param orderNumber: Order number
-	 * @return boolean
-	 * @throws ExchangeException
-	 */
-	public boolean isOrderExecuted(IApiAccess apiAccess, String orderNumber) throws ExchangeException;
-	
-	/**
-	 * Method which get all tikers in the exchange
-	 * @return Tickers
-	 * @throws Exception
-	 */
-	public ITickerList getAllTikers() throws ExchangeException;
-	
-	public IOrderList getAllOrders(IApiAccess apiAccess) throws ExchangeException;
-	
 	
 }

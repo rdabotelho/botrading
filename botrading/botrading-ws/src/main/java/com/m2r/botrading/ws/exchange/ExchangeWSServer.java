@@ -1,17 +1,22 @@
-package com.m2r.botrading.ws.server;
+package com.m2r.botrading.ws.exchange;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.IApiAccess;
+import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
 import com.m2r.botrading.api.service.IExchangeService;
+import com.m2r.botrading.poloniex.model.ChartData;
 
 import rx.Subscription;
 import rx.functions.Action1;
@@ -284,6 +289,12 @@ public class ExchangeWSServer {
 	}
 	
 	public void chartdata(Request request) throws Exception {
+		String currencyPair = request.arguments().get(0).asText();
+		String period = request.arguments().get(1).asText();
+		String start = request.arguments().get(2).asText();
+		String end = request.arguments().get(3).asText();
+		String result = service.getAllChartData(currencyPair, period, start, end);
+		request.reply(result.replaceAll("\\[", "").replaceAll("\\]", ""));
 	}
 	
 	private void setError(Request request, Exception e) {

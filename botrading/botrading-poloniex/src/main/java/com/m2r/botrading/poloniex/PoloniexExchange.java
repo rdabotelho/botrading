@@ -398,6 +398,21 @@ public class PoloniexExchange extends ExchangeService {
 		return this.getOrders(apiAccess, null);
 	}
 	
+	@Override
+	public String getAllChartData(String currencyPair, String period, String start, String end) throws ExchangeException {
+		try {
+	    		Map<String, String> params = new HashMap<>();
+	    		params.put("currencyPair", currencyPair);
+	    		params.put("period", period);
+	    		params.put("start", start);
+	    		params.put("end", end);
+	    		return this.execPublicAPI(COMMAND_CHART_DATA, params);
+		}
+		catch (Exception e) {
+			throw new ExchangeException(e);
+		}
+	}
+	
 	public static void cancelAllOrdersInTheExchange(IApiAccess apiAccess) throws Exception {
 		IExchangeService service = new PoloniexExchange().init();
 		MarketCoin mc = service.getDefaultMarketCoin();
