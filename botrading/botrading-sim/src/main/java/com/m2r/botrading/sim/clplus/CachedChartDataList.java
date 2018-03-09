@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.sim.clplus;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,15 +1,22 @@
 package com.m2r.botrading.ws.example;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IChartData;
-import com.m2r.botrading.poloniex.enums.PoloniexDataChartPeriod;
+import com.m2r.botrading.poloniex.PoloniexExchange;
+import com.m2r.botrading.poloniex.model.ChartData;
 import com.m2r.botrading.ws.exchange.ExchangeWSClient;
+import com.m2r.botrading.ws.exchange.ExchangeWSClientBuilder;
 
 public class ExchangeClientTest {
 
@@ -28,22 +35,21 @@ public class ExchangeClientTest {
 			}
 		};
 		
-		client = ExchangeWSClient.build(URL, 
-				it -> {
-					System.out.println(it);
-				}, 
-				it -> {
-					System.out.println("NOTIFICATION OF LIQUIDATION: " + it);
-				}, 
-				it -> {
-					System.out.println("NOTIFICATION OF CANCELING: " + it);
-				}
-			)
-			.start();
+		PoloniexExchange service = new PoloniexExchange();
+		service.init();
+		
+		client = ExchangeWSClientBuilder
+				.withExchangeService(service)
+				.withUrl(URL)
+				.withTickerAction(ExchangeClientTest::whenTicker)
+				.withLiquidedAction(ExchangeClientTest::whenLiquided)
+				.withCanceledAction(ExchangeClientTest::whenCanceled)
+				.withChartdata30Action(ExchangeClientTest::whenChartdata30)
+				.build();
+		
+		client.start();
 
-		while (!client.isConnected()) {
-			Thread.sleep(1000);
-		}
+		client.waitToConnect();
 		
 		test();
 		
@@ -65,12 +71,12 @@ public class ExchangeClientTest {
 		
 		//client.cancel("BTC_LTC", id);
 		
-		LocalDateTime end = LocalDateTime.of(2018, 3, 3, 0, 0);
-		LocalDateTime start = end.minusDays(30);		
-		List<IChartData> list = client.getChartData("BTC_LTC", PoloniexDataChartPeriod.FIVE_MINUTES, start, end);
-		System.out.println(list);
-		
-		System.out.println("fim");
+//		LocalDateTime end = LocalDateTime.of(2018, 3, 3, 0, 0);
+//		LocalDateTime start = end.minusDays(30);		
+//		IChartDataList list = client.getChartData("BTC_LTC", PoloniexDataChartPeriod.FIVE_MINUTES, start, end);
+//		System.out.println(list);
+//		
+//		System.out.println("fim");
 	}
 
 	private static void waitUntilKeypressed() {
@@ -84,4 +90,28 @@ public class ExchangeClientTest {
 		}
 	}
 	
+	public static void whenTicker(String json) {
+		System.out.println("NOTIFICATION OF TICKER: " + json);
+	}
+	
+	public static void whenLiquided(String json) {
+		System.out.println("NOTIFICATION OF LIQUIDATION: " + json);
+	}
+	
+	public static void whenCanceled(String json) {
+		System.out.println("NOTIFICATION OF CANCELED: " + json);
+	}
+	
+	public static void whenChartdata30(String currencyPair, String data) {
+		if (currencyPair.equals("BTC_LTC")) {
+			List<IChartData> list = new Gson().fromJson(data,  new TypeToken<List<ChartData>>(){}.getType());
+			
+			IChartData cd = list.get(list.size()-1);
+	
+			ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(Long.parseLong(cd.getDate())), ZoneId.systemDefault());
+			String sDate = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+			
+			System.out.println(String.format("%11s %11s %16s", currencyPair, cd.getClose(), sDate));
+		}
+	}
 }

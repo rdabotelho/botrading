@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.sim.clplus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,21 +12,24 @@ import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
 import com.m2r.botrading.poloniex.enums.PoloniexDataChartPeriod;
 
-public class CatLeapPlus2Analyze {
+public class UltimateAnalyze {
 
 	private static PoloniexDataChartPeriod PERIOD = PoloniexDataChartPeriod.FIVE_MINUTES; 
 	
-	public static Candle catLeapPlusAnalyze(IExchangeService service, String marketCoinId, String currencyId, LocalDateTime start, LocalDateTime end, int count, BigDecimal candleSizeFactor) throws Exception {
+	public static Candle ultimateAnalyze(IExchangeService service, String marketCoinId, String currencyId, LocalDateTime start, LocalDateTime end, int count, BigDecimal candleSizeFactor) throws Exception {
 		MarketCoin marketCoin = service.getMarketCoin(marketCoinId);
 		IExchangeSession session = service.getSession(marketCoin, true, false);
 		Currency currency = marketCoin.getCurrency(currencyId);
 		IChartDataList chartDataList = session.getChartDatas(currency.getCurrencyPair(), PERIOD, start, end);
-		List<IChartData> list = chartDataList.getChartDatas();
-		Candle candle = new Candle(currency.getId(), candleSizeFactor);
+		return ultimateAnalyze(currency.getId(), chartDataList.getChartDatas(),  count, candleSizeFactor);
+	}
+
+	public static Candle ultimateAnalyze(String currencyId, List<IChartData> list, int count, BigDecimal candleSizeFactor) throws Exception {
+		Candle candle = new Candle(currencyId, candleSizeFactor);
 		for (int i=0; i<count; i++) {
 			candle.update(list.get(i));
 		}
 		return candle;
 	}
-	
+
 }

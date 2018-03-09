@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.sim;
+package com.m2r.botrading.sim;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -6,20 +6,20 @@ import java.time.format.DateTimeFormatter;
 
 import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.util.CalcUtil;
-import com.m2r.botrading.tests.clplus.CachedExchangeService;
-import com.m2r.botrading.tests.clplus.Candle;
-import com.m2r.botrading.tests.clplus.CatLeapPlus2Analyze;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorAmount;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorBuild;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorCandleSizeFactor;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorCoin;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorDelayToBuy;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorMarketCoin;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorSellFactor;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorStopLoss;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorTSSL;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.ISimulatorWithPeriod;
-import com.m2r.botrading.tests.sim.SimulatorBuilder.Simulator;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorAmount;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorBuild;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorCandleSizeFactor;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorCoin;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorDelayToBuy;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorMarketCoin;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorSellFactor;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorStopLoss;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorTSSL;
+import com.m2r.botrading.sim.SimulatorBuilder.ISimulatorWithPeriod;
+import com.m2r.botrading.sim.SimulatorBuilder.Simulator;
+import com.m2r.botrading.sim.clplus.CachedExchangeService;
+import com.m2r.botrading.sim.clplus.Candle;
+import com.m2r.botrading.sim.clplus.UltimateAnalyze;
 
 public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISimulatorWithPeriod, ISimulatorAmount, ISimulatorStopLoss, ISimulatorCandleSizeFactor, ISimulatorSellFactor, ISimulatorTSSL, ISimulatorDelayToBuy, ISimulatorBuild, Simulator {
 
@@ -133,7 +133,7 @@ public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISim
 		try {
 			init();
 			while (start.isBefore(stop)) {
-				Candle candle = CatLeapPlus2Analyze.catLeapPlusAnalyze(service, marketCoin, coin, start.minusMinutes(COUNT_PERIODS * 5), start, COUNT_PERIODS, candleSizeFactor);
+				Candle candle = UltimateAnalyze.ultimateAnalyze(service, marketCoin, coin, start.minusMinutes(COUNT_PERIODS * 5), start, COUNT_PERIODS, candleSizeFactor);
 				synch(candle);
 				if (candle.isOpportunity()) {
 					tryOrder(candle);

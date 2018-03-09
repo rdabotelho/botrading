@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import com.m2r.botrading.admin.model.Account;
 import com.m2r.botrading.admin.model.AccountUser;
 import com.m2r.botrading.admin.service.AdminService;
+import com.m2r.botrading.admin.ws.ExchengeWSServer;
 
 @SpringBootApplication
 @EnableScheduling
@@ -24,6 +25,9 @@ public class BotetradingApplication extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private AdminService adminService;	
+	
+	@Autowired
+	private ExchengeWSServer exchengeWSServer;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(BotetradingApplication.class, args);

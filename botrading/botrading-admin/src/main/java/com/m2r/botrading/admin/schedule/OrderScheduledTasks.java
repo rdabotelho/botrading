@@ -30,6 +30,7 @@ public class OrderScheduledTasks {
     private TimeCounter orderTaskTimeCounter = TimeCounter.of(10000, this::executeOrdersTask);
     private TimeCounter synchTaskTimeCounter = TimeCounter.of(30000, this::executeSynchTask);
     private TimeCounter catLeapTaskTimeCounter = TimeCounter.of(10000, this::executeCatLeapTask);
+    private TimeCounter ultimateTaskTimeCounter = TimeCounter.of(24*60*60*1000, this::executeUltimateTask);
     
     @Autowired
     private ScheduleService scheduleService;
@@ -44,9 +45,10 @@ public class OrderScheduledTasks {
 		if (!propertiesService.getEnableScheduling()) {
 			return;
 		}
-		orderTaskTimeCounter.ifTimeoutExecute();
-		synchTaskTimeCounter.ifTimeoutExecute();
+		//orderTaskTimeCounter.ifTimeoutExecute();
+		//synchTaskTimeCounter.ifTimeoutExecute();
 		catLeapTaskTimeCounter.ifTimeoutExecute();
+		ultimateTaskTimeCounter.ifTimeoutExecute();
 	}
 	
 	private void executeOrdersTask() {
@@ -86,6 +88,10 @@ public class OrderScheduledTasks {
 				LOG.warning(e.getMessage());
 			}			
 		}
+	}
+	
+	private void executeUltimateTask() {
+		
 	}
 	
 	private void initSessions() {

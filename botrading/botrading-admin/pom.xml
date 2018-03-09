@@ -24,6 +24,7 @@
 		<botrading.api.version>1.0.0-SNAPSHOT</botrading.api.version>
 		<botrading.strategy.version>1.0.0-SNAPSHOT</botrading.strategy.version>
 		<botrading.ws.version>1.0.0-SNAPSHOT</botrading.ws.version>
+		<botrading.sim.version>1.0.0-SNAPSHOT</botrading.sim.version>
 		<botrading.poloniex.version>1.0.0-SNAPSHOT</botrading.poloniex.version>
 		<botrading.binance.version>1.0.0-SNAPSHOT</botrading.binance.version>
 	</properties>
@@ -43,6 +44,11 @@
 			<groupId>com.m2r.botrading</groupId>
 			<artifactId>botrading-ws</artifactId>
 			<version>${botrading.ws.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.m2r.botrading</groupId>
+			<artifactId>botrading-sim</artifactId>
+			<version>${botrading.sim.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

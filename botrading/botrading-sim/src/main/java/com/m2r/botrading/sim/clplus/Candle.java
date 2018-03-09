@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.sim.clplus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

@@ -1,7 +1,11 @@
 package com.m2r.botrading.api.service;
 
+import java.time.LocalDateTime;
+
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.IApiAccess;
+import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
 
@@ -40,6 +44,6 @@ public interface IExchangeBasic extends IExchangeOrder {
 	 * @return Chart Data
 	 * @throws ExchangeException
 	 */
-	public String getAllChartData(String currencyPair, String period, String start, String end) throws ExchangeException;
+	public IChartDataList getAllChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException;
 
 }

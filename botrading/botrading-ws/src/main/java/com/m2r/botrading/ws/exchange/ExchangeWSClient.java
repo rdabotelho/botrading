@@ -2,31 +2,25 @@ package com.m2r.botrading.ws.exchange;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.w3c.dom.CharacterData;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.exception.ExchangeException;
-import com.m2r.botrading.api.model.IChartData;
 import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.IDataChartPeriod;
-import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.api.service.IExchangeBasic;
 import com.m2r.botrading.api.util.JsonException;
 import com.m2r.botrading.api.util.JsonSuccess;
-import com.m2r.botrading.poloniex.model.ChartData;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.functions.Action1;
+import rx.functions.Action2;
 import ws.wamp.jawampa.WampClient;
 import ws.wamp.jawampa.WampClientBuilder;
 import ws.wamp.jawampa.connection.IWampConnectorProvider;
@@ -37,24 +31,25 @@ public class ExchangeWSClient {
     private final static Logger LOG = Logger.getLogger(ExchangeWSClient.class.getSimpleName());
     
 	private WampClient client;
+	private IExchangeBasic service;
 	private String url;
 	private boolean connected;
+	private Action2<String,String> chardata30;
 	private Action1<String> ticker;
 	private Action1<String> liquided;
 	private Action1<String> canceled;
 	
+    private Subscription chartdata30Subscription;
     private Subscription tickerSubscription;
     private Subscription boughtSubscription;
     private Subscription soldSubscription;
     private Subscription canceledSubscription;
     
-	public static ExchangeWSClient build(String url, Action1<String> ticker, Action1<String> liquided, Action1<String> canceled) {
-		return new ExchangeWSClient(url, ticker, liquided, canceled);
-	}
-	
-	private ExchangeWSClient(String url, Action1<String> action, Action1<String> liquided, Action1<String> canceled) {
+	protected ExchangeWSClient(IExchangeBasic service, String url, Action2<String,String> chardata30, Action1<String> action, Action1<String> liquided, Action1<String> canceled) {
+		this.service = service;
 		this.connected = false;
 		this.url = url;
+		this.chardata30 = chardata30;
 		this.ticker = action;
 		this.liquided = liquided;
 		this.canceled = canceled;
@@ -79,6 +74,10 @@ public class ExchangeWSClient {
             @Override
             public void call(WampClient.State t1) {
                 if (t1 instanceof WampClient.ConnectedState) {
+                	chartdata30Subscription = client.makeSubscription(ExchangeTopicEnum.CHARTDATA30.getId(), String.class).subscribe((json)->{
+                		Chardata30Pair chardata30Pair = new Gson().fromJson(json, Chardata30Pair.class);
+                    	chardata30.call(chardata30Pair.getCurrencyPair(), chardata30Pair.getData());
+                    });
                     tickerSubscription = client.makeSubscription(ExchangeTopicEnum.TICKER.getId(), String.class).subscribe((json)->{
                     	ticker.call(json);
                     });
@@ -102,6 +101,17 @@ public class ExchangeWSClient {
 		return connected;
 	}
 	
+	public void waitToConnect() {
+		while (!this.isConnected()) {
+			try {
+				Thread.sleep(1000);
+			} 
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+	
 	public void close() {
 		if (tickerSubscription != null) {
 			tickerSubscription.unsubscribe();
@@ -114,6 +124,9 @@ public class ExchangeWSClient {
 		}
 		if (canceledSubscription != null) {
 			canceledSubscription.unsubscribe();
+		}
+		if (chartdata30Subscription != null) {
+			chartdata30Subscription.unsubscribe();
 		}
        	client.close().toBlocking().last();
 		LOG.log(Level.INFO, "Client closed");
@@ -146,11 +159,8 @@ public class ExchangeWSClient {
 		LOG.log(Level.INFO, "Cancel order ("+orderNumber+") in the exchange");
 	}
 	
-	public List<IChartData> getChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
-		ZonedDateTime startDate = ZonedDateTime.of(start, ZoneId.systemDefault());
-		ZonedDateTime endDate = ZonedDateTime.of(end, ZoneId.systemDefault());
-		List<IChartData> result = SyncCall.of(client).call(ExchangeTopicEnum.CHARTDATA,  List.class, currencyPair, period.getSeconds(), startDate.toInstant().getEpochSecond()+"", endDate.toInstant().getEpochSecond()+"");
-		return result;
+	public IChartDataList getChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
+		return service.getAllChartData(currencyPair, period, start, end);
 	}
 	
 	static class SyncCall {

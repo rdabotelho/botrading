@@ -399,18 +399,8 @@ public class PoloniexExchange extends ExchangeService {
 	}
 	
 	@Override
-	public String getAllChartData(String currencyPair, String period, String start, String end) throws ExchangeException {
-		try {
-	    		Map<String, String> params = new HashMap<>();
-	    		params.put("currencyPair", currencyPair);
-	    		params.put("period", period);
-	    		params.put("start", start);
-	    		params.put("end", end);
-	    		return this.execPublicAPI(COMMAND_CHART_DATA, params);
-		}
-		catch (Exception e) {
-			throw new ExchangeException(e);
-		}
+	public IChartDataList getAllChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
+		return this.getChartDatas(currencyPair, period, start, end, null);
 	}
 	
 	public static void cancelAllOrdersInTheExchange(IApiAccess apiAccess) throws Exception {

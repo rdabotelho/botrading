@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.sim;
+package com.m2r.botrading.sim;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

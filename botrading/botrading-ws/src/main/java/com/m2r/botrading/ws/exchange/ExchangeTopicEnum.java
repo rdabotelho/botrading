@@ -8,8 +8,8 @@ public enum ExchangeTopicEnum {
 	CANCEL("botrading.ws.cancel"), 
 	LIQUIDED("botrading.ws.liquided"), 
 	CANCELED("botrading.ws.canceled"), 	 
-	TICKER("botrading.ws.ticker"), 
-	CHARTDATA("botrading.ws.chartdata");
+	TICKER("botrading.ws.ticker"),
+	CHARTDATA30("botrading.ws.chartdata30");
 	
 	private String id;
 	

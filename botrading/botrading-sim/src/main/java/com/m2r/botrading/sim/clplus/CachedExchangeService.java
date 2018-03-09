@@ -1,4 +1,4 @@
-package com.m2r.botrading.tests.clplus;
+package com.m2r.botrading.sim.clplus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -8,6 +8,8 @@ import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.CurrencyFactory;
 import com.m2r.botrading.api.model.IApiAccess;
+import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITickerList;
@@ -122,8 +124,8 @@ public class CachedExchangeService implements IExchangeService {
 	}
 
 	@Override
-	public String getAllChartData(String currencyPair, String period, String start, String end)
-			throws ExchangeException {
+	public IChartDataList getAllChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start,
+			LocalDateTime end) throws ExchangeException {
 		// TODO Auto-generated method stub
 		return null;
 	}

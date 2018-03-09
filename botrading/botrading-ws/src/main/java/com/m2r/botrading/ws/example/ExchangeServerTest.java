@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IApiAccess;
+import com.m2r.botrading.poloniex.PoloniexConst;
 import com.m2r.botrading.poloniex.PoloniexExchange;
+import com.m2r.botrading.poloniex.enums.PoloniexDataChartPeriod;
 import com.m2r.botrading.ws.exchange.ExchangeWSServer;
+import com.m2r.botrading.ws.exchange.ExchangeWSServerBuilder;
 
 public class ExchangeServerTest {
 	
@@ -26,7 +30,16 @@ public class ExchangeServerTest {
 		PoloniexExchange service = new PoloniexExchange();
 		service.init();
 		
-		server = ExchangeWSServer.build(service, 8080, apiAccess, "ws1").start();
+		server = ExchangeWSServerBuilder
+				.withExchangeService(service)
+				.withApiAccess(apiAccess)
+				.withPort(8080)
+				.withChannel("ws1")
+				.withoutTicker()
+				.withChartdata30Push(PoloniexConst.TOP_20(Currency.BTC), PoloniexDataChartPeriod.FIVE_MINUTES)
+				.build();
+		
+		server.start();
 		
 		do {
 			String currencyPair = realOfConsole("Enter to out: ");

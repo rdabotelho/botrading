@@ -1,22 +1,23 @@
 package com.m2r.botrading.ws.exchange;
 
 import java.net.URI;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.model.IChartDataList;
+import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IOrderList;
+import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
-import com.m2r.botrading.api.service.IExchangeService;
-import com.m2r.botrading.poloniex.model.ChartData;
+import com.m2r.botrading.api.service.IExchangeBasic;
 
 import rx.Subscription;
 import rx.functions.Action1;
@@ -32,7 +33,9 @@ import ws.wamp.jawampa.transport.netty.SimpleWampWebsocketListener;
 
 public class ExchangeWSServer {
 
-	private IExchangeService service;
+	private boolean connected;
+	
+	private IExchangeBasic service;
 	private IApiAccess apiAccess;
 	private Set<String> orderNumbers;
 	
@@ -40,7 +43,11 @@ public class ExchangeWSServer {
 	
 	private ExchangeQueryThead tikerThread;
 	private ExchangeQueryThead syncThread;
-	private ExchangeQueryThead reportThread;
+	private ExchangeQueryThead chardata30Thread;
+	
+	private List<String> currencyCoinsToTickerPush;
+	private List<String> currencyCoinsToCHartdata30Push;
+	private IDataChartPeriod periodToCHartdata30Push;
 	
 	private int port;
 	private String channel;
@@ -52,19 +59,18 @@ public class ExchangeWSServer {
     private Subscription buyProcSubscription;
     private Subscription sellProcSubscription;
     private Subscription cancelProcSubscription;
-    private Subscription chartdataProcSubscription;
 	
-	public static ExchangeWSServer build(IExchangeService service, int port, IApiAccess apiAccess, String channel) {
-		return new ExchangeWSServer(service, port, apiAccess, channel);
-	}
-	
-	private ExchangeWSServer(IExchangeService service, int port, IApiAccess apiAccess, String channel) {
+	protected ExchangeWSServer(IExchangeBasic service, IApiAccess apiAccess, int port, String channel, List<String> currencyCoinsToTickerPush, List<String> currencyCoinsToCHartdata30Push, IDataChartPeriod periodToCHartdata30Push) {
+		this.connected = false;
 		this.orderNumbers = new HashSet<>();
 		this.orderNumbersLiquided = new HashSet<>();
 		this.service = service;
 		this.apiAccess = apiAccess;
 		this.port = port;
 		this.channel = channel;
+		this.currencyCoinsToTickerPush = currencyCoinsToTickerPush;
+		this.currencyCoinsToCHartdata30Push = currencyCoinsToCHartdata30Push;
+		this.periodToCHartdata30Push = periodToCHartdata30Push;
 	}
 	
 	public ExchangeWSServer start() {
@@ -141,17 +147,7 @@ public class ExchangeWSServer {
 	                    	}
                        }
                   });
-                   chartdataProcSubscription = client.registerProcedure(ExchangeTopicEnum.CHARTDATA.getId()).subscribe(new Action1<Request>() {
-                       @Override
-                       public void call(Request request) {
-	                       	try {
-	                     	   chartdata(request);
-	                    	}
-	                    	catch (Exception e) {
-	                    		setError(request, e);
-	                    	}
-                       }
-                  });
+                  connected = true;
                 }
             }
         });
@@ -161,6 +157,21 @@ public class ExchangeWSServer {
         this.run();
         System.out.println("Server started!");
         return this;
+	}
+	
+	public boolean isConnected() {
+		return connected;
+	}
+	
+	public void waitToConnect() {
+		while (!this.isConnected()) {
+			try {
+				Thread.sleep(1000);
+			} 
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}		
 	}
 	
 	public void close() {
@@ -178,17 +189,14 @@ public class ExchangeWSServer {
 		if (cancelProcSubscription != null) {
 			cancelProcSubscription.unsubscribe();
 		}
-		if (chartdataProcSubscription != null) {
-			chartdataProcSubscription.unsubscribe();
-		}
 		if (tikerThread != null) {
 			tikerThread.close();
 		}
 		if (syncThread != null) {
 			syncThread.close();
 		}
-		if (reportThread != null) {
-			reportThread.close();
+		if (chardata30Thread != null) {
+			chardata30Thread.close();
 		}
        	client.close().toBlocking().last();
 		System.out.println("Server closed");		
@@ -197,18 +205,21 @@ public class ExchangeWSServer {
 	private void run() {
 		
 		// Tikers
+		if (currencyCoinsToTickerPush != null) {
 		tikerThread = ExchangeQueryThead
 				.build()
 				.withTimeout(1000)
 				.withAction(()->{
 					try {
 						ITickerList list = service.getAllTikers();
-						publish(ExchangeTopicEnum.TICKER, list.getTickers());
+						List<ITicker> tickers = list.getTickers().stream().filter(it -> currencyCoinsToTickerPush.contains(it.getCurrencyPair())).collect(Collectors.toList());
+						publish(ExchangeTopicEnum.TICKER, tickers);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				})
 				.execute();
+		}
 		
 		// Synch
 		syncThread = ExchangeQueryThead
@@ -241,14 +252,27 @@ public class ExchangeWSServer {
 				})
 				.execute();
 		
-		// Report
-		reportThread = ExchangeQueryThead
-				.build()
-				.withTimeout(1000)
-				.withAction(()->{
-					
-				})
-				.execute();
+		// chardata30Thread
+		if (currencyCoinsToCHartdata30Push != null) {
+			chardata30Thread = ExchangeQueryThead
+					.build()
+					.withTimeout(1000)
+					.withAction(()->{
+						LocalDateTime end = LocalDateTime.now().withSecond(0).withNano(0);
+						LocalDateTime start =  end.minusMinutes((30*15));
+						try {
+							for (String currencyPair : currencyCoinsToCHartdata30Push) {
+								IChartDataList list = service.getAllChartData(currencyPair, periodToCHartdata30Push, start, end);
+								Chardata30Pair chardata30Pair = new Chardata30Pair(currencyPair, new Gson().toJson(list.getChartDatas()));
+								publish(ExchangeTopicEnum.CHARTDATA30, chardata30Pair);
+							}						
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					})
+					.execute();
+		}
+		
 	}
 	
 	private void publish(ExchangeTopicEnum topic, Object data) {
@@ -286,15 +310,6 @@ public class ExchangeWSServer {
 		String orderNumber = request.arguments().get(1).asText();
 		service.cancel(apiAccess, currencyPair, orderNumber);		
 		setSuccess(request);
-	}
-	
-	public void chartdata(Request request) throws Exception {
-		String currencyPair = request.arguments().get(0).asText();
-		String period = request.arguments().get(1).asText();
-		String start = request.arguments().get(2).asText();
-		String end = request.arguments().get(3).asText();
-		String result = service.getAllChartData(currencyPair, period, start, end);
-		request.reply(result.replaceAll("\\[", "").replaceAll("\\]", ""));
 	}
 	
 	private void setError(Request request, Exception e) {
