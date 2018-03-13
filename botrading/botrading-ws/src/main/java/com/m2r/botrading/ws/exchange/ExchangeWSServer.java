@@ -258,8 +258,8 @@ public class ExchangeWSServer {
 					.build()
 					.withTimeout(1000)
 					.withAction(()->{
-						LocalDateTime end = LocalDateTime.now().withSecond(0).withNano(0);
-						LocalDateTime start =  end.minusMinutes((30*15));
+						LocalDateTime end = LocalDateTime.now();
+						LocalDateTime start =  end.minusMinutes((30*5)+(12*5));
 						try {
 							for (String currencyPair : currencyCoinsToCHartdata30Push) {
 								IChartDataList list = service.getAllChartData(currencyPair, periodToCHartdata30Push, start, end);
@@ -290,10 +290,13 @@ public class ExchangeWSServer {
 	}
 	
 	public void buy(Request request) throws Exception {
+		
+		System.out.println("################################# BUY ################################");
+		
 		String currencyPair = request.arguments().get(0).asText();
 		String price = request.arguments().get(1).asText();
 		String amount = request.arguments().get(2).asText();
-		String orderNumber = service.buy(apiAccess, currencyPair, price, amount);
+		String orderNumber = "0001";//service.buy(apiAccess, currencyPair, price, amount);
 		setOrderSuccess(request, orderNumber);
 	}
 	

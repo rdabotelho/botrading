@@ -15,15 +15,23 @@ import com.m2r.botrading.sim.SimulatorBuilder.Simulator;
 
 public class UltimateSimulator {
 	
+	private static boolean concluded = false;
+	private static List<Simulator> simmulators = new ArrayList<>();
+	
 	public static void execute(IExchangeService service, String marketCoin) throws Exception {
 		LocalDateTime from = LocalDateTime.now().minusDays(30);
 		LocalDateTime to = LocalDateTime.now();
 		
-		List<Simulator> simmulators = new ArrayList<>();
+		List<Simulator> simmulatorsTemp = new ArrayList<>();
 		
 		SimulatorBuilder builder = new SimulatorBuilder();
-		
+
+		int i = 0;
 		for (String currencyPair : PoloniexConst.TOP_20(Currency.BTC)) {
+			i++;
+			if (i > 3) {
+				break;
+			}
 			
 			Currency currency = service.getCurrencyFactory().currencyPairToCurrency(currencyPair, service);
 			
@@ -44,19 +52,28 @@ public class UltimateSimulator {
 			
 			UltimateReport.print("");
 			
-			simmulators.add(simmulator);
+			simmulatorsTemp.add(simmulator);
 		}
 		
-		simmulators = simmulators
+		simmulatorsTemp = simmulatorsTemp
 			.stream()
-			.sorted((it,other) -> it.getTotalProfit().compareTo(other.getTotalProfit()))
+			.sorted((it,other) -> other.getTotalProfit().compareTo(it.getTotalProfit()))
 			.collect(Collectors.toList());
 		
-		UltimateReport.printSummary(simmulators, from, to);		
+		UltimateReport.printSummary(simmulatorsTemp, from, to);		
+		
+		concluded = false;
+		simmulators.clear();
+		simmulators.addAll(simmulatorsTemp);
+		concluded = true;
 	}
 	
-	public static void findOportunity() {
-		
+	public static boolean isConcluded() {
+		return concluded;
+	}
+	
+	public static List<Simulator> getSimulators() {
+		return simmulators;
 	}
 	
 	public static void main(String[] args) throws Exception {

@@ -27,7 +27,9 @@ public class UltimateAnalyze {
 	public static Candle ultimateAnalyze(String currencyId, List<IChartData> list, int count, BigDecimal candleSizeFactor) throws Exception {
 		Candle candle = new Candle(currencyId, candleSizeFactor);
 		for (int i=0; i<count; i++) {
-			candle.update(list.get(i));
+			if (i < list.size()) {
+				candle.update(list.get(i));
+			}
 		}
 		return candle;
 	}

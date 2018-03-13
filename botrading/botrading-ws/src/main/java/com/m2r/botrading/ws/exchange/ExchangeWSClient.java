@@ -164,6 +164,9 @@ public class ExchangeWSClient {
 	}
 	
 	static class SyncCall {
+		
+		private static int TIMEOUT = 10000;
+		
 		private WampClient client;
 		private boolean callReady = false;
 		private String callResult = null;
@@ -177,9 +180,6 @@ public class ExchangeWSClient {
 		@SuppressWarnings("unchecked")
 		public <T> T call(ExchangeTopicEnum topic, Type typeOf, Object ... args) throws ExchangeException {
 	        Observable<String> result = client.call(topic.getId(), String.class, args);
-	        
-	        System.out.println("CALL " + topic.name().toLowerCase());
-	        
 	        client.call(topic.name().toLowerCase(), String.class, args);
 	        result.subscribe(
 	        	new Action1<String>() {
@@ -197,9 +197,15 @@ public class ExchangeWSClient {
 		            }
 	        	}
 	        );
+	        
+	        int timeout = TIMEOUT;
 	        while (!callReady) {
 	        	try {
 					Thread.sleep(1000);
+					timeout -= 1000;
+					if (timeout <= 0) {
+						throw new ExchangeException("Timeout in call "+topic.getId());
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

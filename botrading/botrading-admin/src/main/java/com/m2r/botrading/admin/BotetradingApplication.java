@@ -27,7 +27,7 @@ public class BotetradingApplication extends WebSecurityConfigurerAdapter {
 	private AdminService adminService;	
 	
 	@Autowired
-	private ExchengeWSServer exchengeWSServer;
+	protected ExchengeWSServer exchengeWSServer;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(BotetradingApplication.class, args);

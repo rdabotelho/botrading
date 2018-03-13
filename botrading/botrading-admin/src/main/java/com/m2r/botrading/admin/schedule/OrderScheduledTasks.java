@@ -12,12 +12,15 @@ import org.springframework.stereotype.Component;
 import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
+import com.m2r.botrading.admin.service.IExchangeManager;
 import com.m2r.botrading.admin.service.PropertiesService;
 import com.m2r.botrading.admin.service.ScheduleService;
 import com.m2r.botrading.admin.util.TimeCounter;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.MarketCoin;
+import com.m2r.botrading.api.service.IExchangeService;
 import com.m2r.botrading.api.service.IExchangeSession;
+import com.m2r.botrading.sim.clplus.UltimateSimulator;
 import com.m2r.botrading.strategy.CatLeap;
 
 @Component
@@ -38,6 +41,9 @@ public class OrderScheduledTasks {
     @Autowired
     private PropertiesService propertiesService;
     
+    @Autowired
+	private IExchangeManager exchangeManager;
+    
 	private Map<Long, IExchangeSession> sessions = new HashMap<>();
 	
 	@Scheduled(fixedDelay = SCHEDULE_TIME)
@@ -47,7 +53,7 @@ public class OrderScheduledTasks {
 		}
 		//orderTaskTimeCounter.ifTimeoutExecute();
 		//synchTaskTimeCounter.ifTimeoutExecute();
-		catLeapTaskTimeCounter.ifTimeoutExecute();
+		//catLeapTaskTimeCounter.ifTimeoutExecute();
 		ultimateTaskTimeCounter.ifTimeoutExecute();
 	}
 	
@@ -91,7 +97,13 @@ public class OrderScheduledTasks {
 	}
 	
 	private void executeUltimateTask() {
-		
+		try {
+			IExchangeService service = exchangeManager.getExchangeService(); 
+			UltimateSimulator.execute(service, Currency.BTC);
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void initSessions() {

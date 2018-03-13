@@ -10,6 +10,7 @@ import com.m2r.botrading.admin.model.TraderJob;
 public interface TraderJobRepository extends JpaRepository<TraderJob, Long> {
 	
 	TraderJob findByIdAndAccount(Long id, Account account);
+    List<TraderJob> findAllByStrategyAndStateOrderByDateTimeAsc(String strategy, Integer state);
     List<TraderJob> findAllByStateOrderByDateTimeAsc(Integer state);
 	List<TraderJob> findAllByAccountAndMarketCoinOrderByStateAscDateTimeDesc(Account account, String marketCoin);
 

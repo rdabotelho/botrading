@@ -104,7 +104,8 @@ public class Trader implements Serializable, ITrader {
     private LocalDateTime stateDateTime;
         
     public Trader() {
-    		this.profit = BigDecimal.ZERO;
+    	this.profit = BigDecimal.ZERO;
+    	this.orders = new ArrayList<>();
     }
     
 	public Long getId() {

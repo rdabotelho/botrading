@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.m2r.botrading.admin.observer.UltimateObserver;
 import com.m2r.botrading.admin.service.IExchangeManager;
-import com.m2r.botrading.admin.strategy.UltimateStrategy;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IApiAccess;
 import com.m2r.botrading.api.service.IExchangeBasic;
@@ -29,7 +29,7 @@ public class ExchengeWSServer {
 	IExchangeManager exchangeManager;
     
     @Autowired
-    UltimateStrategy ultimateStrategy;
+    UltimateObserver ultimateObserver;
     
 	private ExchangeWSServer server;
 	
@@ -56,7 +56,7 @@ public class ExchengeWSServer {
 				.build();
 		server.start();
 		server.waitToConnect();
-		ultimateStrategy.init();
+		ultimateObserver.init();
 	}
 	
 	@PreDestroy

@@ -15,11 +15,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.m2r.botrading.admin.observer.UltimateObserver;
 import com.m2r.botrading.api.model.IIntention;
 import com.m2r.botrading.api.model.IIntentionRequest;
 import com.m2r.botrading.api.service.IStrategyManager;
@@ -27,6 +29,7 @@ import com.m2r.botrading.api.strategy.IStrategy;
 import com.m2r.botrading.strategy.CatLeapStrategy;
 import com.m2r.botrading.strategy.DynamicStrategy;
 import com.m2r.botrading.strategy.RandomCoinsStrategy;
+import com.m2r.botrading.strategy.UltimateStrategy;
 import com.m2r.botrading.ws.IntentionClient;
 
 import rx.functions.Action1;
@@ -44,11 +47,15 @@ public class StrategyManagerImpl implements Action1<IIntention>, IStrategyManage
 	private List<IIntentionRequest> intentionRequestsBook = new ArrayList<>();
 	private List<IStrategy> strategies = new ArrayList<>();
 	
+	@Autowired
+	UltimateObserver ultimateObserver;
+			
 	@PostConstruct	
 	private void init() {
-		strategies.addAll(loadDynamicStrategies());
+		//strategies.addAll(loadDynamicStrategies());
 		strategies.add(new CatLeapStrategy());
-		strategies.add(new RandomCoinsStrategy());
+		//strategies.add(new RandomCoinsStrategy());
+		strategies.add(new UltimateStrategy());
 		client = IntentionClient.build(WS_URL, this).start();
 	}
 	
