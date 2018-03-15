@@ -30,6 +30,7 @@ public class ExchangeWSClientBuilder {
 	}
 	
 	public static interface WithChartdata30Action {
+		public WithChartdata30Action withExchangeWSServer(ExchangeWSServer exchangeWSServer);
 		public Builder withChartdata30Action(Action2<String,String> chartdata30Action);
 	}
 	

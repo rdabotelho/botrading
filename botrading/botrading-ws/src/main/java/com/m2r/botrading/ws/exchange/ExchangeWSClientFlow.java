@@ -18,11 +18,18 @@ public class ExchangeWSClientFlow implements WithUrl, WithTickerAction, WithLiqu
 	private Action1<String> tickerAction; 
 	private Action1<String> liquidedAction; 
 	private Action1<String> canceledAction;
-	private Action2<String,String> chartdata30Action; 
+	private Action2<String,String> chartdata30Action;
+	private ExchangeWSServer exchangeWSServer;
 	
 	@Override
 	public ExchangeWSClient build() {
-		return new ExchangeWSClient(service, url, chartdata30Action, tickerAction, liquidedAction, canceledAction);
+		return new ExchangeWSClient(service, url, exchangeWSServer, chartdata30Action, tickerAction, liquidedAction, canceledAction);
+	}
+	
+	@Override
+	public WithChartdata30Action withExchangeWSServer(ExchangeWSServer exchangeWSServer) {
+		this.exchangeWSServer = exchangeWSServer;
+		return this;
 	}
 
 	@Override

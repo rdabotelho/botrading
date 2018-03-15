@@ -103,11 +103,11 @@ public class ExchangeWSServer {
             @Override
             public void call(WampClient.State t1) {
                 if (t1 instanceof WampClient.ConnectedState) {
-                    initProcSubscription = client.registerProcedure(ExchangeTopicEnum.INIT.getId()).subscribe(new Action1<Request>() {
+                    initProcSubscription = client.registerProcedure(ExchangeTopicEnum.UPDATE.getId()).subscribe(new Action1<Request>() {
                         @Override
                         public void call(Request request) {
                         	try {
-                        		init(request);
+                        		update(request);
                         	}
                         	catch (Exception e) {
                         		setError(request, e);
@@ -243,7 +243,7 @@ public class ExchangeWSServer {
 							if (service.isOrderExecuted(apiAccess, orderNumber)) {
 								topic = ExchangeTopicEnum.LIQUIDED; 
 							}
-							publish(topic, String.format("{\"orderNumber\":\"%s\"}", orderNumber));
+							publish(topic, new JsonOrderResult(orderNumber));
 							orderNumbers.remove(orderNumber);
 						}
 					} catch (Exception e) {
@@ -283,24 +283,29 @@ public class ExchangeWSServer {
 	 * Exchange Actions
 	 */
 	
-	public void init(Request request) throws Exception {
+	public void update(Request request) throws Exception {
 		Set<String> list = new Gson().fromJson(request.arguments().get(0).asText(), new TypeToken<Set<String>>(){}.getType());
 		orderNumbers.addAll(list);
 		setSuccess(request);
 	}
 	
-	public void buy(Request request) throws Exception {
-		
-		System.out.println("################################# BUY ################################");
-		
+	public String buy(String currencyPair, String price, String amount) throws Exception {
+		return service.buy(apiAccess, currencyPair, price, amount);
+	}
+	
+	protected void buy(Request request) throws Exception {
 		String currencyPair = request.arguments().get(0).asText();
 		String price = request.arguments().get(1).asText();
 		String amount = request.arguments().get(2).asText();
-		String orderNumber = "0001";//service.buy(apiAccess, currencyPair, price, amount);
+		String orderNumber = service.buy(apiAccess, currencyPair, price, amount);
 		setOrderSuccess(request, orderNumber);
 	}
 	
-	public void sell(Request request) throws Exception {
+	public String sell(String currencyPair, String price, String amount) throws Exception {
+		return service.sell(apiAccess, currencyPair, price, amount);
+	}
+	
+	protected void sell(Request request) throws Exception {
 		String currencyPair = request.arguments().get(0).asText();
 		String price = request.arguments().get(1).asText();
 		String amount = request.arguments().get(2).asText();
@@ -308,7 +313,11 @@ public class ExchangeWSServer {
 		setOrderSuccess(request, orderNumber);
 	}
 	
-	public void cancel(Request request) throws Exception {
+	public void cancel(String currencyPair, String orderNumber) throws Exception {
+		service.cancel(apiAccess, currencyPair, orderNumber);
+	}
+	
+	protected void cancel(Request request) throws Exception {
 		String currencyPair = request.arguments().get(0).asText();
 		String orderNumber = request.arguments().get(1).asText();
 		service.cancel(apiAccess, currencyPair, orderNumber);		

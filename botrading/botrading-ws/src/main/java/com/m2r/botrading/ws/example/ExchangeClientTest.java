@@ -5,9 +5,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -51,32 +49,8 @@ public class ExchangeClientTest {
 
 		client.waitToConnect();
 		
-		test();
-		
 		waitUntilKeypressed();
 		client.close();
-	}
-	
-	private static void test() throws Exception {
-		Set<String> on = new HashSet<>();
-		on.add("64532048444");
-		on.add("59701378050");
-		on.add("190962194823");
-		
-		client.init(on);
-		
-		//String id = client.sell("BTC_LTC", "0.01834100", "0.00818522");
-		
-		//Thread.sleep(5*60000);
-		
-		//client.cancel("BTC_LTC", id);
-		
-//		LocalDateTime end = LocalDateTime.of(2018, 3, 3, 0, 0);
-//		LocalDateTime start = end.minusDays(30);		
-//		IChartDataList list = client.getChartData("BTC_LTC", PoloniexDataChartPeriod.FIVE_MINUTES, start, end);
-//		System.out.println(list);
-//		
-//		System.out.println("fim");
 	}
 
 	private static void waitUntilKeypressed() {

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +55,7 @@ public class OrderScheduledTasks {
 		//orderTaskTimeCounter.ifTimeoutExecute();
 		//synchTaskTimeCounter.ifTimeoutExecute();
 		//catLeapTaskTimeCounter.ifTimeoutExecute();
-		ultimateTaskTimeCounter.ifTimeoutExecute();
+		//ultimateTaskTimeCounter.ifTimeoutExecute();
 	}
 	
 	private void executeOrdersTask() {
@@ -96,10 +97,11 @@ public class OrderScheduledTasks {
 		}
 	}
 	
+	@Async
 	private void executeUltimateTask() {
 		try {
 			IExchangeService service = exchangeManager.getExchangeService(); 
-			UltimateSimulator.execute(service, Currency.BTC);
+			UltimateSimulator.execute(service, Currency.BTC, true);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

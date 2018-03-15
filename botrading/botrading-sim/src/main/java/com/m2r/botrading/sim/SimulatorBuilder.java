@@ -49,7 +49,7 @@ public class SimulatorBuilder {
 		public Simulator build();
 	}
 	public static interface Simulator {
-		public void run();
+		public void run(boolean withLog);
 		public String getCoin();
 		public BigDecimal getAmount();
 		public Integer getTotal();

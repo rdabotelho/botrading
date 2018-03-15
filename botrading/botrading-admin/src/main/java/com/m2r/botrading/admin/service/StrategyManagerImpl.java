@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.m2r.botrading.admin.observer.UltimateObserver;
+import com.m2r.botrading.admin.observer.strategies.UltimateObserver;
 import com.m2r.botrading.api.model.IIntention;
 import com.m2r.botrading.api.model.IIntentionRequest;
 import com.m2r.botrading.api.service.IStrategyManager;

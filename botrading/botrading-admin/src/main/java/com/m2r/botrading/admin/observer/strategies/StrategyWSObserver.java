@@ -1,7 +1,6 @@
-package com.m2r.botrading.admin.observer;
+package com.m2r.botrading.admin.observer.strategies;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.Trader;
 import com.m2r.botrading.admin.model.TraderJob;
+import com.m2r.botrading.admin.observer.BaseWSObserver;
+import com.m2r.botrading.admin.observer.OrderAction;
 import com.m2r.botrading.admin.repositories.OrderRepository;
 import com.m2r.botrading.admin.repositories.TraderJobRepository;
 import com.m2r.botrading.admin.repositories.TraderRepository;
@@ -23,16 +24,14 @@ import com.m2r.botrading.sim.clplus.Candle;
 
 public abstract class StrategyWSObserver extends BaseWSObserver {
 
-	private static final BigDecimal sellFactor = new BigDecimal("1.0");
-	
     @Autowired
-    private TraderJobRepository traderJobRepository;
+    TraderJobRepository traderJobRepository;
     
     @Autowired
-    private TraderRepository traderRepository;
+    TraderRepository traderRepository;
     
     @Autowired
-    private OrderRepository orderRepository;
+    OrderRepository orderRepository;
     
 	public List<TraderJob> findStartedTradersJobByStrategy(String strategy) {
 		return traderJobRepository.findAllByStrategyAndStateOrderByDateTimeAsc(strategy, TraderJob.STATE_STARTED);
@@ -41,16 +40,12 @@ public abstract class StrategyWSObserver extends BaseWSObserver {
 	public void opportunityFound(IExchangeService service, String currencyPair, Candle candle, OrderAction action) throws Exception {
 		List<TraderJob> tradersJob = findStartedTradersJobByStrategy(getStrategy());
 		for (TraderJob traderJob : tradersJob) {
-			if (!traderJob.isStarted()) {
-				continue;
-			}
-
 			if (!traderJob.getContinuoMode()) {
 				continue;
 			}
 			
 			Currency currency = service.getCurrencyFactory().currencyPairToCurrency(currencyPair, service);
-			if (!filter(currency, 5)) {
+			if (!filter(traderJob, currency)) {
 				continue;
 			}
 			
@@ -61,13 +56,6 @@ public abstract class StrategyWSObserver extends BaseWSObserver {
 	    		
 			int countOfNewCoins = (int) (traderJob.getCurrencyCount() - countOfRunningCoins);
 			if (countOfNewCoins > 0) {
-				
-				// Eliminate the duplicity
-				List<String> ignoredCoins = new ArrayList<>();
-				List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
-				for (Trader t : tradersToIgnoreCoin) {
-					ignoredCoins.add(t.getCoin());
-				}
 
 				// Get the used value
 				BigDecimal used = traderRepository.sumInvestmentByTraderJobAndStateIn(traderJob, Trader.STATE_NEW, Trader.STATE_STARTED);
@@ -78,8 +66,9 @@ public abstract class StrategyWSObserver extends BaseWSObserver {
 				// calculate the new investment
 				BigDecimal investment = CalcUtil.divide(CalcUtil.subtract(traderJob.getBalance(), used), new BigDecimal(new Integer(countOfNewCoins).toString()));
 				
-				BigDecimal buyPrice = candle.getClose();
-				BigDecimal sellPrice = CalcUtil.add(buyPrice, CalcUtil.multiply(candle.getLength(), sellFactor));
+				BigDecimal buyPrice = calculateBuyPrice(candle);
+				BigDecimal sellPrice = calculateSellPrice(candle);
+				
 				IOrderIntent orderIntent = new OrderIntent(currency, buyPrice, sellPrice, true);
 				
 				// Create trader and its orders
@@ -108,8 +97,16 @@ public abstract class StrategyWSObserver extends BaseWSObserver {
     }
 	
 	protected abstract String getStrategy();
+	protected abstract BigDecimal calculateBuyPrice(Candle candle);
+	protected abstract BigDecimal calculateSellPrice(Candle candle);
 	
-	protected boolean filter(Currency currency, int count) {
+	protected boolean filter(TraderJob traderJob, Currency currency) {
+		List<Trader> tradersToIgnoreCoin = traderRepository.findAllByTraderJobAndStateNotIn(traderJob, Order.STATE_LIQUIDED, Order.STATE_CANCELED);
+		for (Trader t : tradersToIgnoreCoin) {
+			if (t.getCoin().equals(currency.getId()) && t.getTraderJob().getMarketCoin().equals(currency.getMarketCoin().getId())) {
+				return false;
+			}
+		}
 		return true;
 	}
 	
@@ -121,5 +118,5 @@ public abstract class StrategyWSObserver extends BaseWSObserver {
 	
 	public void whenCanceled(String json) {
 	}
-
+	
 }

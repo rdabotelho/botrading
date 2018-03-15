@@ -1,5 +1,8 @@
 package com.m2r.botrading.admin.ws;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
@@ -8,7 +11,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.m2r.botrading.admin.observer.UltimateObserver;
+import com.m2r.botrading.admin.model.Order;
+import com.m2r.botrading.admin.observer.SynchWSObserver;
+import com.m2r.botrading.admin.observer.strategies.UltimateObserver;
+import com.m2r.botrading.admin.repositories.AccountRepository;
+import com.m2r.botrading.admin.repositories.OrderRepository;
 import com.m2r.botrading.admin.service.IExchangeManager;
 import com.m2r.botrading.api.model.Currency;
 import com.m2r.botrading.api.model.IApiAccess;
@@ -31,19 +38,20 @@ public class ExchengeWSServer {
     @Autowired
     UltimateObserver ultimateObserver;
     
+    @Autowired
+    SynchWSObserver synchWSObserver;
+    
+    @Autowired
+    AccountRepository accountRepository;
+    
+    @Autowired
+    OrderRepository orderRepository;
+    
 	private ExchangeWSServer server;
 	
 	@PostConstruct
 	void init() {
-		IApiAccess apiAccess = new IApiAccess() {
-			public String getSecretKey() {
-				return "c034c84ba459f281e3c5ad43694f3f24d024316bb30bdb8a0071f38879b56424b976a5613da101ecf256ae8a43e100ad835d37040b46d607c4738402cfd828e0";
-			}
-			@Override
-			public String getApiKey() {
-				return "A6MSDX56-KPVBAZED-YJ53MWN6-GN8JWZ0X";
-			}
-		};
+		IApiAccess apiAccess = accountRepository.findAll().stream().findFirst().orElse(null);
 		
 		IExchangeBasic service = exchangeManager.getExchangeService(); 
 		server = ExchangeWSServerBuilder
@@ -52,16 +60,28 @@ public class ExchengeWSServer {
 				.withPort(8880)
 				.withChannel(CHANNEL)
 				.withoutTicker()
-				.withChartdata30Push(PoloniexConst.TOP_20(Currency.BTC), PoloniexDataChartPeriod.FIVE_MINUTES)
+				.withChartdata30Push(PoloniexConst.TOP_5(Currency.BTC), PoloniexDataChartPeriod.FIVE_MINUTES)
 				.build();
 		server.start();
 		server.waitToConnect();
-		ultimateObserver.init();
+		
+		Set<String> orderNumbers = orderRepository.findAllByStateIn(Order.STATE_ORDERED)
+				.stream()
+				.filter(it->it.getOrderNumber()!=null)
+				.map(it->it.getOrderNumber())
+				.collect(Collectors.toSet());
+		
+		ultimateObserver.init(server).update(orderNumbers);
+		synchWSObserver.init(server);
 	}
 	
 	@PreDestroy
 	void finish() {
 		server.close();
+	}
+	
+	public ExchangeWSServer getServer() {
+		return server;
 	}
 	
 }

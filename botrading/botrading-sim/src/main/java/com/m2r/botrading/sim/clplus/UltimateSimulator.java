@@ -18,7 +18,7 @@ public class UltimateSimulator {
 	private static boolean concluded = false;
 	private static List<Simulator> simmulators = new ArrayList<>();
 	
-	public static void execute(IExchangeService service, String marketCoin) throws Exception {
+	public static void execute(IExchangeService service, String marketCoin, boolean logOnlySummary) throws Exception {
 		LocalDateTime from = LocalDateTime.now().minusDays(30);
 		LocalDateTime to = LocalDateTime.now();
 		
@@ -26,13 +26,7 @@ public class UltimateSimulator {
 		
 		SimulatorBuilder builder = new SimulatorBuilder();
 
-		int i = 0;
 		for (String currencyPair : PoloniexConst.TOP_20(Currency.BTC)) {
-			i++;
-			if (i > 3) {
-				break;
-			}
-			
 			Currency currency = service.getCurrencyFactory().currencyPairToCurrency(currencyPair, service);
 			
 			Simulator simmulator = builder
@@ -48,9 +42,7 @@ public class UltimateSimulator {
 					.withoutDelayToBuy()
 					.build();
 				
-			simmulator.run();
-			
-			UltimateReport.print("");
+			simmulator.run(!logOnlySummary);
 			
 			simmulatorsTemp.add(simmulator);
 		}
@@ -78,7 +70,7 @@ public class UltimateSimulator {
 	
 	public static void main(String[] args) throws Exception {
 		IExchangeService service = new PoloniexExchange().init();		
-		execute(service, Currency.BTC);
+		execute(service, Currency.BTC, false);
 	}
 	
 }

@@ -3,7 +3,6 @@ package com.m2r.botrading.ws.example;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 
 import com.m2r.botrading.api.model.IIntention;
 import com.m2r.botrading.ws.Intention;

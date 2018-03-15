@@ -265,12 +265,16 @@ public class Order implements Serializable, IOrder {
 		return getPending();
 	}
 	
-	public boolean isExpired() {
+	public boolean isExpired(Integer timeout) {
 		if (isOrdered()) {
 			long minutes = this.getDateTime().until(LocalDateTime.now(), ChronoUnit.MINUTES);
-			return minutes > getTrader().getTraderJob().getTimeToCancel();
+			return minutes > timeout;
 		}
-		return false;
+		return false;		
+	}
+	
+	public boolean isExpired() {
+		return isExpired(getTrader().getTraderJob().getTimeToCancel());
 	}
 	
 	public String getStateName() {

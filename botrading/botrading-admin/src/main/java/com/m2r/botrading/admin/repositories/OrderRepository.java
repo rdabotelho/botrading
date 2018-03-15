@@ -17,6 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	List<Order> findAllByTraderAndPendingAndStateIn(Trader trader, Boolean pending, Integer ... states);
 	List<Order> findAllByStateIn(Integer ... states);
 	List<Order> findAllByTraderAndStateAndKind(Trader trader, Integer state, Integer kind);
+	Order findByOrderNumber(String orderNumber);
 	Order findByTraderAndParcelAndKind(Trader trader, Integer parcel, Integer kind);
 	long countByTraderAndState(Trader trader, Integer state);
 	long countByTraderAndStateNotIn(Trader trader, Integer ... states);

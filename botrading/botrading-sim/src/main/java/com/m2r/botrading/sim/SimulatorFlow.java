@@ -46,6 +46,7 @@ public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISim
 	
 	private BigDecimal priceToBuy;
 	private boolean waitToOut = false;
+	private boolean withLog;
 	
 	public ISimulatorMarketCoin withService(IExchangeService service) {
 		this.service = service;
@@ -127,7 +128,8 @@ public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISim
 	}
 	
 	@Override
-	public void run() {
+	public void run(boolean withLog) {
+		this.withLog = withLog;
 		LocalDateTime start = from.withHour(0).withMinute(0).withSecond(0).withNano(0).minusHours(TIME_DIFERENCE);
 		LocalDateTime stop =  to.withHour(0).withMinute(0).withSecond(0).withNano(0).minusHours(TIME_DIFERENCE);
 		try {
@@ -361,7 +363,9 @@ public class SimulatorFlow implements ISimulatorMarketCoin, ISimulatorCoin, ISim
 	}
 	
 	private void log(String msg) {
-		System.out.println(msg);
+		if (withLog) {
+			System.out.println(msg);
+		}
 	}
 	
 	private boolean isStopLoss() {

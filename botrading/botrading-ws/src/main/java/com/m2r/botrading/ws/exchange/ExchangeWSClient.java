@@ -1,21 +1,16 @@
 package com.m2r.botrading.ws.exchange;
 
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.exception.ExchangeException;
 import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.service.IExchangeBasic;
-import com.m2r.botrading.api.util.JsonException;
-import com.m2r.botrading.api.util.JsonSuccess;
 
 import rx.Observable;
 import rx.Subscription;
@@ -34,6 +29,7 @@ public class ExchangeWSClient {
 	private IExchangeBasic service;
 	private String url;
 	private boolean connected;
+	private ExchangeWSServer exchangeWSServer;
 	private Action2<String,String> chardata30;
 	private Action1<String> ticker;
 	private Action1<String> liquided;
@@ -45,10 +41,11 @@ public class ExchangeWSClient {
     private Subscription soldSubscription;
     private Subscription canceledSubscription;
     
-	protected ExchangeWSClient(IExchangeBasic service, String url, Action2<String,String> chardata30, Action1<String> action, Action1<String> liquided, Action1<String> canceled) {
+	protected ExchangeWSClient(IExchangeBasic service, String url, ExchangeWSServer exchangeWSServer, Action2<String,String> chardata30, Action1<String> action, Action1<String> liquided, Action1<String> canceled) {
 		this.service = service;
 		this.connected = false;
 		this.url = url;
+		this.exchangeWSServer = exchangeWSServer;
 		this.chardata30 = chardata30;
 		this.ticker = action;
 		this.liquided = liquided;
@@ -112,6 +109,10 @@ public class ExchangeWSClient {
 		}		
 	}
 	
+	public ExchangeWSServer getExchangeWSServer() {
+		return exchangeWSServer;
+	}
+	
 	public void close() {
 		if (tickerSubscription != null) {
 			tickerSubscription.unsubscribe();
@@ -136,27 +137,35 @@ public class ExchangeWSClient {
 	 * Exchange Actions
 	 */
 	
-	public void init(Set<String> initialOrderNumbers) throws ExchangeException {
-		String json = new Gson().toJson(initialOrderNumbers);
-		SyncCall.of(client).call(ExchangeTopicEnum.INIT, JsonSuccess.class, json);
+	public void update(Set<String> orderNumbers) throws ExchangeException {
+		String json = new Gson().toJson(orderNumbers);
+		SyncCall.of(client).call(ExchangeTopicEnum.UPDATE, json);
 		LOG.log(Level.INFO, "Init success ");
 	}
 	
-	public String buy(String currencyPair, String price, String amount) throws ExchangeException {
-		JsonSuccess result = SyncCall.of(client).call(ExchangeTopicEnum.BUY, JsonSuccess.class, currencyPair, price, amount);
-		LOG.log(Level.INFO, "Buy ("+result.getOrderNumber()+") ordered in the exchange");
-		return result.getOrderNumber();
+	public String buy(String currencyPair, String price, String amount) throws Exception {
+		return exchangeWSServer.buy(currencyPair, price, amount);
 	}
 	
-	public String sell(String currencyPair, String price, String amount) throws ExchangeException {
-		JsonSuccess result = SyncCall.of(client).call(ExchangeTopicEnum.SELL, JsonSuccess.class, currencyPair, price, amount);
-		LOG.log(Level.INFO, "Sell ("+result.getOrderNumber()+") ordered in the exchange");
-		return result.getOrderNumber();
+	public CallResult remoteBuy(String currencyPair, String price, String amount) throws ExchangeException {
+		return SyncCall.of(client).call(ExchangeTopicEnum.BUY, currencyPair, price, amount);
 	}
 	
-	public void cancel(String currencyPair, String orderNumber) throws ExchangeException {
-		SyncCall.of(client).call(ExchangeTopicEnum.CANCEL, JsonSuccess.class, currencyPair, orderNumber);
-		LOG.log(Level.INFO, "Cancel order ("+orderNumber+") in the exchange");
+	public String sell(String currencyPair, String price, String amount) throws Exception {
+		return exchangeWSServer.sell(currencyPair, price, amount);
+	}
+	
+	public CallResult remoteSell(String currencyPair, String price, String amount) throws ExchangeException {
+		return SyncCall.of(client).call(ExchangeTopicEnum.SELL, currencyPair, price, amount);
+	}
+	
+	public void cancel(String currencyPair, String orderNumber) throws Exception {
+		exchangeWSServer.cancel(currencyPair, orderNumber);
+		
+	}
+	
+	public CallResult remoteCancel(String currencyPair, String orderNumber) throws ExchangeException {
+		return SyncCall.of(client).call(ExchangeTopicEnum.CANCEL, currencyPair, orderNumber);
 	}
 	
 	public IChartDataList getChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
@@ -165,70 +174,16 @@ public class ExchangeWSClient {
 	
 	static class SyncCall {
 		
-		private static int TIMEOUT = 10000;
-		
 		private WampClient client;
-		private boolean callReady = false;
-		private String callResult = null;
-		private Throwable callException = null;
 		public static SyncCall of(WampClient client) {
 			return new SyncCall(client);
 		}
 		private SyncCall(WampClient client) {
 			this.client = client;
 		}
-		@SuppressWarnings("unchecked")
-		public <T> T call(ExchangeTopicEnum topic, Type typeOf, Object ... args) throws ExchangeException {
+		public CallResult call(ExchangeTopicEnum topic, Object ... args) throws ExchangeException {
 	        Observable<String> result = client.call(topic.getId(), String.class, args);
-	        client.call(topic.name().toLowerCase(), String.class, args);
-	        result.subscribe(
-	        	new Action1<String>() {
-		            @Override
-		            public void call(String data) {
-		            	callResult = data;
-		            	callReady = true;
-		            }
-	        	}, 
-	        	new Action1<Throwable>() {
-		            @Override
-		            public void call(Throwable t1) {
-		            	callException = t1;
-		            	callReady = true;
-		            }
-	        	}
-	        );
-	        
-	        int timeout = TIMEOUT;
-	        while (!callReady) {
-	        	try {
-					Thread.sleep(1000);
-					timeout -= 1000;
-					if (timeout <= 0) {
-						throw new ExchangeException("Timeout in call "+topic.getId());
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-	        }
-	        if (callException != null) {
-	        	throw new ExchangeException(callException);
-	        }
-	        try {
-				return (T) parseReturn(callResult, typeOf);
-			} 
-	        catch (JsonException e) {
-				throw new ExchangeException(e);
-			}			
-		}
-		
-		@SuppressWarnings("unchecked")
-		private <T> T parseReturn(String data, Type typeOf) throws JsonException {
-			Gson gson = new Gson();
-			if (data.startsWith("{\"error\"")) {
-				Map<String, Object> result = gson.fromJson(data, new TypeToken<Map<String, Object>>(){}.getType());
-				throw new JsonException(result.get("error").toString());
-			}
-			return (T) gson.fromJson(data, typeOf);
+	        return CallResult.of(result);
 		}
 		
 	}

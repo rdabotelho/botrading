@@ -2,7 +2,7 @@ package com.m2r.botrading.ws.exchange;
 
 public enum ExchangeTopicEnum {
 
-	INIT("botrading.ws.init"),
+	UPDATE("botrading.ws.update"),
 	BUY("botrading.ws.buy"), 
 	SELL("botrading.ws.sell"), 	 
 	CANCEL("botrading.ws.cancel"), 

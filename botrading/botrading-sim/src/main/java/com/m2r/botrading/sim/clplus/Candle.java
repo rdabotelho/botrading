@@ -20,6 +20,7 @@ public class Candle {
 	private BigDecimal low;
 	private LocalDateTime date;
 	private BigDecimal firstClose;
+	private String orderNumber;
 
 	public Candle(String coin, BigDecimal candleSizeFactor) {
 		this.coin = coin;
@@ -103,6 +104,14 @@ public class Candle {
 	public BigDecimal getAngle() {
 		double angle = 90 - Math.toDegrees(Math.atan((this.close.doubleValue() / this.firstClose.doubleValue())*100));
 		return BigDecimal.valueOf(angle);
+	}
+
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 	
 }
