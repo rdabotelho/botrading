@@ -86,7 +86,7 @@ public abstract class ExchangeService implements IExchangeService {
 	 * @return IBalanceList
 	 * @throws ExchangeException
 	 */
-	protected abstract IBalanceList getBanlances(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException;
+	public abstract IBalanceList getBanlances(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException;
 	
 	/**
 	 * Method which get all orders of an account through the API access.

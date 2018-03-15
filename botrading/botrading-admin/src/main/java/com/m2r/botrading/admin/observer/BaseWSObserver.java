@@ -15,6 +15,7 @@ import com.m2r.botrading.admin.model.Order;
 import com.m2r.botrading.admin.model.TraderJob;
 import com.m2r.botrading.admin.repositories.TraderJobRepository;
 import com.m2r.botrading.admin.service.IExchangeManager;
+import com.m2r.botrading.api.model.ITrader;
 import com.m2r.botrading.api.service.IExchangeBasic;
 import com.m2r.botrading.api.util.CalcUtil;
 import com.m2r.botrading.sim.clplus.Candle;
@@ -103,9 +104,11 @@ public abstract class BaseWSObserver {
 	
 	public void sell(String currencyPair, Order order) {
 		try {
+			BigDecimal amountToSell = calculateAmountToImmediateSell(order.getTrader(), order.getAmount());
 			String price = CalcUtil.formatUS(order.getPrice());
-			String amount = CalcUtil.formatUS(order.getAmount());
+			String amount = CalcUtil.formatUS(amountToSell);
 			String orderNumber = client.sell(currencyPair, price, amount);
+			order.setAmount(amountToSell);
 			order.setOrderNumber(orderNumber);
 			order.setPending(true);
 			LOG.info("Order (sell) " + order.getOrderNumber() + " created in the exchange.");
@@ -129,6 +132,19 @@ public abstract class BaseWSObserver {
 			LOG.warning("Cancel order " + order.getOrderNumber() + " not created in the exchange due to error: " + order.getLog());					
 		}
 	}
+	
+	protected BigDecimal calculateAmountToImmediateSell(ITrader trader, BigDecimal amount) {
+	    	try {
+		    	BigDecimal availableBalance = client.getExchangeWSServer().getAvailableBalance(trader.getCoin(), trader.getTraderJob().getAccount());
+		    	if (availableBalance == null) {
+		    		return amount;
+		    	}
+		    	return CalcUtil.greaterThen(availableBalance, amount) ? amount : availableBalance;
+	    	}
+	    	catch (Exception e) {
+	    		return amount;
+	    	}
+	}	
 	
 	public abstract void whenTicker(String json);
 	

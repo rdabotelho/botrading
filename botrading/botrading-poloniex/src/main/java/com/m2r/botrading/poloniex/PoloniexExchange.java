@@ -269,7 +269,7 @@ public class PoloniexExchange extends ExchangeService {
 	}
 
 	@Override
-	protected IBalanceList getBanlances(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException {
+	public IBalanceList getBanlances(IApiAccess apiAccess, IExchangeSession session) throws ExchangeException {
 		try {
 			Map<String, IBalance>  map = commandCompleteBalances(apiAccess);
 			return BalanceList.of(map);

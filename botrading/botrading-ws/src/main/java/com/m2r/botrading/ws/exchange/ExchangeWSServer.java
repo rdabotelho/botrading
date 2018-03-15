@@ -1,5 +1,6 @@
 package com.m2r.botrading.ws.exchange;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -11,12 +12,15 @@ import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.m2r.botrading.api.model.IApiAccess;
+import com.m2r.botrading.api.model.IBalance;
+import com.m2r.botrading.api.model.IBalanceList;
 import com.m2r.botrading.api.model.IChartDataList;
 import com.m2r.botrading.api.model.IDataChartPeriod;
 import com.m2r.botrading.api.model.IExchangeOrder;
 import com.m2r.botrading.api.model.IOrderList;
 import com.m2r.botrading.api.model.ITicker;
 import com.m2r.botrading.api.model.ITickerList;
+import com.m2r.botrading.api.service.ExchangeService;
 import com.m2r.botrading.api.service.IExchangeBasic;
 
 import rx.Subscription;
@@ -322,6 +326,15 @@ public class ExchangeWSServer {
 		String orderNumber = request.arguments().get(1).asText();
 		service.cancel(apiAccess, currencyPair, orderNumber);		
 		setSuccess(request);
+	}
+	
+	public BigDecimal getAvailableBalance(String coin, IApiAccess apiAccess) throws Exception {
+    		IBalance balance =  this.getBanlances(apiAccess).getBalance(coin);
+    		return balance != null ? balance.getAvailable() : null;
+	}
+	
+	public IBalanceList getBanlances(IApiAccess apiAccess) throws Exception {
+		return ((ExchangeService) service).getBanlances(apiAccess, null);
 	}
 	
 	private void setError(Request request, Exception e) {

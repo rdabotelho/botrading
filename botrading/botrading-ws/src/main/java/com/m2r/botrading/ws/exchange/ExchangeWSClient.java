@@ -167,7 +167,7 @@ public class ExchangeWSClient {
 	public CallResult remoteCancel(String currencyPair, String orderNumber) throws ExchangeException {
 		return SyncCall.of(client).call(ExchangeTopicEnum.CANCEL, currencyPair, orderNumber);
 	}
-	
+		
 	public IChartDataList getChartData(String currencyPair, IDataChartPeriod period, LocalDateTime start, LocalDateTime end) throws ExchangeException {
 		return service.getAllChartData(currencyPair, period, start, end);
 	}
